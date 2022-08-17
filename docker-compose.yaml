@@ -1,0 +1,21 @@
+services:
+  main:
+    build: ./MainService
+    ports:
+      - 3000:3000
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD
+      POSTGRES_USER: process.env.POSTGRES_USER
+      POSTGRES_DB: process.env.POSTGRES_DB
+    volumes:
+      - ./database
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
