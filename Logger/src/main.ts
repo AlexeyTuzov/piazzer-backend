@@ -1,4 +1,3 @@
-
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
@@ -9,7 +8,7 @@ async function bootstrap() {
         {
             transport: Transport.REDIS,
             options: {
-                host: 'localhost',
+                host: 'redis',
                 port: 6379
             }
         }
