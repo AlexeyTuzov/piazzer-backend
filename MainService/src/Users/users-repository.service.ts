@@ -1,7 +1,7 @@
 import { User } from './users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import createUserDto from './DTO/create-user.dto';
 import updateUserDto from './DTO/update-user.dto';
 import InternalServerError from '../exceptions/internal-server-error';

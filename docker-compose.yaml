@@ -4,6 +4,9 @@ services:
     ports:
       - 3000:3000
 
+  logger:
+    build: ./Logger
+
   db:
     image: postgres
     restart: always
