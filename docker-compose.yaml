@@ -3,6 +3,13 @@ services:
     build: ./MainService
     ports:
       - 3000:3000
+    environment:
+       - PORT=3000
+       - POSTGRES_HOST=db
+       - POSTGRES_USER=postgres
+       - POSTGRES_DB=docker-migrations
+       - POSTGRES_PASSWORD=root
+       - POSTGRES_PORT=5432
 
   logger:
     build: ./Logger
@@ -11,8 +18,9 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: docker-migrations
+       - POSTGRES_PASSWORD=root
+       - POSTGRES_DB=docker-migrations
+       - POSTGRES_USER=postgres
     volumes:
       - ./database
 
