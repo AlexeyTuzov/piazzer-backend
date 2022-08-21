@@ -3,13 +3,6 @@ services:
     build: ./MainService
     ports:
       - 3000:3000
-    environment:
-       - PORT=3000
-       - POSTGRES_HOST=db
-       - POSTGRES_USER=postgres
-       - POSTGRES_DB=docker-migrations
-       - POSTGRES_PASSWORD=root
-       - POSTGRES_PORT=5432
 
   logger:
     build: ./Logger
@@ -22,7 +15,9 @@ services:
        - POSTGRES_DB=docker-migrations
        - POSTGRES_USER=postgres
     volumes:
-      - ./database
+      - data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
 
 
   adminer:
@@ -37,3 +32,9 @@ services:
       - 6379:6379
     volumes:
       - ./redis
+
+volumes:
+  data:
+    driver: local
+  redis:
+    driver: local

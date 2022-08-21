@@ -10,27 +10,27 @@ export class UsersController {
     }
 
     @Post()
-    createUser(@Body() dto: createUserDto) {
+    create(@Body() dto: createUserDto) {
         return this.usersService.create(dto);
     }
 
     @Patch('/:id')
-    updateUser(@Param('id') id: string, @Body() dto: updateUserDto) {
+    update(@Param('id') id: string, @Body() dto: updateUserDto) {
         return this.usersService.update({...dto, id});
     }
 
     @Get('/:id')
-    getUserByID(@Param('id') id: string) {
+    getByID(@Param('id') id: string) {
         return this.usersService.getById(id);
     }
 
     @Get()
-    getAllUsers() {
+    getAll() {
         return this.usersService.getAll();
     }
 
     @Delete('/:id')
-    deleteUser(@Param('id') id: string) {
+    delete(@Param('id') id: string) {
         return this.usersService.delete(id);
     }
 }

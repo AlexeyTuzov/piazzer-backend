@@ -14,11 +14,11 @@ export default class UsersRepositoryService {
     async create(dto: createUserDto): Promise<string> {
         try {
             const newUser = await this.usersRepository.create(dto);
+            await this.usersRepository.save(newUser);
             return newUser.id;
         } catch (err) {
             throw new InternalServerError('User creation has been failed');
         }
-
     }
 
     async update(dto: updateUserDto) {
@@ -31,7 +31,7 @@ export default class UsersRepositoryService {
 
     async getAll(): Promise<User[]> {
         try {
-            return this.usersRepository.find();
+            return await this.usersRepository.find();
         } catch (err) {
             throw new InternalServerError('Users find has been failed');
         }
