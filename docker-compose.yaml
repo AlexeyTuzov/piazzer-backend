@@ -1,18 +1,15 @@
 services:
   main:
-    build: ./MainService
+    build: ./
     ports:
       - 3000:3000
-
-  logger:
-    build: ./Logger
 
   db:
     image: postgres
     restart: always
     environment:
        - POSTGRES_PASSWORD=root
-       - POSTGRES_DB=docker-migrations
+       - POSTGRES_DB=piazzer
        - POSTGRES_USER=postgres
     volumes:
       - data:/var/lib/postgresql/data
@@ -25,13 +22,6 @@ services:
     restart: always
     ports:
       - 8080:8080
-
-  redis:
-    image: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - ./redis
 
 volumes:
   data:
