@@ -1,5 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import UserRoles from './DTO/user-roles';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import UserRoles from './Enums/user-roles';
 import { Venue } from 'src/Venues/venues.entity';
 import { Meeting } from 'src/Meetings/meetings.entity';
 
@@ -24,9 +24,19 @@ export class User {
     @Column({ type: 'enum', enum: UserRoles, default: UserRoles.PARTICIPANT })
     role: UserRoles;
 
+    @Column({ type: 'boolean', default: false })
+    isBlocked: boolean;
+
+    @Column({ type: 'datetime', default: null })
+    deletedAt: string;
+
     @OneToMany(() => Venue, venue => venue.Owner)
     Venues: Venue[];
 
     @OneToMany(() => Meeting, meeting => meeting.Organiser)
-    Meetings: Meeting[];
+    OwnMeetings: Meeting[];
+
+    @ManyToMany(() => Meeting, meeting => meeting.Participants, {})
+    @JoinTable()
+    MeetingsToVisit: Meeting[];
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UseCases } from '../abstractions/UseCases';
 import createUserDto from './DTO/create-user.dto';
+import searchUserDto from './DTO/search-user.dto';
 import updateUserDto from './DTO/update-user.dto';
 import UsersRepositoryService from './users-repository.service';
 
@@ -18,7 +19,7 @@ export class UsersService implements UseCases {
 
     }
 
-    async getById(id: string) {
+    async getOne(dto: searchUserDto) {
 
     }
 
