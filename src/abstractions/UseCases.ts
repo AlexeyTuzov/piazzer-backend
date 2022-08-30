@@ -6,7 +6,7 @@ export abstract class UseCases {
 
     abstract getOne(id);
 
-    abstract getAll();
+    abstract getAll(dto);
 
     abstract delete(id);
 }

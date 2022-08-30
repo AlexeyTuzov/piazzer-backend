@@ -1,6 +1,14 @@
+import UserRoles from "../Enums/user-roles";
+
 export default class createUserDto {
+    
+    readonly email: string;
 
-    readonly firstName: string;
+    readonly password: string;
 
-    readonly lastName: string;
+    readonly name: string;
+
+    readonly phone: string;
+
+    readonly role: UserRoles;
 }

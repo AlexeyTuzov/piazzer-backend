@@ -1,6 +1,12 @@
+import UserRoles from "../Enums/user-roles";
+
 export default class searchUserDto {
 
-    readonly firstName: string;
+    readonly email?: string;
 
-    readonly lastName: string;
+    readonly name?: string;
+
+    readonly phone?: string;
+
+    readonly role?: UserRoles;
 }
