@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import createUserDto from './DTO/create-user.dto';
 import updateUserDto from './DTO/update-user.dto';
 import InternalServerError from '../exceptions/internal-server-error';
+import searchUserDto from './DTO/search-user.dto';
 
 @Injectable()
 export default class UsersRepositoryService {
@@ -25,7 +26,9 @@ export default class UsersRepositoryService {
 
     }
 
-    async getById(id: string) {
+    async getOne(dto: searchUserDto) {
+        const foundUser = await this.usersRepository.findOne({where: {...dto}});
+        return foundUser;
 
     }
 
