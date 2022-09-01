@@ -12,7 +12,7 @@ export class AuthService {
         private userService: UsersService) {
     }
 
-    async logIn(dto: logInUserDto) {
+    async signIn(dto: logInUserDto) {
 
         const foundUser = await this.userService.getOne(dto);
         if (!foundUser) {

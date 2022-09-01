@@ -1,7 +1,8 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import UserRoles from './Enums/user-roles';
 import { Venue } from 'src/Venues/venues.entity';
-import { Meeting } from 'src/Meetings/meetings.entity';
+import { Event } from 'src/Events/events.entity';
+import { Communication } from 'src/Communications/Communications.entity';
 
 @Entity()
 export class User {
@@ -18,9 +19,6 @@ export class User {
     @Column({ type: 'varchar' })
     name: string;
 
-    @Column({ type: 'varchar' })
-    phone: string;
-
     @Column({ type: 'enum', enum: UserRoles, default: UserRoles.PARTICIPANT })
     role: UserRoles;
 
@@ -30,13 +28,16 @@ export class User {
     @Column({ type: 'datetime', default: null })
     deletedAt: string;
 
+    @OneToMany(() => Communication, comm => comm.User)
+    Communications: Communication[];
+
     @OneToMany(() => Venue, venue => venue.Owner)
     Venues: Venue[];
 
-    @OneToMany(() => Meeting, meeting => meeting.Organiser)
-    OwnMeetings: Meeting[];
+    @OneToMany(() => Event, event => event.Organiser)
+    OwnMeetings: Event[];
 
-    @ManyToMany(() => Meeting, meeting => meeting.Participants, {})
+    @ManyToMany(() => Event, event => event.Participants, {})
     @JoinTable()
-    MeetingsToVisit: Meeting[];
+    EventsToVisit: Event[];
 }

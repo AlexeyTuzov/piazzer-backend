@@ -7,11 +7,13 @@ enum SortDirections {
 
 export default class filterDto {
 
-    @IsString({message: 'Should be a string'})
-    readonly sortBy?: string;
+    readonly sort?: [
+        {
+            direction: SortDirections,
+            field: string
+        }
 
-    @IsEnum(SortDirections)
-    readonly sortDir?: SortDirections;
+    ];
 
     @IsNumberString()
     readonly limit?: number;
@@ -19,6 +21,6 @@ export default class filterDto {
     @IsNumberString()
     readonly page?: number;
 
-    @IsString({message: 'Should be a string'})
-    readonly search?: string;
+    @IsString({ message: 'Should be a string' })
+    readonly query?: string;
 }

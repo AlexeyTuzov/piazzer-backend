@@ -4,9 +4,14 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users.entity';
 import UsersRepositoryService from './users-repository.service';
+import CommunicationsRepositoryService from 'src/Communications/communications-repository.service';
 
 @Module({
-    providers: [UsersService, UsersRepositoryService],
+    providers: [
+        UsersService,
+        UsersRepositoryService,
+        CommunicationsRepositoryService
+    ],
     controllers: [UsersController],
     imports: [
         TypeOrmModule.forFeature([User])

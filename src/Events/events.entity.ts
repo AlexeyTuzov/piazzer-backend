@@ -1,8 +1,8 @@
 import { User } from "src/Users/users.entity";
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Meeting {
+export class Event {
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -49,7 +49,7 @@ export class Meeting {
     @Column({ type: 'datetime', default: null })
     deletedAt: string;
 
-    @ManyToMany(() => User, user => user.MeetingsToVisit,
+    @ManyToMany(() => User, user => user.EventsToVisit,
         { cascade: true })
     Participants: User[];
 

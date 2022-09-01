@@ -22,6 +22,11 @@ export class UsersService implements UserUseCases {
 
     }
 
+    async getById(id: string) {
+        const foundUser = await this.usersRepositoryService.getById(id);
+        return foundUser;
+    }
+
     async getOne(dto: searchUserDto) {
         const foundUser = await this.usersRepositoryService.getOne(dto);
         return foundUser;

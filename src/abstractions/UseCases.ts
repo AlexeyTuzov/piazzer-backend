@@ -4,7 +4,7 @@ export abstract class UseCases {
 
     abstract update(dto);
 
-    abstract getOne(id);
+    abstract getById(id);
 
     abstract getAll(dto);
 
