@@ -4,6 +4,7 @@ import { User } from './Users/users.entity';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './Users/users.module';
+import { CommunicationsService } from './Communications/communications.service';
 
 @Module({
     imports: [
@@ -22,7 +23,8 @@ import { UsersModule } from './Users/users.module';
         }),
         LoggerModule,
         UsersModule
-    ]
+    ],
+    providers: [CommunicationsService]
 })
 export class AppModule {}
 

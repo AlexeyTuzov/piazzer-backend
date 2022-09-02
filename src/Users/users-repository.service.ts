@@ -25,16 +25,16 @@ export default class UsersRepositoryService {
     }
 
     async update(dto: updateUserDto) {
-
+        await this.usersRepository.update(dto.id, {...dto});
     }
 
-    async getById(id: string) {
+    async getById(id: string): Promise<User> {
 
         const foundUser = await this.usersRepository.findOne({where: {id}});
         return foundUser;
     }
 
-    async getOne(dto: searchUserDto) {
+    async getOne(dto: searchUserDto): Promise<User> {
 
         const foundUser = await this.usersRepository.findOne({where: {...dto}});
         return foundUser;
@@ -44,8 +44,9 @@ export default class UsersRepositoryService {
 
         try {
             return await this.usersRepository.find();
+            //TODO Pagination
         } catch (err) {
-            throw new InternalServerError('Users find has been failed');
+            throw new InternalServerError('Users search has been failed');
         }
     }
 

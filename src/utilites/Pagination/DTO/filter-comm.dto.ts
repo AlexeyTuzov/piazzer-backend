@@ -1,19 +1,13 @@
-import { IsEnum, IsNumberString, IsString } from 'class-validator';
+import { IsNumberString, IsString } from 'class-validator';
 
 enum SortDirections {
     'asc' = 'asc',
     'desc' = 'desc'
 }
 
-export default class filterDto {
+export default class filterCommDto {
 
-    readonly sort?: [
-        {
-            direction: SortDirections,
-            field: string
-        }
-
-    ];
+    readonly userId: string;
 
     @IsNumberString()
     readonly limit?: number;

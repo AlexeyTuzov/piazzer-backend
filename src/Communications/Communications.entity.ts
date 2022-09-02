@@ -14,7 +14,7 @@ export class Communication {
     @Column({ type: 'varchar' })
     value: string;
 
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     confirmed: boolean;
 
     @ManyToOne(() => User, user => user.Communications)
