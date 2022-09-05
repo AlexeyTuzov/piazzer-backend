@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './Users/users.entity';
 import { ConfigModule } from '@nestjs/config';
-import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './Users/users.module';
-import { CommunicationsService } from './Communications/communications.service';
+import { CommunicationsModule } from './Communications/communications.module';
+import { Communication } from './Communications/Communications.entity';
 
 @Module({
     imports: [
@@ -18,13 +18,12 @@ import { CommunicationsService } from './Communications/communications.service';
             database: process.env.POSTGRES_DB,
             password: process.env.POSTGRES_PASSWORD,
             port: Number(process.env.POSTGRES_PORT),
-            entities: [User],
+            entities: [User, Communication],
             autoLoadEntities: true
         }),
-        LoggerModule,
-        UsersModule
-    ],
-    providers: [CommunicationsService]
+        UsersModule,
+        CommunicationsModule
+    ]
 })
 export class AppModule {}
 

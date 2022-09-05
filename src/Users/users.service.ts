@@ -19,22 +19,19 @@ export class UsersService implements UserUseCases {
     }
 
     async create(dto: createUserDto) {
-        const newUserID = await this.usersRepositoryService.create(dto);
-        return newUserID;
+        return await this.usersRepositoryService.create(dto);
     }
 
     async update(dto: updateUserDto) {
-
+        return await this.usersRepositoryService.update(dto);
     }
 
     async getById(id: string) {
-        const foundUser = await this.usersRepositoryService.getById(id);
-        return foundUser;
+        return await this.usersRepositoryService.getById(id);
     }
 
     async getOne(dto: searchUserDto) {
-        const foundUser = await this.usersRepositoryService.getOne(dto);
-        return foundUser;
+        return await this.usersRepositoryService.getOne(dto);
     }
 
     async getAll(dto: filterUserDto) {
@@ -42,7 +39,7 @@ export class UsersService implements UserUseCases {
     }
 
     async delete(id: string) {
-
+        return await this.usersRepositoryService.delete(id);
     }
 
     async logIn(dto: logInUserDto) {
@@ -51,15 +48,15 @@ export class UsersService implements UserUseCases {
 
     async createComm(id: string, dto: createCommDto) {
         const newComm = await this.commService.create(dto);
-        const user = await this.getById(id);
+        const user = await this.usersRepositoryService.getById(id);
         user.Communications.push(newComm);
-        //TODO: Check if user.Communications array are realy saved in DB
+        //TODO: Check if user.Communications array are really saved in DB
         return newComm.id;
     }
 
     async deleteComm(id: string, commID: string) {
         //TODO: Need to check if communication being deleted from user's model
-        //if user ID is not needed - remove it from params as redundrant
+        //if user ID is not needed - remove it from params as redundant
         return this.commService.delete(commID);
     }
 
@@ -68,19 +65,19 @@ export class UsersService implements UserUseCases {
     }
 
     async sendCode(id: string) {
-        
+
     }
 
     async changeRole(id: string, dto: changeRoleDto) {
-        
+
     }
 
     async block(id: string) {
-        
+
     }
 
     async unblock(id: string) {
-        
+
     }
 
 }

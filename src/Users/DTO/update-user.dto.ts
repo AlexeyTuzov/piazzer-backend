@@ -9,8 +9,4 @@ export default class updateUserDto {
     readonly password?: string;
 
     readonly name?: string;
-
-    readonly phone?: string;
-
-    readonly role?: UserRoles;
 }
