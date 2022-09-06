@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './Users/users.entity';
+import { User } from './modules/users/domain/entities/users.entity';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './Users/users.module';
-import { CommunicationsModule } from './Communications/communications.module';
-import { Communication } from './Communications/Communications.entity';
+import { UsersModule } from './modules/users/users.module';
+import { CommunicationsModule } from './modules/communications/communications.module';
+import { Communication } from './modules/communications/domain/entities/Communications.entity';
 
+//TODO: Use DatabaseModule instead TypeOrmModule, extract ConfigModule from here to an infrastructure module
 @Module({
     imports: [
         ConfigModule.forRoot({

@@ -1,0 +1,22 @@
+import { User } from "src/modules/users/domain/entities/users.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import CommTypes from "../enums/comm-types";
+
+@Entity()
+export class Communication {
+
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column({ type: 'enum', enum: CommTypes })
+    type: CommTypes;
+
+    @Column({ type: 'varchar' })
+    value: string;
+
+    @Column({ type: 'boolean', default: false })
+    confirmed: boolean;
+
+    @ManyToOne(() => User, user => user.Communications)
+    User: User;
+}
