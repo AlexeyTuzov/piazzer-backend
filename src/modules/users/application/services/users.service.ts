@@ -22,6 +22,7 @@ export class UsersService {
     }
 
     //TODO: use transactions instead try-catch and add auto-mapper!!!
+    //TODO: try to use MapPipe() inside a controller instead @InjectMapper in constructor
     async create(dto: CreateUserDto): Promise<string> {
         try {
             const newUser = this.usersRepository.create(dto);
