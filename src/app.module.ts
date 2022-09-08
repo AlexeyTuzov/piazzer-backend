@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MapperModule } from './infrastructure/automapper/mapper.module';
 import DataSourceModule from './infrastructure/typeorm/datasource.module';
 
-//TODO: Use DatabaseModule instead TypeOrmModule, extract ConfigModule from here to an infrastructure module
+//TODO: extract ConfigModule from here to an infrastructure module
 @Module({
     imports: [
         ConfigModule.forRoot({
@@ -21,9 +21,10 @@ import DataSourceModule from './infrastructure/typeorm/datasource.module';
             password: process.env.POSTGRES_PASSWORD,
             port: Number(process.env.POSTGRES_PORT),
             entities: [`${__dirname}/**/**.entity{.js,.ts}`],
-            migrations: [`${__dirname}/migrations/**/*{.ts,.js}`]
+            migrations: [`${__dirname}/migrations/**/*{.ts,.js}`],
+            autoLoadEntities: true,
+            synchronize: true
         }),
-        DataSourceModule,
         UsersModule,
         CommunicationsModule
     ]

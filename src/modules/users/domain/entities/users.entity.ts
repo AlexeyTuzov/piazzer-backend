@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import UserRoles from '../enums/user-roles';
 import { Venue } from 'src/modules/venues/venues.entity';
 import { Event } from 'src/modules/events/events.entity';
@@ -6,7 +6,7 @@ import { Communication } from 'src/modules/communications/domain/entities/Commun
 import { AutoMap } from '@automapper/classes';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
 
     @AutoMap()
     @PrimaryGeneratedColumn('uuid')
