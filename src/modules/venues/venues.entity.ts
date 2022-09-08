@@ -7,6 +7,7 @@ export class Venue {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    /*
     @Column({ type: 'varchar' })
     name: string;
 
@@ -16,7 +17,7 @@ export class Venue {
     @Column({ type: 'varchar' })
     description: string;
 
-    @Column({ type: 'array' })
+    @Column({ type: 'varchar', array: true })
     rules: string[];
 
     @Column({ type: 'varchar' })
@@ -49,4 +50,5 @@ export class Venue {
 
     @ManyToOne(() => User, user => user.Venues)
     Owner: User;
+    */
 }

@@ -7,12 +7,19 @@ import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
 import CreateCommDto from 'src/modules/communications/application/DTO/create-comm.dto';
 import ConfirmUserCommDto from '../application/DTO/confirm-user-comm.dto';
 import ChangeRoleDto from '../application/DTO/change-role.dto';
+import CreateUserDto from '../application/DTO/create-user.dto';
 
 @Controller('users')
 export class UsersController {
 
     constructor(private usersService: UsersService,
                 private commService: CommunicationsService) {
+    }
+
+    //TODO: DELETE this test method!
+    @Post()
+    createUser(@Body() dto: CreateUserDto) {
+        return this.usersService.create(dto);
     }
 
     @Get()

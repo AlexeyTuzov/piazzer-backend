@@ -13,24 +13,52 @@ import NoContentResponse from '../../../../infrastructure/exceptions/no-content-
 import { User } from '../../domain/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import TypeOrmDatasource from 'src/infrastructure/typeorm/typeorm.datasource';
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 
 @Injectable()
 export class UsersService {
 
     constructor(@InjectRepository(User) private usersRepository: Repository<User>,
-                private commService: CommunicationsService) {
+                private commService: CommunicationsService,
+                @InjectMapper() private mapper: Mapper) {
     }
 
     //TODO: use transactions instead try-catch and add auto-mapper!!!
     //TODO: try to use MapPipe() inside a controller instead @InjectMapper in constructor
     async create(dto: CreateUserDto): Promise<string> {
-        try {
-            const newUser = this.usersRepository.create(dto);
-            await this.usersRepository.save(newUser);
+        
+        return TypeOrmDatasource.transaction( async (em) => {
+            
+            console.log('em.getRepo:', em.getRepository(User).create(dto));
+            const newUser = em.getRepository(User).create(dto);
+            await em.save(newUser);
             return newUser.id;
+        })
+        
+        
+        /*
+        const queryRunner = TypeOrmDatasource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let user: User;
+        try {
+            const newUser = queryRunner.manager.create(User, dto);
+            console.log(newUser);
+            user = newUser;
+            await queryRunner.manager.save(newUser);
+            console.log('user:', user);
+            queryRunner.commitTransaction();
         } catch (err) {
-            throw new InternalServerError('User creation has been failed');
+            queryRunner.rollbackTransaction();
+        } finally {
+            queryRunner.release();
         }
+        console.log(user);
+        return;
+        
+        */
     }
 
     async update(dto: UpdateUserDto): Promise<NoContentResponse> {

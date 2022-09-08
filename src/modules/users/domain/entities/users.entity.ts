@@ -33,13 +33,14 @@ export class User {
     isBlocked: boolean;
 
     @AutoMap({type: () => Date})
-    @Column({ type: 'datetime', default: null })
+    @Column({ type: 'date', default: null })
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
     @OneToMany(() => Communication, comm => comm.User)
     Communications: Communication[];
 
+    /*
     @OneToMany(() => Venue, venue => venue.Owner)
     Venues: Venue[];
 
@@ -49,4 +50,5 @@ export class User {
     @ManyToMany(() => Event, event => event.Participants, {})
     @JoinTable()
     EventsToVisit: Event[];
+    */
 }

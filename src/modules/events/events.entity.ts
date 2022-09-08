@@ -7,6 +7,7 @@ export class Event {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    /*
     @Column({ type: 'varchar' })
     title: string;
 
@@ -55,4 +56,5 @@ export class Event {
 
     @ManyToOne(() => User, user => user.OwnMeetings)
     Organiser: User;
+    */
 }

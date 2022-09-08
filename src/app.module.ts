@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './modules/users/domain/entities/users.entity';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { CommunicationsModule } from './modules/communications/communications.module';
-import { Communication } from './modules/communications/domain/entities/Communications.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MapperModule } from './infrastructure/automapper/mapper.module';
+import DataSourceModule from './infrastructure/typeorm/datasource.module';
 
 //TODO: Use DatabaseModule instead TypeOrmModule, extract ConfigModule from here to an infrastructure module
 @Module({
@@ -12,6 +12,7 @@ import { Communication } from './modules/communications/domain/entities/Communic
         ConfigModule.forRoot({
             envFilePath: `.${process.env.NODE_ENV}.env`
         }),
+        MapperModule,
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: process.env.POSTGRES_HOST,
@@ -19,12 +20,13 @@ import { Communication } from './modules/communications/domain/entities/Communic
             database: process.env.POSTGRES_DB,
             password: process.env.POSTGRES_PASSWORD,
             port: Number(process.env.POSTGRES_PORT),
-            entities: [User, Communication],
-            autoLoadEntities: true
+            entities: [`${__dirname}/**/**.entity{.js,.ts}`],
+            migrations: [`${__dirname}/migrations/**/*{.ts,.js}`]
         }),
+        DataSourceModule,
         UsersModule,
         CommunicationsModule
     ]
 })
-export class AppModule {}
+export class AppModule { }
 
