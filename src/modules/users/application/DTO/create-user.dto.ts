@@ -14,4 +14,7 @@ export default class CreateUserDto {
 
     @AutoMap()
     readonly role: UserRoles;
+
+    @AutoMap()
+    readonly position?: string;
 }

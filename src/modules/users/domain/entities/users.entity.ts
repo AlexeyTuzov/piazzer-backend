@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import UserRoles from '../enums/user-roles';
-import { Venue } from 'src/modules/venues/venues.entity';
+import { Venue } from '../../../venues/domain/entities/venues.entity';
 import { Event } from 'src/modules/events/events.entity';
 import { Communication } from './communications.entity';
 import { AutoMap } from '@automapper/classes';
@@ -29,6 +29,10 @@ export class User extends BaseEntity {
     role: UserRoles;
 
     @AutoMap()
+    @Column({ type: 'varchar' })
+    position: string;
+
+    @AutoMap()
     @Column({ type: 'boolean', default: false })
     isBlocked: boolean;
 
@@ -48,10 +52,9 @@ export class User extends BaseEntity {
     @OneToMany(() => Communication, comm => comm.user)
     communications: Communication[];
 
+    @OneToMany(() => Venue, venue => venue.owner)
+    venues: Venue[];
     /*
-    @OneToMany(() => Venue, venue => venue.Owner)
-    Venues: Venue[];
-
     @OneToMany(() => Event, event => event.Organiser)
     OwnMeetings: Event[];
 
