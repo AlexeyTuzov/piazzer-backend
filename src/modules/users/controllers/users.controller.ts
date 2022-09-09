@@ -54,6 +54,7 @@ export class UsersController {
 
     //TODO: All following methods are not deeply implemented yet!
     @Delete('/:id/communications/:commID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     userCommunicationDelete(@Param('id') id: string, @Param('commID') commID: string) {
         return this.usersService.deleteComm(id, commID);
     }

@@ -14,6 +14,7 @@ import { DataSource } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
+import NotFoundError from 'src/infrastructure/exceptions/not-found';
 
 @Injectable()
 export class UsersService {
@@ -40,7 +41,11 @@ export class UsersService {
     async update(dto: UpdateUserDto): Promise<void> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.update(dto.id, { ...dto });
+                const user = await User.findOne({where: {id: dto.id}});
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
+                await User.update(dto.id, { ...dto });
                 return;
             });
         } catch (err) {
@@ -52,6 +57,9 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { id } });
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
                 return user;
             });
         } catch (err) {
@@ -88,6 +96,9 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { id } });
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
                 await user.softRemove();
                 return;
             });
@@ -124,10 +135,15 @@ export class UsersService {
     async deleteComm(id: string, commID: string) {
         try {
             return this.dataSource.transaction(async () => {
-                
+                const comm = await Communication.findOne({where: {id: commID}});
+                if (!comm) {
+                    throw new NotFoundError('User communication not found');
+                }
+                await Communication.delete({id: commID});
+                return;
             });
         } catch (err) {
-
+            throw new InternalServerError('User communication deletion has been failed');
         }
     }
 
