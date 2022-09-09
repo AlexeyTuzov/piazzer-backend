@@ -2,9 +2,8 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post
 import { UsersService } from '../application/services/users.service';
 import UpdateUserDto from '../application/DTO/update-user.dto';
 import FilterUserDto from 'src/infrastructure/pagination/DTO/filter-user.dto';
-import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
 import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
-import CreateCommDto from 'src/modules/communications/application/DTO/create-comm.dto';
+import CreateCommDto from 'src/modules/users/application/DTO/create-comm.dto';
 import ConfirmUserCommDto from '../application/DTO/confirm-user-comm.dto';
 import ChangeRoleDto from '../application/DTO/change-role.dto';
 import CreateUserDto from '../application/DTO/create-user.dto';
@@ -12,8 +11,7 @@ import CreateUserDto from '../application/DTO/create-user.dto';
 @Controller('users')
 export class UsersController {
 
-    constructor(private usersService: UsersService,
-                private commService: CommunicationsService) {
+    constructor(private usersService: UsersService) {
     }
 
     //TODO: DELETE this test method!
@@ -46,7 +44,7 @@ export class UsersController {
 
     @Get('/:id/communications')
     usersCommunicationsFind(@Param('id') id: string, @Query() dto: FilterCommDto) {
-        return this.commService.getAllUserComms({ userId: id, ...dto });
+        return this.usersService.getAllUserComms({ userId: id, ...dto });
     }
 
     @Post('/:id/communications')

@@ -1,11 +1,6 @@
 import { IsNumberString, IsString } from 'class-validator';
 
-enum SortDirections {
-    'asc' = 'asc',
-    'desc' = 'desc'
-}
-
-export default class filterCommDto {
+export default class FilterCommDto {
 
     readonly userId: string;
 

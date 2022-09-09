@@ -1,8 +1,8 @@
-import { BaseEntity, Column, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import UserRoles from '../enums/user-roles';
 import { Venue } from 'src/modules/venues/venues.entity';
 import { Event } from 'src/modules/events/events.entity';
-import { Communication } from 'src/modules/communications/domain/entities/Communications.entity';
+import { Communication } from './communications.entity';
 import { AutoMap } from '@automapper/classes';
 
 @Entity()
@@ -33,12 +33,20 @@ export class User extends BaseEntity {
     isBlocked: boolean;
 
     @AutoMap({type: () => Date})
+    @CreateDateColumn()
+    createdAt: string;
+
+    @AutoMap({type: () => Date})
+    @UpdateDateColumn()
+    updatedAt: string;
+
+    @AutoMap({type: () => Date})
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
-    @OneToMany(() => Communication, comm => comm.User)
-    Communications: Communication[];
+    @OneToMany(() => Communication, comm => comm.user)
+    communications: Communication[];
 
     /*
     @OneToMany(() => Venue, venue => venue.Owner)

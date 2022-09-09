@@ -1,11 +1,7 @@
 import { IsNumberString, IsString } from 'class-validator';
+import SortDirections from '../enums/sortDirections';
 
-enum SortDirections {
-    'asc' = 'asc',
-    'desc' = 'desc'
-}
-
-export default class filterUserDto {
+export default class FilterUserDto {
 
     readonly sort?: [
         {

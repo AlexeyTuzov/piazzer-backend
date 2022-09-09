@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
-import { CommunicationsModule } from './modules/communications/communications.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MapperModule } from './infrastructure/automapper/mapper.module';
-import DataSourceModule from './infrastructure/typeorm/datasource.module';
 
 //TODO: extract ConfigModule from here to an infrastructure module
 @Module({
@@ -25,8 +23,7 @@ import DataSourceModule from './infrastructure/typeorm/datasource.module';
             autoLoadEntities: true,
             synchronize: true
         }),
-        UsersModule,
-        CommunicationsModule
+        UsersModule
     ]
 })
 export class AppModule { }

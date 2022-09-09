@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
-import CreateCommDto from 'src/modules/communications/application/DTO/create-comm.dto';
+import CreateCommDto from 'src/modules/users/application/DTO/create-comm.dto';
 import FilterUserDto from 'src/infrastructure/pagination/DTO/filter-user.dto';
 import ChangeRoleDto from '../DTO/change-role.dto';
 import CreateUserDto from '../DTO/create-user.dto';
@@ -10,17 +9,16 @@ import LogInUserDto from '../DTO/login-user.dto';
 import UpdateUserDto from '../DTO/update-user.dto';
 import InternalServerError from '../../../../infrastructure/exceptions/internal-server-error';
 import { User } from '../../domain/entities/users.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Communication } from 'src/modules/users/domain/entities/communications.entity';
+import { DataSource } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
+import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
 
 @Injectable()
 export class UsersService {
 
-    constructor(@InjectRepository(User) private usersRepository: Repository<User>,
-        private commService: CommunicationsService,
-        private dataSource: DataSource,
+    constructor(private dataSource: DataSource,
         @InjectMapper() private mapper: Mapper) {
     }
 
@@ -34,14 +32,14 @@ export class UsersService {
                 return user.id;
             });
         } catch (err) {
-            throw new InternalServerError('User creation has been failed'); 
+            throw new InternalServerError('User creation has been failed');
         }
-        
+
     }
 
     async update(dto: UpdateUserDto): Promise<void> {
         try {
-            return this.dataSource.transaction( async () => {
+            return this.dataSource.transaction(async () => {
                 const user = await User.update(dto.id, { ...dto });
                 return;
             });
@@ -53,7 +51,7 @@ export class UsersService {
     async getById(id: string): Promise<User> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.findOne({where: {id}});
+                const user = await User.findOne({ where: { id } });
                 return user;
             });
         } catch (err) {
@@ -64,7 +62,7 @@ export class UsersService {
 
     async getOne(dto: SearchUserDto): Promise<User> {
         try {
-            return this.dataSource.transaction( async () => {
+            return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { ...dto } });
                 return user;
             });
@@ -76,7 +74,7 @@ export class UsersService {
 
     async getAll(dto: FilterUserDto): Promise<User[]> {
         try {
-            return this.dataSource.transaction( async () => {
+            return this.dataSource.transaction(async () => {
                 //TODO pagination
                 const users = await User.find();
                 return users;
@@ -88,8 +86,8 @@ export class UsersService {
 
     async delete(id: string): Promise<void> {
         try {
-            return this.dataSource.transaction( async () => {
-                const user = await User.findOne({where: {id}});
+            return this.dataSource.transaction(async () => {
+                const user = await User.findOne({ where: { id } });
                 await user.softRemove();
                 return;
             });
@@ -98,18 +96,39 @@ export class UsersService {
         }
     }
 
-    async createComm(id: string, dto: CreateCommDto) {
-        const newComm = await this.commService.create(dto);
-        const user = await this.usersRepository.findOne({ where: { id } });
-        user.Communications.push(newComm);
-        //TODO: Check if user.communications array are really saved in DB
-        return newComm.id;
+    async getAllUserComms(dto: FilterCommDto): Promise<Communication[]> {
+        try {
+            return this.dataSource.transaction(async () => {
+                const userComms = await Communication.find({where: {user: {id: dto.userId}}});
+                return userComms;
+            });
+        } catch (err) {
+            throw new InternalServerError('User communications search has been failed');
+        }
+    }
+
+    async createComm(id: string, dto: CreateCommDto): Promise<string> {
+        try {
+            return this.dataSource.transaction(async () => {
+                const comm = Communication.create();
+                const user = await User.findOne({where: {id}});
+                Object.assign(comm, {...dto, user});
+                await comm.save();
+                return comm.id; 
+            });
+        } catch (err) {
+            throw new InternalServerError('User communication creation has been failed');
+        }
     }
 
     async deleteComm(id: string, commID: string) {
-        //TODO: Need to check if communication being deleted from user's model
-        //if user ID is not needed - remove it from params as redundant
-        return this.commService.delete(commID);
+        try {
+            return this.dataSource.transaction(async () => {
+                
+            });
+        } catch (err) {
+
+        }
     }
 
     //TODO: following methods should be in another services (e-mailer/admin)
