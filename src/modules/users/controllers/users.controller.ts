@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { UsersService } from '../application/services/users.service';
 import UpdateUserDto from '../application/DTO/update-user.dto';
 import FilterUserDto from 'src/infrastructure/pagination/DTO/filter-user.dto';
@@ -33,11 +33,13 @@ export class UsersController {
     }
 
     @Patch('/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
     usersUpdate(@Param('id') id: string, @Body() dto: UpdateUserDto) {
         return this.usersService.update({ ...dto, id });
     }
 
     @Delete('/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
     usersRemove(@Param('id') id: string) {
         return this.usersService.delete(id);
     }

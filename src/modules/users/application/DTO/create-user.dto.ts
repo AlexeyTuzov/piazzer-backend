@@ -13,8 +13,5 @@ export default class CreateUserDto {
     readonly name: string;
 
     @AutoMap()
-    readonly phone: string;
-
-    @AutoMap()
     readonly role: UserRoles;
 }

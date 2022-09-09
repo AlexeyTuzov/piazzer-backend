@@ -9,12 +9,9 @@ import ConfirmUserCommDto from '../DTO/confirm-user-comm.dto';
 import LogInUserDto from '../DTO/login-user.dto';
 import UpdateUserDto from '../DTO/update-user.dto';
 import InternalServerError from '../../../../infrastructure/exceptions/internal-server-error';
-import NoContentResponse from '../../../../infrastructure/exceptions/no-content-response';
 import { User } from '../../domain/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-//import TypeOrmDatasource from 'src/infrastructure/typeorm/typeorm.datasource';
-
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 
@@ -29,18 +26,25 @@ export class UsersService {
 
 
     async create(dto: CreateUserDto): Promise<string> {
-        return this.dataSource.transaction(async () => {
-            const user = User.create()
-            Object.assign(user, dto)
-            await user.save()
-            return user.id;
-        });
+        try {
+            return this.dataSource.transaction(async () => {
+                const user = User.create();
+                Object.assign(user, dto);
+                await user.save();
+                return user.id;
+            });
+        } catch (err) {
+            throw new InternalServerError('User creation has been failed'); 
+        }
+        
     }
 
-    async update(dto: UpdateUserDto): Promise<NoContentResponse> {
+    async update(dto: UpdateUserDto): Promise<void> {
         try {
-            await this.usersRepository.update(dto.id, { ...dto });
-            return new NoContentResponse('User has been updated');
+            return this.dataSource.transaction( async () => {
+                const user = await User.update(dto.id, { ...dto });
+                return;
+            });
         } catch (err) {
             throw new InternalServerError('User update has been failed');
         }
@@ -48,39 +52,49 @@ export class UsersService {
 
     async getById(id: string): Promise<User> {
         try {
-            return await this.usersRepository.findOne({ where: { id } });
+            return this.dataSource.transaction(async () => {
+                const user = await User.findOne({where: {id}});
+                return user;
+            });
         } catch (err) {
-            throw new InternalServerError('users search has been failed');
+            throw new InternalServerError('User search has been failed');
         }
 
     }
 
     async getOne(dto: SearchUserDto): Promise<User> {
         try {
-            return await this.usersRepository.findOne({ where: { ...dto } });
+            return this.dataSource.transaction( async () => {
+                const user = await User.findOne({ where: { ...dto } });
+                return user;
+            });
         } catch (err) {
-            throw new InternalServerError('users search has been failed');
+            throw new InternalServerError('User search has been failed');
         }
 
     }
 
     async getAll(dto: FilterUserDto): Promise<User[]> {
         try {
-            return await this.usersRepository.find();
-            //TODO pagination
+            return this.dataSource.transaction( async () => {
+                //TODO pagination
+                const users = await User.find();
+                return users;
+            });
         } catch (err) {
-            throw new InternalServerError('users search has been failed');
+            throw new InternalServerError('Users search has been failed');
         }
     }
 
-    async delete(id: string): Promise<NoContentResponse> {
+    async delete(id: string): Promise<void> {
         try {
-            const userToBeDeleted = await this.usersRepository.findOne({ where: { id } });
-            userToBeDeleted.deletedAt = new Date().toDateString();
-            await this.usersRepository.save(userToBeDeleted);
-            return new NoContentResponse('User has been deleted');
+            return this.dataSource.transaction( async () => {
+                const user = await User.findOne({where: {id}});
+                await user.softRemove();
+                return;
+            });
         } catch (err) {
-            throw new InternalServerError('users deletion has been failed');
+            throw new InternalServerError('User deletion has been failed');
         }
     }
 

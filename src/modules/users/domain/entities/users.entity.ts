@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import UserRoles from '../enums/user-roles';
 import { Venue } from 'src/modules/venues/venues.entity';
 import { Event } from 'src/modules/events/events.entity';
@@ -33,7 +33,7 @@ export class User extends BaseEntity {
     isBlocked: boolean;
 
     @AutoMap({type: () => Date})
-    @Column({ type: 'date', default: null })
+    @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
