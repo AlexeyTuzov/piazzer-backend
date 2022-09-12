@@ -1,9 +1,9 @@
 import { AutoMap } from "@automapper/classes";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Venue } from "./venues.entity";
 
 @Entity()
-export class VenueType {
+export class VenueType extends BaseEntity{
 
     @AutoMap()
     @PrimaryGeneratedColumn('uuid')

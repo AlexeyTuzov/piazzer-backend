@@ -1,8 +1,8 @@
 import { AutoMap } from "@automapper/classes";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
-export class Coordinates {
+export class Coordinates extends BaseEntity {
 
     @AutoMap()
     @PrimaryGeneratedColumn('uuid')
