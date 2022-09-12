@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import CreateCommDto from 'src/modules/users/application/DTO/create-comm.dto';
-import FilterUserDto from 'src/infrastructure/pagination/DTO/filter-user.dto';
+import FilterUserDto from '../../infrastructure/DTO/filter-user.dto';
 import ChangeRoleDto from '../DTO/change-role.dto';
 import CreateUserDto from '../DTO/create-user.dto';
 import SearchUserDto from '../DTO/search-user.dto';
@@ -13,7 +13,7 @@ import { Communication } from 'src/modules/users/domain/entities/communications.
 import { DataSource } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
+import FilterCommDto from '../../infrastructure/DTO/filter-comm.dto';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 
 @Injectable()
@@ -38,14 +38,14 @@ export class UsersService {
 
     }
 
-    async update(dto: UpdateUserDto): Promise<void> {
+    async update(id: string, dto: UpdateUserDto): Promise<void> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.findOne({where: {id: dto.id}});
+                const user = await User.findOne({where: {id}});
                 if (!user) {
                     throw new NotFoundError('User not found');
                 }
-                await User.update(dto.id, { ...dto });
+                await User.update(id, { ...dto });
                 return;
             });
         } catch (err) {

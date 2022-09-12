@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { UsersService } from '../application/services/users.service';
 import UpdateUserDto from '../application/DTO/update-user.dto';
-import FilterUserDto from 'src/infrastructure/pagination/DTO/filter-user.dto';
-import FilterCommDto from 'src/infrastructure/pagination/DTO/filter-comm.dto';
+import FilterUserDto from '../infrastructure/DTO/filter-user.dto';
+import FilterCommDto from '../infrastructure/DTO/filter-comm.dto';
 import CreateCommDto from 'src/modules/users/application/DTO/create-comm.dto';
 import ConfirmUserCommDto from '../application/DTO/confirm-user-comm.dto';
 import ChangeRoleDto from '../application/DTO/change-role.dto';
@@ -33,7 +33,7 @@ export class UsersController {
     @Patch('/:id')
     @HttpCode(HttpStatus.NO_CONTENT)
     usersUpdate(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-        return this.usersService.update({ ...dto, id });
+        return this.usersService.update(id, dto);
     }
 
     @Delete('/:id')

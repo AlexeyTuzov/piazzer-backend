@@ -36,6 +36,10 @@ export class User extends BaseEntity {
     @Column({ type: 'boolean', default: false })
     isBlocked: boolean;
 
+    @AutoMap()
+    @Column({type: 'boolean', default: false})
+    isVerified: boolean;
+
     @AutoMap({type: () => Date})
     @CreateDateColumn()
     createdAt: string;

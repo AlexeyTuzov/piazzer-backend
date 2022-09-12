@@ -1,7 +1,8 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { VenueType } from "./venueTypes.entity";
+import { Resource } from "src/modules/resources/domain/entities/resources.entity";
 
 @Entity()
 export class Venue {
@@ -46,18 +47,17 @@ export class Venue {
     @Column({ type: 'integer' })
     capacity: number;
 
-    //TODO: needed or not
-    @AutoMap()
-    @Column({ type: 'array' })
-    links: string[];
-
     @AutoMap()
     @Column({ type: 'integer' })
     cost: number;
 
     @AutoMap()
-    @Column({ type: 'array' })
-    amenities: string[];
+    @Column({type: 'boolean'})
+    isOutdoor: boolean;
+
+    @AutoMap()
+    @Column({type: 'boolean'})
+    isFoodBeverage: boolean;
 
     @AutoMap()
     @Column({ type: 'boolean', default: false })
@@ -79,10 +79,8 @@ export class Venue {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
-    /*
-    @ManyToOne(() => Resources, resource => resource.belonging)
-    resources: Resource;
-    */
+    @OneToMany(() => Resource, resource => resource.belonging)
+    resources: Resource [];
 
     @ManyToOne(() => VenueType, type => type.venues)
     type: VenueType;

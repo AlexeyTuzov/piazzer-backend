@@ -1,9 +1,9 @@
-import { IsNumberString, IsString } from 'class-validator';
-import SortDirections from '../enums/sortDirections';
+import { IsNumberString, IsString } from "class-validator";
+import SortDirections from "src/infrastructure/pagination/enums/sortDirections";
 
-export default class FilterUserDto {
+export default class FilterResourcesDto {
 
-    readonly sort?: [
+    readonly sorts?: [
         {
             direction: SortDirections,
             field: string

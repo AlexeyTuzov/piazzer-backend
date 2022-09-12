@@ -7,6 +7,7 @@ import UpdateUserDto from '../DTO/update-user.dto';
 
 @Injectable()
 export default class UserProfile extends AutomapperProfile {
+    
     constructor(@InjectMapper() mapper: Mapper) {
         super(mapper);
     }
