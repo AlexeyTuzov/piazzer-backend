@@ -15,7 +15,7 @@ export class ResourcesService {
 
     }
 
-    async getAll(dto: FilterResourcesDto) {
+    async getFiltered(dto: FilterResourcesDto) {
 
     }
 

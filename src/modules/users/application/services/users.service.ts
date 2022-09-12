@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
-import FilterUserDto from '../../infrastructure/DTO/filter-user.dto';
+import FilterUserDto from '../../infrastructure/DTO/filterUser.dto';
 import ChangeRoleDto from '../DTO/changeRole.dto';
 import CreateUserDto from '../DTO/createUser.dto';
 import SearchUserDto from '../DTO/searchUser.dto';
 import ConfirmUserCommDto from '../DTO/confirmUserComm.dto';
-import LogInUserDto from '../../../auth/application/DTO/loginUser.dto';
+import CredentialsDto from 'src/modules/auth/application/DTO/credentials.dto';
 import UpdateUserDto from '../DTO/updateUser.dto';
 import InternalServerError from '../../../../infrastructure/exceptions/internal-server-error';
 import { User } from '../../domain/entities/users.entity';
@@ -13,7 +13,7 @@ import { Communication } from 'src/modules/users/domain/entities/communications.
 import { DataSource } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
-import FilterCommDto from '../../infrastructure/DTO/filter-comm.dto';
+import FilterCommDto from '../../infrastructure/DTO/filterComm.dto';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 
 @Injectable()
@@ -80,7 +80,7 @@ export class UsersService {
 
     }
 
-    async getAll(dto: FilterUserDto): Promise<User[]> {
+    async getFiltered(dto: FilterUserDto): Promise<User[]> {
         try {
             return this.dataSource.transaction(async () => {
                 //TODO pagination
@@ -152,7 +152,7 @@ export class UsersService {
         //here we gonna call the mailer service's method
     }
 
-    async logIn(dto: LogInUserDto) {
+    async logIn(dto: CredentialsDto) {
 
     }
 

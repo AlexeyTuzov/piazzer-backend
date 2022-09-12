@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { UsersService } from '../application/services/users.service';
 import UpdateUserDto from '../application/DTO/updateUser.dto';
-import FilterUserDto from '../infrastructure/DTO/filter-user.dto';
-import FilterCommDto from '../infrastructure/DTO/filter-comm.dto';
+import FilterUserDto from '../infrastructure/DTO/filterUser.dto';
+import FilterCommDto from '../infrastructure/DTO/filterComm.dto';
 import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
 import ConfirmUserCommDto from '../application/DTO/confirmUserComm.dto';
 import ChangeRoleDto from '../application/DTO/changeRole.dto';
@@ -22,7 +22,7 @@ export class UsersController {
 
     @Get()
     usersFind(@Query() dto: FilterUserDto) {
-        return this.usersService.getAll(dto);
+        return this.usersService.getFiltered(dto);
     }
 
     @Get('/:id')

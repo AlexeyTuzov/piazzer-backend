@@ -18,7 +18,7 @@ export class ResourcesController {
 
     @Get()
     resourcesFind(@Query() dto: FilterResourcesDto) {
-        return this.resourcesService.getAll(dto);
+        return this.resourcesService.getFiltered(dto);
     }
 
     @Get('/:id')

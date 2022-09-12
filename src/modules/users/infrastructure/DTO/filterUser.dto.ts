@@ -19,4 +19,7 @@ export default class FilterUserDto {
 
     @IsString({ message: 'Should be a string' })
     readonly query?: string;
+
+    @IsString({ message: 'Should be a string' })
+    readonly filter?: string;
 }
