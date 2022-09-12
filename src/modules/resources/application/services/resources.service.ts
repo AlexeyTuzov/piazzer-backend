@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import FilterResourcesDto from '../../infrastructure/filter-resources.dto';
-import CreateResourceDto from '../DTO/create-resource.dto';
-import ImageResizeDto from '../DTO/image-resize.dto';
-import UpdateResourceDto from '../DTO/update-resource.dto';
+import CreateResourceDto from '../DTO/createResource.dto';
+import ImageResizeDto from '../DTO/imageResize.dto';
+import UpdateResourceDto from '../DTO/updateResource.dto';
 
 @Injectable()
 export class ResourcesService {

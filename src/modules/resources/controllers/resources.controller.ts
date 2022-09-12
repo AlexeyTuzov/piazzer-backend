@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
-import CreateResourceDto from '../application/DTO/create-resource.dto';
-import ImageResizeDto from '../application/DTO/image-resize.dto';
-import UpdateResourceDto from '../application/DTO/update-resource.dto';
+import CreateResourceDto from '../application/DTO/createResource.dto';
+import ImageResizeDto from '../application/DTO/imageResize.dto';
+import UpdateResourceDto from '../application/DTO/updateResource.dto';
 import { ResourcesService } from '../application/services/resources.service';
 import FilterResourcesDto from '../infrastructure/filter-resources.dto';
 

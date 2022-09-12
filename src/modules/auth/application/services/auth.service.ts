@@ -1,9 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import createUserDto from 'src/modules/users/application/DTO/create-user.dto';
-import logInUserDto from 'src/modules/users/application/DTO/login-user.dto';
+import createUserDto from 'src/modules/users/application/DTO/createUser.dto';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/modules/users/application/services/users.service';
+import CredentialsDto from '../DTO/credentials.dto';
+import ResendCodeDto from '../DTO/resendCode.dto';
+import SignUpConfirmDto from '../DTO/signUpConfirm.dto';
+import RefreshTokenDto from '../DTO/refreshToken.dto';
+import OAuthDto from '../DTO/oAuth.dto';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +16,19 @@ export class AuthService {
         private userService: UsersService) {
     }
 
-    async signIn(dto: logInUserDto) {
+    async signUp(dto: CredentialsDto) {
+
+    }
+
+    async signUpResendCode(dto: ResendCodeDto) {
+
+    }
+
+    async signUpConfirm(dto: SignUpConfirmDto) {
+
+    }
+
+    async signIn(dto: CredentialsDto) {
 
         const foundUser = await this.userService.getOne(dto);
         if (!foundUser) {
@@ -28,7 +44,11 @@ export class AuthService {
         return token;
     }
 
-    signUp(dto: createUserDto) {
+    async refreshToken(dto: RefreshTokenDto) {
 
+    }
+
+    async oAuth(dto: OAuthDto) {
+        
     }
 }

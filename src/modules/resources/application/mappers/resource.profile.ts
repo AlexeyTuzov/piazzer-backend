@@ -2,8 +2,8 @@ import { createMap, Mapper, MappingProfile } from "@automapper/core";
 import { AutomapperProfile, InjectMapper } from "@automapper/nestjs";
 import { Injectable } from "@nestjs/common";
 import { Resource } from "../../domain/entities/resources.entity";
-import CreateResourceDto from "../DTO/create-resource.dto";
-import UpdateResourceDto from "../DTO/update-resource.dto";
+import CreateResourceDto from "../DTO/createResource.dto";
+import UpdateResourceDto from "../DTO/updateResource.dto";
 
 @Injectable()
 export default class ResourceProfile extends AutomapperProfile {

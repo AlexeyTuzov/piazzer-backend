@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Res } from '@nestjs/common';
 import { UsersService } from '../application/services/users.service';
-import UpdateUserDto from '../application/DTO/update-user.dto';
+import UpdateUserDto from '../application/DTO/updateUser.dto';
 import FilterUserDto from '../infrastructure/DTO/filter-user.dto';
 import FilterCommDto from '../infrastructure/DTO/filter-comm.dto';
-import CreateCommDto from 'src/modules/users/application/DTO/create-comm.dto';
-import ConfirmUserCommDto from '../application/DTO/confirm-user-comm.dto';
-import ChangeRoleDto from '../application/DTO/change-role.dto';
-import CreateUserDto from '../application/DTO/create-user.dto';
+import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
+import ConfirmUserCommDto from '../application/DTO/confirmUserComm.dto';
+import ChangeRoleDto from '../application/DTO/changeRole.dto';
+import CreateUserDto from '../application/DTO/createUser.dto';
 
 @Controller('users')
 export class UsersController {
