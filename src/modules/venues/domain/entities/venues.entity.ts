@@ -3,6 +3,7 @@ import { User } from "src/modules/users/domain/entities/users.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { VenueType } from "./venueTypes.entity";
 import { Resource } from "src/modules/resources/domain/entities/resources.entity";
+import { VenueScheduleItem } from "./venueScheduleItem.entity";
 
 @Entity()
 export class Venue {
@@ -79,12 +80,19 @@ export class Venue {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
+    @AutoMap(() => Resource)
     @OneToMany(() => Resource, resource => resource.belonging)
     resources: Resource [];
 
+    @AutoMap(() => VenueType)
     @ManyToOne(() => VenueType, type => type.venues)
     type: VenueType;
 
+    @AutoMap(() => VenueScheduleItem)
+    @ManyToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.venue)
+    scheduleItems: VenueScheduleItem[];
+
+    @AutoMap(() => User)
     @ManyToOne(() => User, user => user.venues)
     owner: User;
     

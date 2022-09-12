@@ -48,6 +48,7 @@ export class Resource extends BaseEntity {
     deletedAt: string;
 
     //Is this approach ever valid? Maybe more logical is to divide into a two different relations
+    @AutoMap(() => Venue || Event)
     @ManyToOne(() => Venue || Event, belonging => belonging.resources)
     belonging: Venue | Event;
 }

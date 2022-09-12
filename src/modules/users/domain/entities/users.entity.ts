@@ -56,6 +56,7 @@ export class User extends BaseEntity {
     @OneToMany(() => Communication, comm => comm.user)
     communications: Communication[];
 
+    @AutoMap({type: () => Venue})
     @OneToMany(() => Venue, venue => venue.owner)
     venues: Venue[];
     /*

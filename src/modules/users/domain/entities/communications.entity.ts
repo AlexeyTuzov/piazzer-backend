@@ -34,6 +34,7 @@ export class Communication extends BaseEntity {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
+    @AutoMap(() => User)
     @ManyToOne(() => User, user => user.communications)
     user: User;
 }
