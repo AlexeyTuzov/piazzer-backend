@@ -1,4 +1,4 @@
-import UserRoles from "../../domain/enums/user-roles";
+import UserRoles from "../../domain/enums/user-types";
 
 export default class SearchUserDto {
 

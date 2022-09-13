@@ -1,21 +1,31 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import ResendCodeDto from '../application/DTO/resendCode.dto';
-import SignUpDto from '../application/DTO/credentials.dto';
+import SignUpDto from '../application/DTO/signUp.dto';
 import SignUpConfirmDto from '../application/DTO/signUpConfirm.dto';
 import { AuthService } from '../application/services/auth.service';
 import CredentialsDto from '../application/DTO/credentials.dto';
 import RefreshTokenDto from '../application/DTO/refreshToken.dto';
 import OAuthDto from '../application/DTO/oAuth.dto';
+import UserTypes from 'src/modules/users/domain/enums/user-types';
 
 @Controller('auth')
 export class AuthController {
 
-    constructor(private authService: AuthService) {
+    constructor(private authService: AuthService) { }
+    /*  To rolllback if merge request declined!!!!!!!!!!
+    @Post('/sign-up')
+    signUp(@Body() dto: CreateUserDto) {
+        return this.authService.signUp(dto);
+    }
+    */
+    @Post('/sign-up/user')
+    signUpUser(@Body() dto: SignUpDto) {
+        return this.authService.signUp(dto, UserTypes.USER);
     }
 
-    @Post('/sign-up')
-    signUp(@Body() dto: SignUpDto) {
-        return this.authService.signUp(dto);
+    @Post('/sign-up/venue-owner')
+    signUpVenueOwner(@Body() dto: SignUpDto) {
+        return this.authService.signUp(dto, UserTypes.VENUE_OWNER);
     }
 
     @Post('/sign-up/resend-code')

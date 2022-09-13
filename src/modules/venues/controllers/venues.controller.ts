@@ -8,8 +8,7 @@ import FilterVenueDto from '../infrastructure/filterVenue.dto';
 @Controller('venues')
 export class VenuesController {
 
-    constructor(private venuesService: VenuesService) {
-    }
+    constructor(private venuesService: VenuesService) { }
 
     @Post()
     venuesCreate(@Body() dto: CreateVenueDto) {

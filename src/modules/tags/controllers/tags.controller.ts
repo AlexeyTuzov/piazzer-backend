@@ -7,8 +7,7 @@ import FilterTagsDto from '../infrastructure/filterTags.dto';
 @Controller('tags')
 export class TagsController {
 
-    constructor(private tagsService: TagsService) {
-    }
+    constructor(private tagsService: TagsService) { }
 
     @Post()
     tagsCreate(@Body() dto: CreateTagDto) {

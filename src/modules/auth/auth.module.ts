@@ -13,9 +13,9 @@ import { AuthController } from './controllers/auth.controller';
 
         }),
         JwtModule.register({
-            secret: process.env.PRIVATE_KEY || 'SECRET',
+            secret: process.env.JWT_PRIVATE_KEY || 'SECRET',
             signOptions: {
-                expiresIn: '24h'
+                expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
             }
         })
     ],

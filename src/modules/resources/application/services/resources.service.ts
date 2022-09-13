@@ -8,8 +8,7 @@ import UpdateResourceDto from '../DTO/updateResource.dto';
 @Injectable()
 export class ResourcesService {
 
-    constructor(private dataSource: DataSource){
-    }
+    constructor(private dataSource: DataSource){ }
 
     async create(dto: CreateResourceDto){
 

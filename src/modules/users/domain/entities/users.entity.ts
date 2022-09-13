@@ -1,5 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import UserRoles from '../enums/user-roles';
+import UserTypes from '../enums/user-types';
 import { Venue } from '../../../venues/domain/entities/venues.entity';
 import { Event } from 'src/modules/events/events.entity';
 import { Communication } from './communications.entity';
@@ -25,12 +25,12 @@ export class User extends BaseEntity {
     name: string;
 
     @AutoMap({ type: () => String})
-    @Column({ type: 'enum', enum: UserRoles, default: UserRoles.PARTICIPANT })
-    role: UserRoles;
+    @Column({ type: 'enum', enum: UserTypes, default: UserTypes.USER })
+    userType: UserTypes;
 
     @AutoMap()
     @Column({ type: 'varchar' })
-    position: string;
+    role: string;
 
     @AutoMap()
     @Column({ type: 'boolean', default: false })

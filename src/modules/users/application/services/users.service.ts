@@ -15,13 +15,14 @@ import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import FilterCommDto from '../../infrastructure/DTO/filterComm.dto';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
+import CommTypes from '../../domain/enums/comm-types';
 
 @Injectable()
 export class UsersService {
 
-    constructor(private dataSource: DataSource,
-        @InjectMapper() private mapper: Mapper) {
-    }
+    constructor(
+        private dataSource: DataSource,
+        @InjectMapper() private mapper: Mapper) { }
 
 
     async create(dto: CreateUserDto): Promise<string> {
@@ -30,6 +31,25 @@ export class UsersService {
                 const user = User.create();
                 Object.assign(user, dto);
                 await user.save();
+
+                if (dto.email) {
+                    await this.createComm(user.id,
+                        {
+                            type: CommTypes.EMAIL,
+                            value: dto.email,
+                            description: 'email'
+                        });
+                }
+
+                if (dto.telephone) {
+                    await this.createComm(user.id, 
+                        {
+                            type: CommTypes.PHONE,
+                            value: dto.telephone,
+                            description: 'phone'
+                        });
+                }
+
                 return user.id;
             });
         } catch (err) {
@@ -41,7 +61,7 @@ export class UsersService {
     async update(id: string, dto: UpdateUserDto): Promise<void> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.findOne({where: {id}});
+                const user = await User.findOne({ where: { id } });
                 if (!user) {
                     throw new NotFoundError('User not found');
                 }
@@ -68,10 +88,10 @@ export class UsersService {
 
     }
 
-    async getOne(dto: SearchUserDto): Promise<User> {
+    async getOneByEmail(email: string): Promise<User> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.findOne({ where: { ...dto } });
+                const user = await User.findOne({ where: { email } });
                 return user;
             });
         } catch (err) {
@@ -110,7 +130,7 @@ export class UsersService {
     async getAllUserComms(dto: FilterCommDto): Promise<Communication[]> {
         try {
             return this.dataSource.transaction(async () => {
-                const userComms = await Communication.find({where: {user: {id: dto.userId}}});
+                const userComms = await Communication.find({ where: { user: { id: dto.userId } } });
                 return userComms;
             });
         } catch (err) {
@@ -122,10 +142,10 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const comm = Communication.create();
-                const user = await User.findOne({where: {id}});
-                Object.assign(comm, {...dto, user});
+                const user = await User.findOne({ where: { id } });
+                Object.assign(comm, { ...dto, user });
                 await comm.save();
-                return comm.id; 
+                return comm.id;
             });
         } catch (err) {
             throw new InternalServerError('User communication creation has been failed');
@@ -135,11 +155,11 @@ export class UsersService {
     async deleteComm(id: string, commID: string) {
         try {
             return this.dataSource.transaction(async () => {
-                const comm = await Communication.findOne({where: {id: commID}});
+                const comm = await Communication.findOne({ where: { id: commID } });
                 if (!comm) {
                     throw new NotFoundError('User communication not found');
                 }
-                await Communication.delete({id: commID});
+                await Communication.delete({ id: commID });
                 return;
             });
         } catch (err) {

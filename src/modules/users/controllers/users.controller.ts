@@ -11,8 +11,7 @@ import CreateUserDto from '../application/DTO/createUser.dto';
 @Controller('users')
 export class UsersController {
 
-    constructor(private usersService: UsersService) {
-    }
+    constructor(private usersService: UsersService) { }
 
     //TODO: DELETE this test method!
     @Post()

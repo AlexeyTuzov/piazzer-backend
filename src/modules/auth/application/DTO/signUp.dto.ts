@@ -1,7 +1,6 @@
-import UserTypes from "../../domain/enums/user-types";
 import { AutoMap } from '@automapper/classes';
 
-export default class CreateUserDto {
+export default class SignUpDto {
 
     @AutoMap()
     readonly email: string;
@@ -17,7 +16,4 @@ export default class CreateUserDto {
 
     @AutoMap()
     readonly telephone?: string;
-
-    @AutoMap()
-    readonly userType: UserTypes;
 }
