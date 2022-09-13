@@ -19,17 +19,12 @@ export class Event {
     @Column({ type: 'varchar' })
     description: string;
 
+    /*
     @AutoMap()
     @Column({ type: 'blob' })
     image: string;
 
-    @AutoMap()
-    @Column({ type: 'array' })
-    atributes: string[];
-
-    @AutoMap()
-    @Column({ type: 'datetime' })
-    dateTime: string;
+    */
 
     @AutoMap()
     @Column({ type: 'varchar' })
@@ -38,10 +33,6 @@ export class Event {
     @AutoMap()
     @Column({ type: 'integer' })
     numberOfParticipants: number;
-
-    @AutoMap()
-    @Column({ type: 'array' })
-    properties: string[];
 
     @AutoMap()
     @Column({ type: 'varchar' })

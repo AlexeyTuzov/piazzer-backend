@@ -31,25 +31,6 @@ export class UsersService {
                 const user = User.create();
                 Object.assign(user, dto);
                 await user.save();
-
-                if (dto.email) {
-                    await this.createComm(user.id,
-                        {
-                            type: CommTypes.EMAIL,
-                            value: dto.email,
-                            description: 'email'
-                        });
-                }
-
-                if (dto.telephone) {
-                    await this.createComm(user.id, 
-                        {
-                            type: CommTypes.PHONE,
-                            value: dto.telephone,
-                            description: 'phone'
-                        });
-                }
-
                 return user.id;
             });
         } catch (err) {

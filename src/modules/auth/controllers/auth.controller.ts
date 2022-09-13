@@ -12,20 +12,10 @@ import UserTypes from 'src/modules/users/domain/enums/user-types';
 export class AuthController {
 
     constructor(private authService: AuthService) { }
-    /*  To rolllback if merge request declined!!!!!!!!!!
+ 
     @Post('/sign-up')
-    signUp(@Body() dto: CreateUserDto) {
-        return this.authService.signUp(dto);
-    }
-    */
-    @Post('/sign-up/user')
     signUpUser(@Body() dto: SignUpDto) {
         return this.authService.signUp(dto, UserTypes.USER);
-    }
-
-    @Post('/sign-up/venue-owner')
-    signUpVenueOwner(@Body() dto: SignUpDto) {
-        return this.authService.signUp(dto, UserTypes.VENUE_OWNER);
     }
 
     @Post('/sign-up/resend-code')

@@ -29,7 +29,7 @@ export class User extends BaseEntity {
     userType: UserTypes;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     role: string;
 
     @AutoMap()

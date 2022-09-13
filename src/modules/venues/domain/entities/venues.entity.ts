@@ -37,6 +37,10 @@ export class Venue extends BaseEntity {
     phone: string;
 
     @AutoMap()
+    @Column({type: 'varchar'})
+    short: string;
+
+    @AutoMap()
     @Column({ type: 'varchar' })
     description: string;
 

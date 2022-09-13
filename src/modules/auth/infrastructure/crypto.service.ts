@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 export default class CryptoService {
 
     constructor(private salt: number) {
-        this.salt = 7;
+        this.salt = Number(process.env.JWT_SALT);
     }
 
     async encrypt(password: string): Promise<string> {

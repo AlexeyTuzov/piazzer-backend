@@ -10,10 +10,4 @@ export default class SignUpDto {
 
     @AutoMap()
     readonly name: string;
-
-    @AutoMap()
-    readonly role?: string;
-
-    @AutoMap()
-    readonly telephone?: string;
 }

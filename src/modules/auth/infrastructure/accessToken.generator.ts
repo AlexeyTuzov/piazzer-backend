@@ -7,6 +7,8 @@ export default class AccessTokenGenerator {
     constructor(private jwtService: JwtService) { }
 
     generate(userId: string): string {
-        return this.jwtService.sign(userId);
+        return this.jwtService.sign({ userId }, {
+            expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
+        });
     }
 }
