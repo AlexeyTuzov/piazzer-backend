@@ -3,7 +3,6 @@ import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
 import FilterUserDto from '../../infrastructure/DTO/filterUser.dto';
 import ChangeRoleDto from '../DTO/changeRole.dto';
 import CreateUserDto from '../DTO/createUser.dto';
-import SearchUserDto from '../DTO/searchUser.dto';
 import ConfirmUserCommDto from '../DTO/confirmUserComm.dto';
 import CredentialsDto from 'src/modules/auth/application/DTO/credentials.dto';
 import UpdateUserDto from '../DTO/updateUser.dto';
@@ -15,7 +14,6 @@ import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import FilterCommDto from '../../infrastructure/DTO/filterComm.dto';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
-import CommTypes from '../../domain/enums/comm-types';
 
 @Injectable()
 export class UsersService {
@@ -36,16 +34,17 @@ export class UsersService {
         } catch (err) {
             throw new InternalServerError('User creation has been failed');
         }
-
     }
 
     async update(id: string, dto: UpdateUserDto): Promise<void> {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { id } });
+
                 if (!user) {
                     throw new NotFoundError('User not found');
                 }
+
                 await User.update(id, { ...dto });
                 return;
             });
@@ -58,9 +57,11 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { id } });
+
                 if (!user) {
                     throw new NotFoundError('User not found');
                 }
+
                 return user;
             });
         } catch (err) {
@@ -73,6 +74,11 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { email } });
+
+                if (!user) {
+                    throw new NotFoundError('User not found');
+                }
+
                 return user;
             });
         } catch (err) {
@@ -97,9 +103,11 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { id } });
+
                 if (!user) {
                     throw new NotFoundError('User not found');
                 }
+
                 await user.softRemove();
                 return;
             });
@@ -137,9 +145,11 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const comm = await Communication.findOne({ where: { id: commID } });
+
                 if (!comm) {
                     throw new NotFoundError('User communication not found');
                 }
+                
                 await Communication.delete({ id: commID });
                 return;
             });

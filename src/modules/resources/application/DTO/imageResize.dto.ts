@@ -1,14 +1,19 @@
-import { AutoMap } from "@automapper/classes";
+import { Transform } from 'class-transformer';
+import { IsEnum, IsNumber } from 'class-validator';
+
 import FitTypes from "../../domain/enums/fitTypes";
 
 export default class ImageResizeDto {
 
-    @AutoMap()
+    @IsNumber()
+    @Transform(({ value }) => Number(value))
     readonly w: number;
 
-    @AutoMap()
+    @IsNumber()
+    @Transform(({ value }) => Number(value))
     readonly h: number;
 
-    @AutoMap()
+    @IsEnum(FitTypes)
     readonly fit: FitTypes;
+
 }

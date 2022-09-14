@@ -17,4 +17,7 @@ export default class UpdateResourceDto {
 
     @AutoMap()
     readonly mimeType?: string;
+
+    @AutoMap()
+    readonly belongingId?: string;
 }

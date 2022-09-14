@@ -1,6 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcryptjs';
 import { UsersService } from 'src/modules/users/application/services/users.service';
 import CredentialsDto from '../DTO/credentials.dto';
 import ResendCodeDto from '../DTO/resendCode.dto';

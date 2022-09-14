@@ -10,46 +10,52 @@ export default class CreateVenueDto {
     readonly address: string;
 
     @AutoMap()
-    readonly coverId: string;
+    readonly coverId?: string;
 
     @AutoMap()
     readonly city: string;
 
     @AutoMap()
-    short: string;
+    readonly email: string;
 
     @AutoMap()
-    coordinates: CreateCoordinatesDto;
+    readonly contactPerson: string;
 
     @AutoMap()
-    contactPerson: string;
+    readonly telephone: string; 
 
     @AutoMap()
-    description: string;
+    readonly short?: string;
 
     @AutoMap()
-    propertiesIds: string[];
+    readonly coordinates?: CreateCoordinatesDto;
 
     @AutoMap()
-    attributesIds: string[];
+    readonly description?: string;
 
     @AutoMap()
-    capacity: number;
+    readonly propertiesIds?: string[];
 
     @AutoMap()
-    cost: number;
+    readonly attributesIds?: string[];
 
     @AutoMap()
-    isBlocked: boolean;
+    readonly capacity?: number;
 
     @AutoMap()
-    isDraft: boolean;
+    readonly cost?: number;
 
     @AutoMap()
-    resourcesIds: string[];
+    readonly isBlocked: boolean;
 
     @AutoMap()
-    owner: {
+    readonly isDraft: boolean;
+
+    @AutoMap()
+    readonly resourcesIds: string[];
+
+    @AutoMap()
+    readonly owner: {
         name: string,
         position: string
     }

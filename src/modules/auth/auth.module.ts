@@ -15,8 +15,7 @@ import RefreshTokenGenerator from './infrastructure/refreshToken.generator';
         AccessTokenGenerator,
         RefreshTokenGenerator,
         AuthTokensGenerator,
-        CryptoService,
-        Number
+        CryptoService
     ],
     controllers: [AuthController],
     imports: [

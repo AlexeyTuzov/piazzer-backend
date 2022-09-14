@@ -3,8 +3,9 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export default class CryptoService {
-
-    constructor(private salt: number) {
+    private salt: number;
+    
+    constructor() {
         this.salt = Number(process.env.JWT_SALT);
     }
 
