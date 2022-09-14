@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service';
+import { Resource } from 'src/modules/resources/domain/entities/resources.entity';
 import { DataSource } from 'typeorm';
 import { Venue } from '../../domain/entities/venues.entity';
 import FilterVenueDto from '../../infrastructure/filterVenue.dto';
@@ -18,22 +19,18 @@ export class VenuesService {
     }
 
     create(dto: CreateVenueDto): Promise<string> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const venue = Venue.create();
-                Object.assign(venue, dto);
-                await venue.save();
-                
-                venue.resources.forEach(async (resource) => {
-                    await this.resourcesService.update(resource.id, {...dto, belongingId: venue.id});
-                })
 
-                return venue.id;
+        return this.dataSource.transaction(async (em) => {
+            const venue = em.getRepository(Venue).create();
+            Object.assign(venue, dto);
+            await em.save(venue);
+
+            dto.resourcesIds.forEach(async (id) => {
+                await this.resourcesService.update(id, { belongingId: venue.id });
             })
-        } catch (err) {
-            throw new InternalServerError('Venue creation has been failed');
-        }
-        
+
+            return venue.id;
+        });
     }
 
     getFiltered(dto: FilterVenueDto): Promise<Venue[]> {
@@ -89,7 +86,7 @@ export class VenuesService {
                 if (!venue) {
                     throw new NotFoundError('Venue not found');
                 }
-                
+
                 await venue.softRemove();
                 return;
             });
@@ -111,6 +108,6 @@ export class VenuesService {
     }
 
     declineScheduleItem(id: string, scheduleId: string) {
-        
+
     }
 }

@@ -12,7 +12,7 @@ export class Resource extends BaseEntity {
     id: string;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     name: string;
 
     @AutoMap()
@@ -20,19 +20,15 @@ export class Resource extends BaseEntity {
     size: number;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     type: ResourceTypes;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     link: string;
 
     @AutoMap()
-    @Column({type: 'varchar'})
-    creatorId: string;
-
-    @AutoMap()
-    @Column({type: 'varchar'})
+    @Column({type: 'varchar', nullable: true})
     mimeType: string;
 
     @AutoMap({ type: () => Date })

@@ -14,7 +14,7 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({ type: 'varchar' })
-    name: string;
+    title: string;
 
     @AutoMap()
     @Column({ type: 'varchar' })
@@ -22,7 +22,7 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({type: 'varchar'})
-    town: string;
+    city: string;
 
     @AutoMap()
     @Column({type: 'varchar'})
@@ -34,35 +34,27 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({type: 'varchar'})
-    phone: string;
+    telephone: string;
 
     @AutoMap()
-    @Column({type: 'varchar'})
+    @Column({type: 'varchar', nullable: true})
     short: string;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     description: string;
 
     @AutoMap()
-    @Column({ type: 'varchar', array: true })
+    @Column({ type: 'varchar', array: true, nullable: true })
     properties: string[];
 
     @AutoMap()
-    @Column({ type: 'integer' })
+    @Column({ type: 'integer', default: 0 })
     capacity: number;
 
     @AutoMap()
-    @Column({ type: 'integer' })
+    @Column({ type: 'integer', default: 0 })
     cost: number;
-
-    @AutoMap()
-    @Column({type: 'boolean'})
-    isOutdoor: boolean;
-
-    @AutoMap()
-    @Column({type: 'boolean'})
-    isFoodBeverage: boolean;
 
     @AutoMap()
     @Column({ type: 'boolean', default: false })
@@ -70,7 +62,7 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({type: 'boolean', default: false})
-    isSaved: boolean;
+    isDraft: boolean;
 
     @AutoMap({type: () => Date})
     @CreateDateColumn()

@@ -4,6 +4,8 @@ import { UsersModule } from './modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MapperModule } from './infrastructure/automapper/mapper.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ResourcesModule } from './modules/resources/resources.module';
+import { VenuesModule } from './modules/venues/venues.module';
 
 //TODO: extract ConfigModule from here to an infrastructure module
 @Module({
@@ -25,7 +27,9 @@ import { AuthModule } from './modules/auth/auth.module';
             synchronize: true
         }),
         UsersModule,
-        AuthModule
+        AuthModule,
+        ResourcesModule,
+        VenuesModule
     ]
 })
 export class AppModule { }

@@ -12,42 +12,35 @@ export class Event {
     id: string;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     title: string;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     description: string;
 
-    /*
     @AutoMap()
-    @Column({ type: 'blob' })
-    image: string;
-
-    */
-
-    @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable:true })
     duration: string;
 
     @AutoMap()
-    @Column({ type: 'integer' })
+    @Column({ type: 'integer', default: 0 })
     numberOfParticipants: number;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     email: string;
 
     @AutoMap()
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     phone: string;
 
     @AutoMap()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     isBooked: boolean;
 
     @AutoMap()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     isPublished: boolean;
 
     @AutoMap()
