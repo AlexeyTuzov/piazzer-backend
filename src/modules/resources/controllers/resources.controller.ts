@@ -34,13 +34,13 @@ export class ResourcesController {
 
     @Delete('/:id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    resourcesRemove(@Param() id: string) {
+    resourcesRemove(@Param('id') id: string) {
         return this.resourcesService.delete(id);
     }
 
     @Get('/:id/resolve')
     @HttpCode(HttpStatus.SEE_OTHER)
-    resourcesResolve(@Param() id: string) {
+    resourcesResolve(@Param('id') id: string) {
         return this.resourcesService.resolve(id);
     }
 

@@ -25,9 +25,11 @@ export class VenuesService {
             Object.assign(venue, dto);
             await em.save(venue);
 
-            dto.resourcesIds.forEach(async (id) => {
-                await this.resourcesService.update(id, { belongingId: venue.id });
-            })
+            for (const id of dto.resourcesIds) {
+                const resource = await this.resourcesService.getById(id);
+                Object.assign(resource, {...resource, belonging: venue});
+                await em.save(resource);
+            }
 
             return venue.id;
         });

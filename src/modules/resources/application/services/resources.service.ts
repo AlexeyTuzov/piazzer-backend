@@ -84,7 +84,7 @@ export class ResourcesService {
                 const resource = await Resource.findOne({ where: { id } });
 
                 if (!resource) {
-                    throw new NotFoundError('User not found');
+                    throw new NotFoundError('Resource not found');
                 }
 
                 await resource.softRemove();

@@ -26,11 +26,7 @@ export class User extends BaseEntity {
 
     @AutoMap({ type: () => String})
     @Column({ type: 'enum', enum: UserTypes, default: UserTypes.USER })
-    userType: UserTypes;
-
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    role: string;
+    role: UserTypes;
 
     @AutoMap()
     @Column({ type: 'boolean', default: false })
@@ -53,11 +49,11 @@ export class User extends BaseEntity {
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
-    @OneToMany(() => Communication, comm => comm.user)
+    @OneToMany(() => Communication, comm => comm.user, {cascade: true})
     communications: Communication[];
 
     @AutoMap({type: () => Venue})
-    @OneToMany(() => Venue, venue => venue.owner)
+    @OneToMany(() => Venue, venue => venue.owner, {cascade: true})
     venues: Venue[];
     /*
     @OneToMany(() => Event, event => event.Organiser)

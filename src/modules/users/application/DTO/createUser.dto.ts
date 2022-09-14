@@ -1,4 +1,3 @@
-import UserTypes from "../../domain/enums/user-types";
 import { AutoMap } from '@automapper/classes';
 
 export default class CreateUserDto {

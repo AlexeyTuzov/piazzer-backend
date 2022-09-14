@@ -149,7 +149,7 @@ export class UsersService {
                 if (!comm) {
                     throw new NotFoundError('User communication not found');
                 }
-                
+
                 await Communication.delete({ id: commID });
                 return;
             });

@@ -77,7 +77,7 @@ export class Venue extends BaseEntity {
     deletedAt: string;
 
     @AutoMap(() => Resource)
-    @OneToMany(() => Resource, resource => resource.belonging)
+    @OneToMany(() => Resource, resource => resource.belonging, {cascade: true})
     resources: Resource [];
 
     @AutoMap(() => VenueType)
@@ -85,11 +85,11 @@ export class Venue extends BaseEntity {
     type: VenueType;
 
     @AutoMap(() => VenueScheduleItem)
-    @ManyToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.venue)
+    @ManyToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.venue, {cascade: true})
     scheduleItems: VenueScheduleItem[];
 
     @AutoMap(() => User)
     @ManyToOne(() => User, user => user.venues)
     owner: User;
-    
+
 }
