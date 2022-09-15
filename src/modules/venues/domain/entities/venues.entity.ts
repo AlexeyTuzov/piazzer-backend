@@ -38,6 +38,10 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({type: 'varchar', nullable: true})
+    coverId: string;
+
+    @AutoMap()
+    @Column({type: 'varchar', nullable: true})
     short: string;
 
     @AutoMap()

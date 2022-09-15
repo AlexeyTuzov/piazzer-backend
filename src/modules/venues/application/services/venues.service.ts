@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { Token } from 'aws-sdk/lib/token';
 import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
+import JwtDecoder from 'src/modules/auth/infrastructure/jwtDecoder';
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service';
 import { Resource } from 'src/modules/resources/domain/entities/resources.entity';
+import { UsersService } from 'src/modules/users/application/services/users.service';
 import { DataSource } from 'typeorm';
 import { Venue } from '../../domain/entities/venues.entity';
 import FilterVenueDto from '../../infrastructure/filterVenue.dto';
@@ -15,19 +18,23 @@ export class VenuesService {
 
     constructor(
         private dataSource: DataSource,
-        private resourcesService: ResourcesService) {
+        private resourcesService: ResourcesService,
+        private jwtDecoder: JwtDecoder,
+        private usersService: UsersService) {
     }
 
-    create(dto: CreateVenueDto): Promise<string> {
+    create(dto: CreateVenueDto, token: string): Promise<string> {
 
         return this.dataSource.transaction(async (em) => {
             const venue = em.getRepository(Venue).create();
-            Object.assign(venue, dto);
+            const ownerId = this.jwtDecoder.decodeUserId(token);
+            const owner = await this.usersService.getById(ownerId);
+            Object.assign(venue, { ...dto, owner });
             await em.save(venue);
 
             for (const id of dto.resourcesIds) {
                 const resource = await this.resourcesService.getById(id);
-                Object.assign(resource, {...resource, belonging: venue});
+                Object.assign(resource, { ...resource, belonging: venue });
                 await em.save(resource);
             }
 

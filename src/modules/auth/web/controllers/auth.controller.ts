@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import ResendCodeDto from '../application/DTO/resendCode.dto';
-import SignUpDto from '../application/DTO/signUp.dto';
-import SignUpConfirmDto from '../application/DTO/signUpConfirm.dto';
-import { AuthService } from '../application/services/auth.service';
-import CredentialsDto from '../application/DTO/credentials.dto';
-import RefreshTokenDto from '../application/DTO/refreshToken.dto';
-import OAuthDto from '../application/DTO/oAuth.dto';
+import ResendCodeDto from '../../application/DTO/resendCode.dto';
+import SignUpDto from '../../application/DTO/signUp.dto';
+import SignUpConfirmDto from '../../application/DTO/signUpConfirm.dto';
+import { AuthService } from '../../application/services/auth.service';
+import CredentialsDto from '../../application/DTO/credentials.dto';
+import RefreshTokenDto from '../../application/DTO/refreshToken.dto';
+import OAuthDto from '../../application/DTO/oAuth.dto';
 import UserTypes from 'src/modules/users/domain/enums/user-types';
 
 @Controller('auth')
@@ -15,7 +15,7 @@ export class AuthController {
  
     @Post('/sign-up')
     signUpUser(@Body() dto: SignUpDto) {
-        return this.authService.signUp(dto, UserTypes.USER);
+        return this.authService.signUp(dto);
     }
 
     @Post('/sign-up/resend-code')

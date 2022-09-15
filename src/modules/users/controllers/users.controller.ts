@@ -6,18 +6,11 @@ import FilterCommDto from '../infrastructure/DTO/filterComm.dto';
 import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
 import ConfirmUserCommDto from '../application/DTO/confirmUserComm.dto';
 import ChangeRoleDto from '../application/DTO/changeRole.dto';
-import CreateUserDto from '../application/DTO/createUser.dto';
 
 @Controller('users')
 export class UsersController {
 
     constructor(private usersService: UsersService) { }
-
-    //TODO: DELETE this test method!
-    @Post()
-    createUser(@Body() dto: CreateUserDto) {
-        return this.usersService.create(dto);
-    }
 
     @Get()
     usersFind(@Query() dto: FilterUserDto) {

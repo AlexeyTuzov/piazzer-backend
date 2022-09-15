@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import CreateScheduleItemDto from '../application/DTO/createScheduleItem.dto';
 import CreateVenueDto from '../application/DTO/createVenue.dto';
 import UpdateVenueDto from '../application/DTO/updateVenue.dto';
@@ -11,8 +11,8 @@ export class VenuesController {
     constructor(private venuesService: VenuesService) { }
 
     @Post()
-    venuesCreate(@Body() dto: CreateVenueDto) {
-        return this.venuesService.create(dto);
+    venuesCreate(@Body() dto: CreateVenueDto, @Headers('Authorization') token: string) {
+        return this.venuesService.create(dto, token);
     }
 
     @Get()

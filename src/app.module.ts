@@ -23,8 +23,7 @@ import { VenuesModule } from './modules/venues/venues.module';
             port: Number(process.env.POSTGRES_PORT),
             entities: [`${__dirname}/**/**.entity{.js,.ts}`],
             migrations: [`${__dirname}/migrations/**/*{.ts,.js}`],
-            autoLoadEntities: true,
-            synchronize: true
+            autoLoadEntities: true
         }),
         UsersModule,
         AuthModule,

@@ -5,13 +5,12 @@ import ResendCodeDto from '../DTO/resendCode.dto';
 import SignUpConfirmDto from '../DTO/signUpConfirm.dto';
 import RefreshTokenDto from '../DTO/refreshToken.dto';
 import OAuthDto from '../DTO/oAuth.dto';
-import UserTypes from 'src/modules/users/domain/enums/user-types';
 import SignUpDto from '../DTO/signUp.dto';
 import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import CryptoService from '../../infrastructure/crypto.service';
 import { DataSource } from 'typeorm';
 import AuthTokensDto from '../DTO/authTokens.dto';
-import AuthTokensGenerator from '../../infrastructure/authTokens.generator';
+import AuthTokensGenerator from '../../infrastructure/tokenGenerators/authTokens.generator';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +21,7 @@ export class AuthService {
         private cryptoService: CryptoService,
         private dataSource: DataSource) { }
 
-    async signUp(dto: SignUpDto, userType: UserTypes): Promise<string> {
+    async signUp(dto: SignUpDto): Promise<string> {
         try {
             return this.dataSource.transaction(async () => {
                 const existingUser = await this.usersService.getOneByEmail(dto.email);
@@ -32,7 +31,6 @@ export class AuthService {
                         'User with this email already exists!',
                         HttpStatus.BAD_REQUEST);
                 }
-
                 const encryptedPassword = await this.cryptoService.encrypt(dto.password);
                 const userId = await this.usersService.create(
                     {

@@ -74,11 +74,6 @@ export class UsersService {
         try {
             return this.dataSource.transaction(async () => {
                 const user = await User.findOne({ where: { email } });
-
-                if (!user) {
-                    throw new NotFoundError('User not found');
-                }
-
                 return user;
             });
         } catch (err) {
