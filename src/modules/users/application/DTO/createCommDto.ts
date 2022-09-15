@@ -1,10 +1,10 @@
 import { AutoMap } from "@automapper/classes";
-import CommTypes from "../../domain/enums/comm-types";
+import CommunicationsTypes from "../../domain/enums/comm-types";
 
 export default class CreateCommDto {
 
     @AutoMap()
-    readonly type: CommTypes;
+    readonly type: CommunicationsTypes;
 
     @AutoMap()
     readonly value: string;

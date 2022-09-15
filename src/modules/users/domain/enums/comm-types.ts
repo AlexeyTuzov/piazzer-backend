@@ -1,8 +1,8 @@
-enum CommTypes {
-    TRE = 'tre',
+enum CommunicationsTypes {
+    SITE = 'site',
     EMAIL = 'email',
     PHONE = 'phone',
     FCM_PUSH_TOKEN = 'fcmPushToken'
 }
 
-export default CommTypes;
+export default CommunicationsTypes;

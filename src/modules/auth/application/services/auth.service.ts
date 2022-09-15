@@ -6,7 +6,6 @@ import SignUpConfirmDto from '../DTO/signUpConfirm.dto';
 import RefreshTokenDto from '../DTO/refreshToken.dto';
 import OAuthDto from '../DTO/oAuth.dto';
 import SignUpDto from '../DTO/signUp.dto';
-import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import CryptoService from '../../infrastructure/crypto.service';
 import { DataSource } from 'typeorm';
 import AuthTokensDto from '../DTO/authTokens.dto';
@@ -22,28 +21,23 @@ export class AuthService {
         private dataSource: DataSource) { }
 
     async signUp(dto: SignUpDto): Promise<string> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const existingUser = await this.usersService.getOneByEmail(dto.email);
+        return this.dataSource.transaction(async () => {
+            const existingUser = await this.usersService.getOneByEmail(dto.email);
 
-                if (existingUser) {
-                    throw new HttpException(
-                        'User with this email already exists!',
-                        HttpStatus.BAD_REQUEST);
-                }
-                const encryptedPassword = await this.cryptoService.encrypt(dto.password);
-                const userId = await this.usersService.create(
-                    {
-                        ...dto,
-                        password: encryptedPassword
-                    });
-                //TODO: что за secret отсюда надо вернуть???
-                return userId;
-            });
-
-        } catch (err) {
-            throw new InternalServerError('User sign up has been failed');
-        }
+            if (existingUser) {
+                throw new HttpException(
+                    'User with this email already exists!',
+                    HttpStatus.BAD_REQUEST);
+            }
+            const encryptedPassword = await this.cryptoService.encrypt(dto.password);
+            const userId = await this.usersService.create(
+                {
+                    ...dto,
+                    password: encryptedPassword
+                });
+            //TODO: что за secret отсюда надо вернуть???
+            return userId;
+        });
     }
 
     async signUpResendCode(dto: ResendCodeDto) {
@@ -55,27 +49,22 @@ export class AuthService {
     }
 
     async signIn(dto: CredentialsDto): Promise<AuthTokensDto> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const foundUser = await this.usersService.getOneByEmail(dto.email);
+        return this.dataSource.transaction(async () => {
+            const foundUser = await this.usersService.getOneByEmail(dto.email);
 
-                if (!foundUser) {
-                    throw new HttpException('No user with this email found! Try to sign up first!', HttpStatus.BAD_REQUEST);
-                }
+            if (!foundUser) {
+                throw new HttpException('No user with this email found! Try to sign up first!', HttpStatus.BAD_REQUEST);
+            }
 
-                const passwordMatch: boolean = await this.cryptoService.compare(dto.password, foundUser.password);
+            const passwordMatch: boolean = await this.cryptoService.compare(dto.password, foundUser.password);
 
-                if (!passwordMatch) {
-                    throw new HttpException('Password mismatch!', HttpStatus.BAD_REQUEST);
-                }
+            if (!passwordMatch) {
+                throw new HttpException('Password mismatch!', HttpStatus.BAD_REQUEST);
+            }
 
-                const tokens = this.authTokensGenerator.generate(foundUser.id);
-                return tokens;
-            });
-        } catch (err) {
-            throw new InternalServerError('User sign up has been failed');
-        }
-
+            const tokens = this.authTokensGenerator.generate(foundUser.id);
+            return tokens;
+        });
     }
 
     async refreshToken(dto: RefreshTokenDto) {

@@ -1,7 +1,7 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import CommTypes from "../enums/comm-types";
+import CommunicationsTypes from "../enums/comm-types";
 
 @Entity()
 export class Communication extends BaseEntity {
@@ -11,8 +11,8 @@ export class Communication extends BaseEntity {
     id: string;
 
     @AutoMap()
-    @Column({ type: 'enum', enum: CommTypes })
-    type: CommTypes;
+    @Column({ type: 'enum', enum: CommunicationsTypes })
+    type: CommunicationsTypes;
 
     @AutoMap()
     @Column({ type: 'varchar' })

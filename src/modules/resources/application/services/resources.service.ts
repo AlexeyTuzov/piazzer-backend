@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import { DataSource } from 'typeorm';
 import { Resource } from '../../domain/entities/resources.entity';
@@ -20,79 +19,58 @@ export class ResourcesService {
         private resizeService: ResizeService) { }
 
     async create(dto: CreateResourceDto): Promise<string> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const resource = Resource.create();
-                Object.assign(resource, dto);
-                await resource.save();
-                return resource.id;
-            });
-        } catch (err) {
-            throw new InternalServerError('Resource creation has been failed');
-        }
-
+        return this.dataSource.transaction(async () => {
+            const resource = Resource.create();
+            Object.assign(resource, dto);
+            await resource.save();
+            return resource.id;
+        });
     }
 
     async getFiltered(dto: FilterResourcesDto): Promise<Resource[]> {
-        try {
-            return this.dataSource.transaction(async () => {
-                //TODO pagination
-                const resources = Resource.find();
-                return resources;
-            });
-        } catch (err) {
-            throw new InternalServerError('Error getting resources');
-        }
+        return this.dataSource.transaction(async () => {
+            //TODO pagination
+            const resources = Resource.find();
+            return resources;
+        });
     }
 
     async getById(id: string): Promise<Resource> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const resource = await Resource.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const resource = await Resource.findOne({ where: { id } });
 
-                if (!resource) {
-                    throw new NotFoundError('Resource not found');
-                }
+            if (!resource) {
+                throw new NotFoundError('Resource not found');
+            }
 
-                return resource;
-            })
-        } catch (err) {
-            throw new InternalServerError('Error getting resource');
-        }
+            return resource;
+        });
     }
 
     async update(id: string, dto: UpdateResourceDto): Promise<void> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const resource = await Resource.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const resource = await Resource.findOne({ where: { id } });
 
-                if (!resource) {
-                    throw new NotFoundError('Resource not found');
-                }
+            if (!resource) {
+                throw new NotFoundError('Resource not found');
+            }
 
-                await Resource.update(id, { ...dto });
-                return;
-            });
-        } catch (err) {
-            throw new InternalServerError('Resource update has been failed');
-        }
+            await Resource.update(id, { ...dto });
+            return;
+        });
     }
 
     async delete(id: string) {
-        try {
-            return this.dataSource.transaction(async () => {
-                const resource = await Resource.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const resource = await Resource.findOne({ where: { id } });
 
-                if (!resource) {
-                    throw new NotFoundError('Resource not found');
-                }
+            if (!resource) {
+                throw new NotFoundError('Resource not found');
+            }
 
-                await resource.softRemove();
-                return;
-            })
-        } catch (err) {
-            throw new InternalServerError('Resource deletion has been failed');
-        }
+            await resource.softRemove();
+            return;
+        });
     }
 
     async resolve(id: string) {

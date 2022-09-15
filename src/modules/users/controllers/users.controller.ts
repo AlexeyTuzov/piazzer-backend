@@ -24,7 +24,9 @@ export class UsersController {
 
     @Patch('/:id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    usersUpdate(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    usersUpdate(
+        @Param('id') id: string, 
+        @Body() dto: UpdateUserDto) {
         return this.usersService.update(id, dto);
     }
 
@@ -35,7 +37,9 @@ export class UsersController {
     }
 
     @Get('/:id/communications')
-    usersCommunicationsFind(@Param('id') id: string, @Query() dto: FilterCommDto) {
+    usersCommunicationsFind(
+        @Param('id') id: string, 
+        @Query() dto: FilterCommDto) {
         return this.usersService.getAllUserComms({ userId: id, ...dto });
     }
 
@@ -47,22 +51,31 @@ export class UsersController {
     //TODO: All following methods are not deeply implemented yet!
     @Delete('/:id/communications/:commID')
     @HttpCode(HttpStatus.NO_CONTENT)
-    userCommunicationDelete(@Param('id') id: string, @Param('commID') commID: string) {
+    userCommunicationDelete(
+        @Param('id') id: string, 
+        @Param('commID') commID: string) {
         return this.usersService.deleteComm(id, commID);
     }
 
     @Post('/:id/communications/:commID/confirm')
-    usersCommunicationConfirm(@Param('id') id: string, @Body() dto: ConfirmUserCommDto) {
-        return this.usersService.confirmComm(id, dto);
+    usersCommunicationConfirm(
+        @Param('id') id: string,
+        @Param('commID') commId: string,
+        @Body() dto: ConfirmUserCommDto) {
+        return this.usersService.confirmComm(id, commId, dto);
     }
 
     @Post('/:id/communications/:commID/confirm/send-code')
-    usersCommunicationConfirmSendCode(@Param('id') id: string) {
-        return this.usersService.sendCode(id);
+    usersCommunicationConfirmSendCode(
+        @Param('id') id: string,
+        @Param('commID') commId: string) {
+        return this.usersService.sendCode(id, commId);
     }
 
     @Post('/:id/change-role/:userRole')
-    usersChangeRole(@Param('id') id: string, @Param('userRole') dto: ChangeRoleDto) {
+    usersChangeRole(
+        @Param('id') id: string, 
+        @Param('userRole') dto: ChangeRoleDto) {
         //TODO: need to check can we get role from query params this way
         return this.usersService.changeRole(id, dto);
     }

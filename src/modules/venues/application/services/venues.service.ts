@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Token } from 'aws-sdk/lib/token';
-import InternalServerError from 'src/infrastructure/exceptions/internal-server-error';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import JwtDecoder from 'src/modules/auth/infrastructure/jwtDecoder';
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service';
-import { Resource } from 'src/modules/resources/domain/entities/resources.entity';
 import { UsersService } from 'src/modules/users/application/services/users.service';
 import { DataSource } from 'typeorm';
 import { Venue } from '../../domain/entities/venues.entity';
@@ -43,65 +40,55 @@ export class VenuesService {
     }
 
     getFiltered(dto: FilterVenueDto): Promise<Venue[]> {
-        try {
-            return this.dataSource.transaction(async () => {
-                //TODO pagination
-                const venues = Venue.find();
-                return venues;
-            });
-        } catch (err) {
-            throw new InternalServerError('Error getting venues');
-        }
+
+        return this.dataSource.transaction(async () => {
+            //TODO pagination
+            const venues = Venue.find();
+            return venues;
+        });
     }
 
+    //TODO: add attributes and properties to relations!!!!
     getById(id: string): Promise<Venue> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const venue = await Venue.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const venue = await Venue.findOne(
+                {
+                    where: { id },
+                    relations: ['resources']
+                });
 
-                if (!venue) {
-                    throw new NotFoundError('Venue not found');
-                }
+            if (!venue) {
+                throw new NotFoundError('Venue not found');
+            }
 
-                return venue;
-            })
-        } catch (err) {
-            throw new InternalServerError('Error getting venue');
-        }
+            return venue;
+        })
     }
 
     update(id: string, dto: UpdateVenueDto): Promise<void> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const venue = await Venue.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const venue = await Venue.findOne({ where: { id } });
 
-                if (!venue) {
-                    throw new NotFoundError('Venue not found');
-                }
+            if (!venue) {
+                throw new NotFoundError('Venue not found');
+            }
 
-                await Venue.update(id, { ...dto });
-                return;
-            });
-        } catch (err) {
-            throw new InternalServerError('Venue update has been failed');
-        }
+            await Venue.update(id, { ...dto });
+            return;
+        });
     }
 
     delete(id: string): Promise<void> {
-        try {
-            return this.dataSource.transaction(async () => {
-                const venue = await Venue.findOne({ where: { id } });
+        return this.dataSource.transaction(async () => {
+            const venue = await Venue.findOne({ where: { id } });
 
-                if (!venue) {
-                    throw new NotFoundError('Venue not found');
-                }
+            if (!venue) {
+                throw new NotFoundError('Venue not found');
+            }
 
-                await venue.softRemove();
-                return;
-            });
-        } catch (err) {
-            throw new InternalServerError('Venue deletion has been failed');
-        }
+            await venue.softRemove();
+            return;
+        });
     }
 
     getSchedule(id: string, dto: FilterVenueDto) {
