@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { exceptionBoot } from './infrastructure/exceptions/exception.boot';
 
 async function bootstrap() {
     const PORT = process.env.PORT || 3000;
@@ -8,6 +9,7 @@ async function bootstrap() {
     await app.listen(PORT, () => {
         console.log(`Server has been started on port ${PORT}`);
     });
+    exceptionBoot(app);
 }
 
 bootstrap();

@@ -56,7 +56,7 @@ export class UsersService {
     async getById(id: string): Promise<User> {
         try {
             return this.dataSource.transaction(async () => {
-                const user = await User.findOne({ where: { id } });
+                const user = await User.findOne({ where: { id }, relations: ['communications'] });
 
                 if (!user) {
                     throw new NotFoundError('User not found');
