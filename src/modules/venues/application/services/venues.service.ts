@@ -25,6 +25,7 @@ export class VenuesService {
         return transacting(async (em) => {
             const venue = em.getRepository(Venue).create();
             const ownerId = this.jwtDecoder.decodeUserId(token);
+            console.log('token:', token);
             const owner = await this.usersService.getById(ownerId);
             Object.assign(venue, { ...dto, owner });
             await em.save(venue);

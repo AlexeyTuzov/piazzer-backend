@@ -12,7 +12,7 @@ export class VenuesController {
 
     @Post()
     venuesCreate(@Body() dto: CreateVenueDto, @Headers('Authorization') token: string) {
-        return this.venuesService.create(dto, token);
+        return this.venuesService.create(dto, token.split(' ')[1]);
     }
 
     @Get()
