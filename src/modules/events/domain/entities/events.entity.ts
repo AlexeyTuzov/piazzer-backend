@@ -1,11 +1,11 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToOne } from "typeorm";
-import { Resource } from "../resources/domain/entities/resources.entity";
-import { VenueScheduleItem } from "../venues/domain/entities/venueScheduleItem.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToOne, BaseEntity } from "typeorm";
+import { Resource } from "../../../resources/domain/entities/resources.entity";
+import { VenueScheduleItem } from "../../../venues/domain/entities/venueScheduleItem.entity";
 
 @Entity()
-export class Event {
+export class Event extends BaseEntity {
 
     @AutoMap()
     @PrimaryGeneratedColumn('uuid')

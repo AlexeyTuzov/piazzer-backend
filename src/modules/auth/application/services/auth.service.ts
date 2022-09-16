@@ -7,9 +7,10 @@ import RefreshTokenDto from '../DTO/refreshToken.dto';
 import OAuthDto from '../DTO/oAuth.dto';
 import SignUpDto from '../DTO/signUp.dto';
 import CryptoService from '../../infrastructure/crypto.service';
-import { DataSource } from 'typeorm';
 import AuthTokensDto from '../DTO/authTokens.dto';
 import AuthTokensGenerator from '../../infrastructure/tokenGenerators/authTokens.generator';
+import { transacting } from 'src/infrastructure/database/transacting';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -17,12 +18,11 @@ export class AuthService {
     constructor(
         private authTokensGenerator: AuthTokensGenerator,
         private usersService: UsersService,
-        private cryptoService: CryptoService,
-        private dataSource: DataSource) { }
+        private cryptoService: CryptoService) { }
 
-    async signUp(dto: SignUpDto): Promise<string> {
-        return this.dataSource.transaction(async () => {
-            const existingUser = await this.usersService.getOneByEmail(dto.email);
+    async signUp(dto: SignUpDto, em?: EntityManager): Promise<string> {
+        return transacting(async (em) => {
+            const existingUser = await this.usersService.getOneByEmail(dto.email, em);
 
             if (existingUser) {
                 throw new HttpException(
@@ -34,10 +34,10 @@ export class AuthService {
                 {
                     ...dto,
                     password: encryptedPassword
-                });
+                }, em);
             //TODO: что за secret отсюда надо вернуть???
             return userId;
-        });
+        }, em);
     }
 
     async signUpResendCode(dto: ResendCodeDto) {
@@ -48,9 +48,9 @@ export class AuthService {
 
     }
 
-    async signIn(dto: CredentialsDto): Promise<AuthTokensDto> {
-        return this.dataSource.transaction(async () => {
-            const foundUser = await this.usersService.getOneByEmail(dto.email);
+    async signIn(dto: CredentialsDto, em?: EntityManager): Promise<AuthTokensDto> {
+        return transacting(async (em) => {
+            const foundUser = await this.usersService.getOneByEmail(dto.email, em);
 
             if (!foundUser) {
                 throw new HttpException('No user with this email found! Try to sign up first!', HttpStatus.BAD_REQUEST);
@@ -64,7 +64,7 @@ export class AuthService {
 
             const tokens = this.authTokensGenerator.generate(foundUser.id);
             return tokens;
-        });
+        }, em);
     }
 
     async refreshToken(dto: RefreshTokenDto) {

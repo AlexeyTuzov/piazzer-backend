@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { MapperModule } from './infrastructure/automapper/mapper.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ResourcesModule } from './modules/resources/resources.module';
 import { VenuesModule } from './modules/venues/venues.module';
+import { DatabaseModule } from './infrastructure/database/database.module';
+import { EventsModule } from './modules/events/events.module';
 
 //TODO: extract ConfigModule from here to an infrastructure module
 @Module({
@@ -14,22 +15,12 @@ import { VenuesModule } from './modules/venues/venues.module';
             envFilePath: `.${process.env.NODE_ENV}.env`
         }),
         MapperModule,
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            host: process.env.POSTGRES_HOST,
-            username: process.env.POSTGRES_USER,
-            database: process.env.POSTGRES_DB,
-            password: process.env.POSTGRES_PASSWORD,
-            port: Number(process.env.POSTGRES_PORT),
-            entities: [`${__dirname}/**/**.entity{.js,.ts}`],
-            migrations: [`${__dirname}/migrations/**/*{.ts,.js}`],
-            autoLoadEntities: true,
-            synchronize: false
-        }),
+        DatabaseModule,
         UsersModule,
         AuthModule,
         ResourcesModule,
-        VenuesModule
+        VenuesModule,
+        EventsModule
     ]
 })
 export class AppModule { }

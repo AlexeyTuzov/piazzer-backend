@@ -1,7 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import UserTypes from '../enums/user-types';
 import { Venue } from '../../../venues/domain/entities/venues.entity';
-import { Event } from 'src/modules/events/events.entity';
+import { Event } from 'src/modules/events/domain/entities/events.entity';
 import { Communication } from './communications.entity';
 import { AutoMap } from '@automapper/classes';
 

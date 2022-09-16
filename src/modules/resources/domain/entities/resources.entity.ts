@@ -2,7 +2,7 @@ import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, U
 import { AutoMap } from "@automapper/classes";
 import ResourceTypes from "../enums/resourceTypes";
 import { Venue } from "src/modules/venues/domain/entities/venues.entity";
-import { Event } from "src/modules/events/events.entity";
+import { Event } from "src/modules/events/domain/entities/events.entity"; 
 
 @Entity()
 export class Resource extends BaseEntity {

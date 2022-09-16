@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { transacting } from 'src/infrastructure/database/transacting';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import JwtDecoder from 'src/modules/auth/infrastructure/jwtDecoder';
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service';
 import { UsersService } from 'src/modules/users/application/services/users.service';
-import { DataSource } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { Venue } from '../../domain/entities/venues.entity';
 import FilterVenueDto from '../../infrastructure/filterVenue.dto';
 import CreateScheduleItemDto from '../DTO/createScheduleItem.dto';
@@ -14,15 +15,14 @@ import UpdateVenueDto from '../DTO/updateVenue.dto';
 export class VenuesService {
 
     constructor(
-        private dataSource: DataSource,
         private resourcesService: ResourcesService,
         private jwtDecoder: JwtDecoder,
         private usersService: UsersService) {
     }
 
-    create(dto: CreateVenueDto, token: string): Promise<string> {
+    create(dto: CreateVenueDto, token: string, em?: EntityManager): Promise<string> {
 
-        return this.dataSource.transaction(async (em) => {
+        return transacting(async (em) => {
             const venue = em.getRepository(Venue).create();
             const ownerId = this.jwtDecoder.decodeUserId(token);
             const owner = await this.usersService.getById(ownerId);
@@ -36,22 +36,22 @@ export class VenuesService {
             }
 
             return venue.id;
-        });
+        }, em);
     }
 
-    getFiltered(dto: FilterVenueDto): Promise<Venue[]> {
+    getFiltered(dto: FilterVenueDto, em?: EntityManager): Promise<Venue[]> {
 
-        return this.dataSource.transaction(async () => {
+        return transacting(async (em) => {
             //TODO pagination
-            const venues = Venue.find();
+            const venues = em.getRepository(Venue).find();
             return venues;
-        });
+        }, em);
     }
 
     //TODO: add attributes and properties to relations!!!!
-    getById(id: string): Promise<Venue> {
-        return this.dataSource.transaction(async () => {
-            const venue = await Venue.findOne(
+    getById(id: string, em?: EntityManager): Promise<Venue> {
+        return transacting(async (em) => {
+            const venue = await em.getRepository(Venue).findOne(
                 {
                     where: { id },
                     relations: ['resources']
@@ -62,33 +62,33 @@ export class VenuesService {
             }
 
             return venue;
-        })
+        }, em);
     }
 
-    update(id: string, dto: UpdateVenueDto): Promise<void> {
-        return this.dataSource.transaction(async () => {
-            const venue = await Venue.findOne({ where: { id } });
+    update(id: string, dto: UpdateVenueDto, em?: EntityManager): Promise<void> {
+        return transacting(async (em) => {
+            const venue = await em.getRepository(Venue).findOne({ where: { id } });
 
             if (!venue) {
                 throw new NotFoundError('Venue not found');
             }
 
-            await Venue.update(id, { ...dto });
+            await em.getRepository(Venue).update(id, { ...dto });
             return;
-        });
+        }, em);
     }
 
-    delete(id: string): Promise<void> {
-        return this.dataSource.transaction(async () => {
-            const venue = await Venue.findOne({ where: { id } });
+    delete(id: string, em?: EntityManager): Promise<void> {
+        return transacting(async (em) => {
+            const venue = await em.getRepository(Venue).findOne({ where: { id } });
 
             if (!venue) {
                 throw new NotFoundError('Venue not found');
             }
 
-            await venue.softRemove();
+            await em.softRemove(venue);
             return;
-        });
+        }, em);
     }
 
     getSchedule(id: string, dto: FilterVenueDto) {
