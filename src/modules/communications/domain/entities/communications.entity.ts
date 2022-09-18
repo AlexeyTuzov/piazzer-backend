@@ -1,5 +1,6 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
+import { Venue } from "src/modules/venues/domain/entities/venues.entity";
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import CommunicationsTypes from "../enums/comm-types";
 
@@ -34,7 +35,7 @@ export class Communication extends BaseEntity {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
-    @AutoMap(() => User)
-    @ManyToOne(() => User, user => user.communications)
-    user: User;
+    @AutoMap(() => User || Venue)
+    @ManyToOne(() => User || Venue, belonging => belonging.communications)
+    belonging: User;
 }

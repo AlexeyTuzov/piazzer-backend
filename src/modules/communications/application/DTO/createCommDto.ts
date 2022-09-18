@@ -10,5 +10,5 @@ export default class CreateCommDto {
     readonly value: string;
 
     @AutoMap()
-    readonly description: string;
+    readonly description?: string;
 }

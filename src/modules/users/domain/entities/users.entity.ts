@@ -2,7 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMa
 import UserTypes from '../enums/user-types';
 import { Venue } from '../../../venues/domain/entities/venues.entity';
 import { Event } from 'src/modules/events/domain/entities/events.entity';
-import { Communication } from './communications.entity';
+import { Communication } from '../../../communications/domain/entities/communications.entity';
 import { AutoMap } from '@automapper/classes';
 
 @Entity()
@@ -12,6 +12,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
+    //TODO: NO Email! Need to store it in communications, use any confirmed email to log in!
     @AutoMap()
     @Column({ type: 'varchar' })
     email: string;
@@ -49,7 +50,7 @@ export class User extends BaseEntity {
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
-    @OneToMany(() => Communication, comm => comm.user, {cascade: true})
+    @OneToMany(() => Communication, comm => comm.belonging, {cascade: true})
     communications: Communication[];
 
     @AutoMap({type: () => Venue})

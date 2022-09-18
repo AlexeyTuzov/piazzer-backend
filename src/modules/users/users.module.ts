@@ -4,7 +4,8 @@ import { UsersController } from './controllers/users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './domain/entities/users.entity';
 import { AuthModule } from '../auth/auth.module';
-import { Communication } from './domain/entities/communications.entity';
+import { Communication } from '../communications/domain/entities/communications.entity';
+import { CommunicationsModule } from '../communications/communications.module';
 
 @Module({
     providers: [
@@ -13,7 +14,8 @@ import { Communication } from './domain/entities/communications.entity';
     controllers: [UsersController],
     imports: [
         TypeOrmModule.forFeature([User, Communication]),
-        forwardRef(() => AuthModule)
+        forwardRef(() => AuthModule),
+        CommunicationsModule
     ],
     exports: [
         UsersService

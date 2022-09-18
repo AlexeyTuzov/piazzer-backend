@@ -2,8 +2,6 @@ import { IsNumberString, IsString } from 'class-validator';
 
 export default class FilterCommDto {
 
-    readonly userId: string;
-
     @IsNumberString()
     readonly limit?: number;
 

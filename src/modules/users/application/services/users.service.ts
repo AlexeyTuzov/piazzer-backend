@@ -1,25 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import CreateCommDto from 'src/modules/users/application/DTO/createCommDto';
+import CreateCommDto from 'src/modules/communications/application/DTO/createCommDto';
 import FilterUserDto from '../../infrastructure/DTO/filterUser.dto';
 import ChangeRoleDto from '../DTO/changeRole.dto';
 import CreateUserDto from '../DTO/createUser.dto';
-import ConfirmUserCommDto from '../DTO/confirmUserComm.dto';
+import ConfirmUserCommDto from '../../../communications/application/DTO/confirmUserComm.dto';
 import UpdateUserDto from '../DTO/updateUser.dto';
 import { User } from '../../domain/entities/users.entity';
-import { Communication } from 'src/modules/users/domain/entities/communications.entity';
-import { Mapper } from '@automapper/core';
-import { InjectMapper } from '@automapper/nestjs';
-import FilterCommDto from '../../infrastructure/DTO/filterComm.dto';
+import FilterCommDto from '../../../communications/infrastructure/filterComm.dto';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import { transacting } from 'src/infrastructure/database/transacting';
 import { EntityManager } from 'typeorm';
+import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity';
 
 @Injectable()
 export class UsersService {
 
-    constructor(
-        @InjectMapper() private mapper: Mapper) { }
-
+    constructor(private communicationsService: CommunicationsService) { }
 
     async create(dto: CreateUserDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
@@ -83,37 +80,28 @@ export class UsersService {
         }, em);
     }
 
-    async getAllUserComms(dto: FilterCommDto, em?: EntityManager): Promise<Communication[]> {
+    async getAllUserComms(id: string, dto: FilterCommDto, em?: EntityManager): Promise<Communication[]> {
         return transacting(async (em) => {
-            const userComms = await em.getRepository(Communication).find({ where: { user: { id: dto.userId } } });
-            return userComms;
+            const user = await this.getById(id);
+            return await this.communicationsService.getFiltered(user.id, dto, em);
         }, em);
     }
 
     async createComm(id: string, dto: CreateCommDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
-            const comm = em.getRepository(Communication).create();
-            const user = await em.getRepository(User).findOne({ where: { id } });
-            Object.assign(comm, { ...dto, user });
-            await em.save(comm);
-            return comm.id;
+            const user = await this.getById(id);
+            return await this.communicationsService.create(user.id, dto, em);
         }, em);
     }
 
     async deleteComm(id: string, commID: string, em?: EntityManager) {
         return transacting(async (em) => {
-            const comm = await em.getRepository(Communication).findOne({ where: { id: commID } });
-
-            if (!comm) {
-                throw new NotFoundError('User communication not found');
-            }
-
-            await em.delete(Communication, { id });
+            await this.getById(id);
+            await this.communicationsService.delete(commID);
             return;
         }, em);
     }
 
-    //TODO: following methods should be in another services (e-mailer/admin)
     async confirmComm( id: string, commId: string, dto: ConfirmUserCommDto, em?: EntityManager) {
         //here we gonna call the mailer service's method
     }

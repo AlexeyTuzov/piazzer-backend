@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { CommunicationsModule } from '../communications/communications.module';
 import { ResourcesModule } from '../resources/resources.module';
 import { UsersModule } from '../users/users.module';
 import { VenuesService } from './application/services/venues.service';
@@ -16,7 +17,8 @@ import { VenueType } from './domain/entities/venueTypes.entity';
     ResourcesModule,
     TypeOrmModule.forFeature([Venue, VenueScheduleItem, VenueType]),
     AuthModule,
-    UsersModule
+    UsersModule,
+    CommunicationsModule
 ]
 })
 export class VenuesModule {}

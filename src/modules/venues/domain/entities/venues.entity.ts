@@ -4,6 +4,7 @@ import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToO
 import { VenueType } from "./venueTypes.entity";
 import { Resource } from "src/modules/resources/domain/entities/resources.entity";
 import { VenueScheduleItem } from "./venueScheduleItem.entity";
+import { Communication } from "src/modules/communications/domain/entities/communications.entity";
 
 @Entity()
 export class Venue extends BaseEntity {
@@ -26,15 +27,7 @@ export class Venue extends BaseEntity {
 
     @AutoMap()
     @Column({type: 'varchar'})
-    email: string;
-
-    @AutoMap()
-    @Column({type: 'varchar'})
     contactPerson: string;
-
-    @AutoMap()
-    @Column({type: 'varchar'})
-    telephone: string;
 
     @AutoMap()
     @Column({type: 'varchar', nullable: true})
@@ -83,6 +76,10 @@ export class Venue extends BaseEntity {
     @AutoMap(() => Resource)
     @OneToMany(() => Resource, resource => resource.belonging, {cascade: true})
     resources: Resource [];
+
+    @AutoMap(() => Communication)
+    @OneToMany(() => Communication, comm => comm.belonging, {cascade: true})
+    communications: Communication[];
 
     @AutoMap(() => VenueType)
     @ManyToOne(() => VenueType, type => type.venues)
