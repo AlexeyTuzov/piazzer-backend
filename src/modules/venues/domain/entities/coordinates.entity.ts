@@ -1,5 +1,6 @@
 import { AutoMap } from "@automapper/classes";
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Venue } from "./venues.entity";
 
 @Entity()
 export class Coordinates extends BaseEntity {
@@ -15,4 +16,8 @@ export class Coordinates extends BaseEntity {
     @AutoMap()
     @Column({type: 'float'})
     lon: number;
+
+    @AutoMap(() => Venue)
+    @OneToOne(() => Venue, venue => venue.coordinates)
+    venue: Venue;
 }

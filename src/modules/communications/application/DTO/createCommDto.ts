@@ -11,4 +11,10 @@ export default class CreateCommDto {
 
     @AutoMap()
     readonly description?: string;
+
+    @AutoMap()
+    readonly userId?: string;
+
+    @AutoMap()
+    readonly venueId?: string;
 }

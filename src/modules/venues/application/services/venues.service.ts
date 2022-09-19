@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { transacting } from 'src/infrastructure/database/transacting';
 import NotFoundError from 'src/infrastructure/exceptions/not-found';
 import JwtDecoder from 'src/modules/auth/infrastructure/jwtDecoder';
+import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service';
 import { UsersService } from 'src/modules/users/application/services/users.service';
 import { EntityManager } from 'typeorm';
@@ -17,7 +18,8 @@ export class VenuesService {
     constructor(
         private resourcesService: ResourcesService,
         private jwtDecoder: JwtDecoder,
-        private usersService: UsersService) {
+        private usersService: UsersService,
+        private communicationsService: CommunicationsService) {
     }
 
     create(dto: CreateVenueDto, token: string, em?: EntityManager): Promise<string> {
@@ -32,8 +34,12 @@ export class VenuesService {
             //TODO: need to check if resourcesIds exist!!!
             for (const id of dto.resourcesIds) {
                 const resource = await this.resourcesService.getById(id);
-                Object.assign(resource, { ...resource, belonging: venue });
+                Object.assign(resource, { ...resource, venue });
                 await em.save(resource);
+            }
+
+            for (const comm of dto.communications) {
+                await this.communicationsService.create({venueId: venue.id, ...comm}, em);
             }
 
             return venue.id;

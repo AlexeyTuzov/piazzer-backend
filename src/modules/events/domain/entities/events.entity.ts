@@ -61,7 +61,7 @@ export class Event extends BaseEntity {
     deletedAt: string;
 
     @AutoMap(() => Resource)
-    @OneToMany(() => Resource, resource => resource.belonging)
+    @OneToMany(() => Resource, resource => resource.event)
     resources: Resource[];
 
     @AutoMap(() => VenueScheduleItem)
@@ -69,7 +69,7 @@ export class Event extends BaseEntity {
     scheduleItem: VenueScheduleItem;
 
     @AutoMap(() => Tag)
-    @OneToMany(() => Tag, tag => tag.belonging, {cascade: true})
+    @OneToMany(() => Tag, tag => tag.event, {cascade: true})
     tags: Tag[];
 
     /*

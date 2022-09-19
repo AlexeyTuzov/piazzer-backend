@@ -56,6 +56,10 @@ export class AuthService {
                 throw new HttpException('No user with this email found! Try to sign up first!', HttpStatus.BAD_REQUEST);
             }
 
+            if(!foundUser.isVerified) {
+                throw new HttpException('Verify user email to proceed logging in', HttpStatus.FORBIDDEN);
+            }
+
             const passwordMatch: boolean = await this.cryptoService.compare(dto.password, foundUser.password);
 
             if (!passwordMatch) {

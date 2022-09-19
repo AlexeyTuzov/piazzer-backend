@@ -33,8 +33,9 @@ export class User extends BaseEntity {
     @Column({ type: 'boolean', default: false })
     isBlocked: boolean;
 
+    //TODO: change this to default:false - temporary set to true to aviod email approvement!!!
     @AutoMap()
-    @Column({type: 'boolean', default: false})
+    @Column({type: 'boolean', default: true})
     isVerified: boolean;
 
     @AutoMap({type: () => Date})
@@ -50,7 +51,7 @@ export class User extends BaseEntity {
     deletedAt: string;
 
     @AutoMap({type: () => Communication})
-    @OneToMany(() => Communication, comm => comm.belonging, {cascade: true})
+    @OneToMany(() => Communication, comm => comm.user, {cascade: true})
     communications: Communication[];
 
     @AutoMap({type: () => Venue})

@@ -9,11 +9,12 @@ import NotFoundError from "src/infrastructure/exceptions/not-found";
 @Injectable()
 export class CommunicationsService {
 
-    async create(belongingId: string, dto: CreateCommDto, em?: EntityManager): Promise<string> {
+    async create(dto: CreateCommDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
             const comm = em.getRepository(Communication).create();
-            Object.assign(comm, { ...dto, belongingId });
+            Object.assign(comm, dto);
             await em.save(comm);
+            console.log('comm:', comm);
             return comm.id;
         }, em);
     }

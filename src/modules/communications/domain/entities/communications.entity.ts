@@ -35,7 +35,11 @@ export class Communication extends BaseEntity {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
-    @AutoMap(() => User || Venue)
-    @ManyToOne(() => User || Venue, belonging => belonging.communications)
-    belonging: User;
+    @AutoMap(() => User)
+    @ManyToOne(() => User, user => user.communications)
+    user: User;
+
+    @AutoMap(() => Venue)
+    @ManyToOne(() => Venue, venue => venue.communications)
+    venue: Venue;
 }

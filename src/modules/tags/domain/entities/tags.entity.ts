@@ -55,7 +55,15 @@ export class Tag extends BaseEntity {
     @DeleteDateColumn()
     deletedAt: string;
 
-    @AutoMap(() => Venue || Event)
-    @ManyToOne(() => Venue || Event, belonging => belonging.tags)
-    belonging: Venue | Event;
+    @AutoMap(() => Venue)
+    @ManyToOne(() => Venue, venue => venue.attributes)
+    venueAttribute: Venue;
+
+    @AutoMap(() => Venue)
+    @ManyToOne(() => Venue, venue => venue.properties)
+    venueProperty: Venue;
+
+    @AutoMap(() => Event)
+    @ManyToOne(() => Event, event => event.tags)
+    event: Event;
 }

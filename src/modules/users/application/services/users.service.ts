@@ -12,6 +12,7 @@ import { transacting } from 'src/infrastructure/database/transacting';
 import { EntityManager } from 'typeorm';
 import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
 import { Communication } from 'src/modules/communications/domain/entities/communications.entity';
+import CommunicationsTypes from 'src/modules/communications/domain/enums/comm-types';
 
 @Injectable()
 export class UsersService {
@@ -23,6 +24,9 @@ export class UsersService {
             const user = em.getRepository(User).create();
             Object.assign(user, dto);
             await em.save(user);
+            await this.communicationsService.create({ userId: user.id, type: CommunicationsTypes.EMAIL, value: dto.email }, em);
+            console.log('user:', user);
+            console.log('dto:', dto);
             return user.id;
         }, em);
     }
@@ -90,7 +94,7 @@ export class UsersService {
     async createComm(id: string, dto: CreateCommDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
             const user = await this.getById(id);
-            return await this.communicationsService.create(user.id, dto, em);
+            return await this.communicationsService.create({ userId: user.id, ...dto }, em);
         }, em);
     }
 
@@ -102,7 +106,7 @@ export class UsersService {
         }, em);
     }
 
-    async confirmComm( id: string, commId: string, dto: ConfirmUserCommDto, em?: EntityManager) {
+    async confirmComm(id: string, commId: string, dto: ConfirmUserCommDto, em?: EntityManager) {
         //here we gonna call the mailer service's method
     }
 

@@ -1,4 +1,5 @@
 import { AutoMap } from "@automapper/classes";
+import { Communication } from "src/modules/communications/domain/entities/communications.entity";
 import CreateCoordinatesDto from "./createCoordinates.dto";
 
 export default class UpdateVenueDto {
@@ -16,19 +17,16 @@ export default class UpdateVenueDto {
     readonly city?: string;
 
     @AutoMap()
-    readonly email?: string;
-
-    @AutoMap()
     readonly contactPerson?: string;
-
-    @AutoMap()
-    readonly telephone?: string; 
 
     @AutoMap()
     readonly short?: string;
 
     @AutoMap()
     readonly coordinates?: CreateCoordinatesDto;
+
+    @AutoMap(() => Communication)
+    readonly communications?: Communication[];
 
     @AutoMap()
     readonly description?: string;
@@ -53,10 +51,4 @@ export default class UpdateVenueDto {
 
     @AutoMap()
     readonly resourcesIds?: string[];
-
-    @AutoMap()
-    readonly owner?: {
-        name: string,
-        position: string
-    }
 }

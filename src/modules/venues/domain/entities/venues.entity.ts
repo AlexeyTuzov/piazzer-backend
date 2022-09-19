@@ -1,11 +1,12 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { VenueType } from "./venueTypes.entity";
 import { Resource } from "src/modules/resources/domain/entities/resources.entity";
 import { VenueScheduleItem } from "./venueScheduleItem.entity";
 import { Communication } from "src/modules/communications/domain/entities/communications.entity";
 import { Tag } from '../../../tags/domain/entities/tags.entity';
+import { Coordinates } from "./coordinates.entity";
 
 @Entity()
 export class Venue extends BaseEntity {
@@ -43,10 +44,6 @@ export class Venue extends BaseEntity {
     description: string;
 
     @AutoMap()
-    @Column({ type: 'varchar', array: true, nullable: true })
-    properties: string[];
-
-    @AutoMap()
     @Column({ type: 'integer', default: 0 })
     capacity: number;
 
@@ -74,12 +71,16 @@ export class Venue extends BaseEntity {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
+    @AutoMap(() => Coordinates)
+    @OneToOne(() => Coordinates, coordinates => coordinates.venue, {cascade: true})
+    coordinates: Coordinates;
+
     @AutoMap(() => Resource)
-    @OneToMany(() => Resource, resource => resource.belonging, {cascade: true})
+    @OneToMany(() => Resource, resource => resource.venue, {cascade: true})
     resources: Resource [];
 
     @AutoMap(() => Communication)
-    @OneToMany(() => Communication, comm => comm.belonging, {cascade: true})
+    @OneToMany(() => Communication, comm => comm.venue, {cascade: true})
     communications: Communication[];
 
     @AutoMap(() => VenueType)
@@ -95,7 +96,10 @@ export class Venue extends BaseEntity {
     owner: User;
 
     @AutoMap(() => Tag)
-    @OneToMany(() => Tag, tag => tag.belonging, {cascade: true})
-    tags: Tag[];
+    @OneToMany(() => Tag, tag => tag.venueAttribute, {cascade: true})
+    attributes: Tag[];
 
+    @AutoMap(() => Tag)
+    @OneToMany(() => Tag, tag => tag.venueProperty, {cascade: true})
+    properties: Tag[];
 }

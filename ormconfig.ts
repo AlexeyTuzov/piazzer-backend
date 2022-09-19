@@ -15,7 +15,8 @@ module.exports = {
 
   entities: ['dist/**/entities/*{.ts,.js}'],
   autoLoadEntities: true,
-  synchronize: false,
+  //TODO: change this to false and use migrations!
+  synchronize: true,
   migrations: ['dist/infrastructure/database/migrations/*.js'],
   migrationsTableName: 'migrations',
   cli: {
