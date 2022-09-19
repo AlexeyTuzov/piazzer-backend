@@ -8,6 +8,7 @@ import { VenuesModule } from './modules/venues/venues.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { EventsModule } from './modules/events/events.module';
 import { CommunicationsModule } from './modules/communications/communications.module';
+import { EmailerModule } from './infrastructure/emailer/emailer.module';
 
 //TODO: extract ConfigModule from here to an infrastructure module
 @Module({
@@ -22,7 +23,8 @@ import { CommunicationsModule } from './modules/communications/communications.mo
         ResourcesModule,
         VenuesModule,
         EventsModule,
-        CommunicationsModule
+        CommunicationsModule,
+        EmailerModule
     ]
 })
 export class AppModule { }
