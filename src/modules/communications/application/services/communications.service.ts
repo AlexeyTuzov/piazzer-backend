@@ -14,7 +14,6 @@ export class CommunicationsService {
             const comm = em.getRepository(Communication).create();
             Object.assign(comm, dto);
             await em.save(comm);
-            console.log('comm:', comm);
             return comm.id;
         }, em);
     }

@@ -24,9 +24,7 @@ export class UsersService {
             const user = em.getRepository(User).create();
             Object.assign(user, dto);
             await em.save(user);
-            await this.communicationsService.create({ userId: user.id, type: CommunicationsTypes.EMAIL, value: dto.email }, em);
-            console.log('user:', user);
-            console.log('dto:', dto);
+            const commId = await this.communicationsService.create({ userId: user.id, type: CommunicationsTypes.EMAIL, value: dto.email }, em);
             return user.id;
         }, em);
     }

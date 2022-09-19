@@ -50,11 +50,11 @@ export class User extends BaseEntity {
     @DeleteDateColumn({ type: 'date', default: null })
     deletedAt: string;
 
-    @AutoMap({type: () => Communication})
+    @AutoMap(() => Communication)
     @OneToMany(() => Communication, comm => comm.user, {cascade: true})
     communications: Communication[];
 
-    @AutoMap({type: () => Venue})
+    @AutoMap(() => Venue)
     @OneToMany(() => Venue, venue => venue.owner, {cascade: true})
     venues: Venue[];
     /*
