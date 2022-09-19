@@ -1,4 +1,5 @@
 import { AutoMap } from '@automapper/classes';
+import { Communication } from '../../../communications/domain/entities/communications.entity';
 
 export default class CreateUserDto {
 
@@ -10,4 +11,7 @@ export default class CreateUserDto {
 
     @AutoMap()
     readonly name: string;
+
+    @AutoMap(() => Communication)
+    readonly communications?: Communication[];
 }

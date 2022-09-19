@@ -30,18 +30,14 @@ export class VenuesService {
             const owner = await this.usersService.getById(ownerId);
             Object.assign(venue, { ...dto, owner });
             await em.save(venue);
+            console.log('venue:', venue);
 
-            //TODO: need to check if resourcesIds exist!!!
+            //TODO: need to check if resourcesIds exist!!! and maybe just update resource
             for (const id of dto.resourcesIds) {
                 const resource = await this.resourcesService.getById(id);
                 Object.assign(resource, { ...resource, venue });
                 await em.save(resource);
             }
-
-            for (const comm of dto.communications) {
-                await this.communicationsService.create({venueId: venue.id, ...comm}, em);
-            }
-
             return venue.id;
         }, em);
     }

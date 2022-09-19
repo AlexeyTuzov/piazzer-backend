@@ -22,9 +22,9 @@ export class UsersService {
     async create(dto: CreateUserDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
             const user = em.getRepository(User).create();
-            Object.assign(user, dto);
+            const communications = [{type: CommunicationsTypes.EMAIL, value: dto.email}];
+            Object.assign(user, {...dto, communications});
             await em.save(user);
-            const commId = await this.communicationsService.create({ userId: user.id, type: CommunicationsTypes.EMAIL, value: dto.email }, em);
             return user.id;
         }, em);
     }
@@ -92,7 +92,7 @@ export class UsersService {
     async createComm(id: string, dto: CreateCommDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
             const user = await this.getById(id);
-            return await this.communicationsService.create({ userId: user.id, ...dto }, em);
+            return await this.communicationsService.create({ user, ...dto }, em);
         }, em);
     }
 

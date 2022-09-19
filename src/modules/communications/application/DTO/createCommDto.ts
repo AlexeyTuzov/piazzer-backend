@@ -1,5 +1,7 @@
 import { AutoMap } from "@automapper/classes";
 import CommunicationsTypes from "../../domain/enums/comm-types";
+import { User } from '../../../users/domain/entities/users.entity';
+import { Venue } from '../../../venues/domain/entities/venues.entity';
 
 export default class CreateCommDto {
 
@@ -12,9 +14,9 @@ export default class CreateCommDto {
     @AutoMap()
     readonly description?: string;
 
-    @AutoMap()
-    readonly userId?: string;
+    @AutoMap(() => User)
+    readonly user?: User;
 
-    @AutoMap()
-    readonly venueId?: string;
+    @AutoMap(() => Venue)
+    readonly venue?: Venue;
 }

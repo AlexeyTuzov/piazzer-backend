@@ -1,5 +1,10 @@
 const getToken = (header: string): string => {
-    return header.split(' ')[1];
+    try {
+        return header.split(' ')[1];
+    } catch (err) {
+        return '';
+    }
+
 }
 
 export default getToken;
