@@ -10,6 +10,7 @@ import YandexCloudService from '../../infrastructure/yandexCloud.service';
 import CreateResourceDto from '../DTO/createResource.dto';
 import ImageResizeDto from '../DTO/imageResize.dto';
 import UpdateResourceDto from '../DTO/updateResource.dto';
+import sharp from 'sharp';
 
 @Injectable()
 export class ResourcesService {
@@ -22,7 +23,7 @@ export class ResourcesService {
         return transacting(async (em) => {
             const resource = em.getRepository(Resource).create();
             Object.assign(resource, dto);
-            await resource.save();
+            await em.save(resource);
             return resource.id;
         }, em);
     }
@@ -30,8 +31,7 @@ export class ResourcesService {
     async getFiltered(dto: FilterResourcesDto, em?: EntityManager): Promise<Resource[]> {
         return transacting(async (em) => {
             //TODO pagination
-            const resources = em.getRepository(Resource).find();
-            return resources;
+            return await em.getRepository(Resource).find();
         }, em);
     }
 
@@ -49,31 +49,20 @@ export class ResourcesService {
 
     async update(id: string, dto: UpdateResourceDto, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const resource = await em.getRepository(Resource).findOne({ where: { id } });
-
-            if (!resource) {
-                throw new NotFoundError('Resource not found');
-            }
-
-            await Resource.update(id, { ...dto });
+            await this.getById(id);
+            await em.getRepository(Resource).update(id, { ...dto });
             return;
         }, em);
     }
 
-    async delete(id: string, em?: EntityManager) {
+    async delete(id: string, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const resource = await em.getRepository(Resource).findOne({ where: { id } });
-
-            if (!resource) {
-                throw new NotFoundError('Resource not found');
-            }
-
-            await resource.softRemove();
-            return;
+            const resource = await this.getById(id);
+            await em.softRemove(resource);
         }, em);
     }
 
-    async resolve(id: string) {
+    async resolve(id: string): Promise<string> {
         const resource = await this.getById(id);
 
         if (resource.type === ResourcesTypes.LINK) {
@@ -83,7 +72,7 @@ export class ResourcesService {
         }
     }
 
-    async imageResize(id: string, dto: ImageResizeDto) {
+    async imageResize(id: string, dto: ImageResizeDto): Promise<sharp.Sharp> {
         const stream = await this.yandexS3.downloadWithStream(id);
         return stream.pipe(this.resizeService.transformer(dto));
     }

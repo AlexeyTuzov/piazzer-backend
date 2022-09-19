@@ -3,6 +3,7 @@ import { User } from "src/modules/users/domain/entities/users.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToOne, BaseEntity } from "typeorm";
 import { Resource } from "../../../resources/domain/entities/resources.entity";
 import { VenueScheduleItem } from "../../../venues/domain/entities/venueScheduleItem.entity";
+import { Tag } from '../../../tags/domain/entities/tags.entity';
 
 @Entity()
 export class Event extends BaseEntity {
@@ -66,6 +67,10 @@ export class Event extends BaseEntity {
     @AutoMap(() => VenueScheduleItem)
     @OneToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.event)
     scheduleItem: VenueScheduleItem;
+
+    @AutoMap(() => Tag)
+    @OneToMany(() => Tag, tag => tag.belonging, {cascade: true})
+    tags: Tag[];
 
     /*
     @ManyToMany(() => User, user => user.EventsToVisit,

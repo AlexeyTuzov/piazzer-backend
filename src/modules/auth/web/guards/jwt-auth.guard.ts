@@ -19,6 +19,7 @@ export default class jwtAuthGuard implements CanActivate {
             if (bearer !== 'Bearer' || !token) {
                 throw new UnauthorizedException({ message: 'Unauthorized user' });
             }
+            //TODO: need to check if we ever need to store verification data!!!
             req.user = this.jwtService.verify(token);
             return true;
 

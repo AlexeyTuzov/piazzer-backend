@@ -1,4 +1,5 @@
 import { AutoMap } from "@automapper/classes";
+import TagTypes from '../../domain/enums/tag-types';
 
 export default class UpdateTagDto {
 
@@ -18,5 +19,8 @@ export default class UpdateTagDto {
     readonly color?: string;
 
     @AutoMap()
-    readonly type?: string;
+    readonly type?: TagTypes;
+
+    @AutoMap()
+    readonly belongingId?: string;
 }

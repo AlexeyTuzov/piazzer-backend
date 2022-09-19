@@ -25,11 +25,11 @@ export class VenuesService {
         return transacting(async (em) => {
             const venue = em.getRepository(Venue).create();
             const ownerId = this.jwtDecoder.decodeUserId(token);
-            console.log('token:', token);
             const owner = await this.usersService.getById(ownerId);
             Object.assign(venue, { ...dto, owner });
             await em.save(venue);
 
+            //TODO: need to check if resourcesIds exist!!!
             for (const id of dto.resourcesIds) {
                 const resource = await this.resourcesService.getById(id);
                 Object.assign(resource, { ...resource, belonging: venue });
@@ -55,7 +55,7 @@ export class VenuesService {
             const venue = await em.getRepository(Venue).findOne(
                 {
                     where: { id },
-                    relations: ['resources']
+                    relations: ['resources', 'attributes', 'properties']
                 });
 
             if (!venue) {
@@ -68,27 +68,15 @@ export class VenuesService {
 
     update(id: string, dto: UpdateVenueDto, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const venue = await em.getRepository(Venue).findOne({ where: { id } });
-
-            if (!venue) {
-                throw new NotFoundError('Venue not found');
-            }
-
+            await this.getById(id);
             await em.getRepository(Venue).update(id, { ...dto });
-            return;
         }, em);
     }
 
     delete(id: string, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const venue = await em.getRepository(Venue).findOne({ where: { id } });
-
-            if (!venue) {
-                throw new NotFoundError('Venue not found');
-            }
-
+            const venue = await this.getById(id);
             await em.softRemove(venue);
-            return;
         }, em);
     }
 

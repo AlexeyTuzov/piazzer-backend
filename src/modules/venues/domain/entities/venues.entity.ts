@@ -1,10 +1,11 @@
 import { AutoMap } from "@automapper/classes";
 import { User } from "src/modules/users/domain/entities/users.entity";
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { VenueType } from "./venueTypes.entity";
 import { Resource } from "src/modules/resources/domain/entities/resources.entity";
 import { VenueScheduleItem } from "./venueScheduleItem.entity";
 import { Communication } from "src/modules/communications/domain/entities/communications.entity";
+import { Tag } from '../../../tags/domain/entities/tags.entity';
 
 @Entity()
 export class Venue extends BaseEntity {
@@ -92,5 +93,9 @@ export class Venue extends BaseEntity {
     @AutoMap(() => User)
     @ManyToOne(() => User, user => user.venues)
     owner: User;
+
+    @AutoMap(() => Tag)
+    @OneToMany(() => Tag, tag => tag.belonging, {cascade: true})
+    tags: Tag[];
 
 }

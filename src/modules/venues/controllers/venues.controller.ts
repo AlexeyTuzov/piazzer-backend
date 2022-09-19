@@ -4,6 +4,7 @@ import CreateVenueDto from '../application/DTO/createVenue.dto';
 import UpdateVenueDto from '../application/DTO/updateVenue.dto';
 import { VenuesService } from '../application/services/venues.service';
 import FilterVenueDto from '../infrastructure/filterVenue.dto';
+import getToken from '../../../infrastructure/utilites/getToken';
 
 @Controller('venues')
 export class VenuesController {
@@ -11,8 +12,8 @@ export class VenuesController {
     constructor(private venuesService: VenuesService) { }
 
     @Post()
-    venuesCreate(@Body() dto: CreateVenueDto, @Headers('Authorization') token: string) {
-        return this.venuesService.create(dto, token.split(' ')[1]);
+    venuesCreate(@Body() dto: CreateVenueDto, @Headers('Authorization') header: string) {
+        return this.venuesService.create(dto, getToken(header));
     }
 
     @Get()
