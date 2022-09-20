@@ -8,7 +8,7 @@ export function validationBoot(app: INestApplication) {
       exceptionFactory: (validationErrors: ValidationError[] = []) => {
         return new NestValidationErrorToValidationErrorMapper(validationErrors).map();
       },
-      //skipMissingProperties: true,
+      skipMissingProperties: true,
       whitelist: true
     }),
   );

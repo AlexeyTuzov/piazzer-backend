@@ -10,7 +10,7 @@ export default class AWSCloudService {
         this.bucket = process.env.AWS_BUCKET_NAME;
 
         this.s3 = new S3({
-            endpoint: 'https://piazzer.ams3.digitaloceanspaces.com',
+            endpoint: 'https://ams3.digitaloceanspaces.com',
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION

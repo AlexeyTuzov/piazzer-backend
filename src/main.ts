@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { exceptionBoot } from './infrastructure/exceptions/exception.boot';
@@ -10,8 +11,14 @@ async function bootstrap() {
     await app.listen(PORT, () => {
         console.log(`Server has been started on port ${PORT}`);
     });
-    exceptionBoot(app);
-    validationBoot(app);
+    // app.useGlobalPipes(
+    //     new ValidationPipe({
+    //         transform: true,
+    //         whitelist: true
+    //     }),
+    // );
+    //exceptionBoot(app);
+    //validationBoot(app);
 }
 
 bootstrap();

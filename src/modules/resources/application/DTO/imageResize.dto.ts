@@ -1,17 +1,16 @@
-import { Transform } from 'class-transformer';
-import { IsEnum, IsNumber } from 'class-validator';
-
+import { Transform, Type } from 'class-transformer';
+import { IsEnum, isNumber, IsNumber } from 'class-validator';
 import FitTypes from "../../domain/enums/fitTypes";
 
-export default class ImageResizeDto {
+export class ImageResizeDto {
 
     @IsNumber()
-    @Transform(({ value }) => Number(value))
-    readonly w: number;
+    @Type(() => Number)
+    w: number;
 
     @IsNumber()
-    @Transform(({ value }) => Number(value))
-    readonly h: number;
+    @Type(() => Number)
+    h: number;
 
     @IsEnum(FitTypes)
     readonly fit: FitTypes;

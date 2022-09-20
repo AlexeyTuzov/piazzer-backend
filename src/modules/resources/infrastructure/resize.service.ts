@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import ImageResizeDto from "../application/DTO/imageResize.dto";
+import {ImageResizeDto} from "../application/DTO/imageResize.dto";
 import * as sharp from 'sharp';
 
 @Injectable()
