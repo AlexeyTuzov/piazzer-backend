@@ -8,6 +8,7 @@ import AuthTokensGenerator from './infrastructure/tokenGenerators/authTokens.gen
 import CryptoService from './infrastructure/crypto.service';
 import RefreshTokenGenerator from './infrastructure/tokenGenerators/refreshToken.generator';
 import JwtDecoder from './infrastructure/jwtDecoder';
+import { EmailModule } from '../../infrastructure/emailer/emailer.module';
 
 @Module({
     providers: [
@@ -26,7 +27,8 @@ import JwtDecoder from './infrastructure/jwtDecoder';
             signOptions: {
                 expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
             }
-        })
+        }),
+        EmailModule
     ],
     exports: [JwtDecoder]
 })

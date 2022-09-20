@@ -11,6 +11,8 @@ import AuthTokensDto from '../DTO/authTokens.dto';
 import AuthTokensGenerator from '../../infrastructure/tokenGenerators/authTokens.generator';
 import { transacting } from 'src/infrastructure/database/transacting';
 import { EntityManager } from 'typeorm';
+import generateNumericCode from '../../../../infrastructure/utilites/generateCode';
+import { EmailService } from '../../../../infrastructure/emailer/service/emailer.service';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +20,8 @@ export class AuthService {
     constructor(
         private authTokensGenerator: AuthTokensGenerator,
         private usersService: UsersService,
-        private cryptoService: CryptoService) { }
+        private cryptoService: CryptoService,
+        private emailService: EmailService) { }
 
     async signUp(dto: SignUpDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
@@ -35,8 +38,9 @@ export class AuthService {
                     ...dto,
                     password: encryptedPassword
                 }, em);
-            //TODO: что за secret отсюда надо вернуть???
-            return userId;
+            const secret = generateNumericCode(4);
+            await this.emailService.send({to: dto.email, text: `Your approval code for PIAZZER is: ${secret}`});
+            return secret;
         }, em);
     }
 

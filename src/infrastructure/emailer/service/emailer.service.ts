@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { error } from 'console';
 import { IEmailService } from './emailer.interface';
 import { IEmailSendOptions } from './emailer.options';
 

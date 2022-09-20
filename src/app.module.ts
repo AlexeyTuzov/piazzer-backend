@@ -8,13 +8,15 @@ import { VenuesModule } from './modules/venues/venues.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { EventsModule } from './modules/events/events.module';
 import { CommunicationsModule } from './modules/communications/communications.module';
-import { EmailerModule } from './infrastructure/emailer/emailer.module';
+import { EmailModule } from './infrastructure/emailer/emailer.module';
 
 //TODO: extract ConfigModule from here to an infrastructure module
 @Module({
     imports: [
         ConfigModule.forRoot({
-            envFilePath: `.${process.env.NODE_ENV}.env`
+            envFilePath: `.${process.env.NODE_ENV}.env`,
+            isGlobal: true,
+            expandVariables: true
         }),
         MapperModule,
         DatabaseModule,
@@ -24,7 +26,7 @@ import { EmailerModule } from './infrastructure/emailer/emailer.module';
         VenuesModule,
         EventsModule,
         CommunicationsModule,
-        EmailerModule
+        EmailModule
     ]
 })
 export class AppModule { }
