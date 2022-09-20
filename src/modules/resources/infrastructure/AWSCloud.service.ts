@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { S3 } from "aws-sdk";
 
 @Injectable()
-export default class YandexCloudService {
+export default class AWSCloudService {
     private s3: S3;
     private bucket: string;
 
@@ -10,7 +10,7 @@ export default class YandexCloudService {
         this.bucket = process.env.AWS_BUCKET_NAME;
 
         this.s3 = new S3({
-            endpoint: 'https://storage.yandexcloud.net',
+            endpoint: 'https://piazzer.ams3.digitaloceanspaces.com',
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
             region: process.env.AWS_REGION

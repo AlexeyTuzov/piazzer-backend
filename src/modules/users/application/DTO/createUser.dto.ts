@@ -1,17 +1,20 @@
-import { AutoMap } from '@automapper/classes';
+import { IsArray, IsDefined, IsEmail, IsString, Length } from 'class-validator';
 import { Communication } from '../../../communications/domain/entities/communications.entity';
 
 export default class CreateUserDto {
 
-    @AutoMap()
+    @IsDefined()
+    @IsEmail()
     readonly email: string;
 
-    @AutoMap()
+    @IsDefined()
+    @Length(6)
     readonly password: string;
 
-    @AutoMap()
+    @IsDefined()
+    @IsString()
     readonly name: string;
 
-    @AutoMap(() => Communication)
+    @IsArray()
     readonly communications?: Communication[];
 }

@@ -1,13 +1,13 @@
-import { AutoMap } from '@automapper/classes';
+import { IsDefined, IsEmail, IsString, Length } from "class-validator";
 
 export default class UpdateUserDto {
 
-    @AutoMap()
+    @IsEmail()
     readonly email?: string;
 
-    @AutoMap()
+    @Length(6)
     readonly password?: string;
 
-    @AutoMap()
+    @IsString()
     readonly name?: string;
 }

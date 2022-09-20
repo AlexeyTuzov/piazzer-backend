@@ -4,10 +4,10 @@ import { ResourcesService } from './application/services/resources.service';
 import { ResourcesController } from './controllers/resources.controller';
 import { Resource } from './domain/entities/resources.entity';
 import ResizeService from './infrastructure/resize.service';
-import YandexCloudService from './infrastructure/yandexCloud.service';
+import AWSCloudService from './infrastructure/AWSCloud.service';
 
 @Module({
-    providers: [ResourcesService, YandexCloudService, ResizeService],
+    providers: [ResourcesService, AWSCloudService, ResizeService],
     controllers: [ResourcesController],
     imports: [
         TypeOrmModule.forFeature([Resource])

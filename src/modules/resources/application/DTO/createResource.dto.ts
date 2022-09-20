@@ -1,23 +1,10 @@
-import { AutoMap } from "@automapper/classes";
-import { IsEnum, IsString } from "class-validator";
-import ResourcesTypes from "../../domain/enums/resourceTypes";
+import { IsString } from "class-validator";
 
 export default class CreateResourceDto {
 
     @IsString()
-  name?: string;
+    name?: string;
 
-  @IsString()
-  link?: string;
-
-  @IsString()
-  size?: number;
-
-  @IsEnum(ResourcesTypes)
-  type?: ResourcesTypes;
-
-  @IsString()
-  mimeType?: string;
-
-  file?: Buffer;
+    @IsString()
+    file?: string;
 }

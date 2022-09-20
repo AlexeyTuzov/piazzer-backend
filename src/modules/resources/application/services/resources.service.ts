@@ -6,7 +6,7 @@ import { Resource } from '../../domain/entities/resources.entity';
 import ResourcesTypes from '../../domain/enums/resourceTypes';
 import FilterResourcesDto from '../../infrastructure/filter-resources.dto';
 import ResizeService from '../../infrastructure/resize.service';
-import YandexCloudService from '../../infrastructure/yandexCloud.service';
+import YandexCloudService from '../../infrastructure/AWSCloud.service';
 import CreateResourceDto from '../DTO/createResource.dto';
 import ImageResizeDto from '../DTO/imageResize.dto';
 import UpdateResourceDto from '../DTO/updateResource.dto';

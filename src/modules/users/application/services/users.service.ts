@@ -31,14 +31,8 @@ export class UsersService {
 
     async update(id: string, dto: UpdateUserDto, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const user = await em.getRepository(User).findOne({ where: { id } });
-
-            if (!user) {
-                throw new NotFoundError('User not found');
-            }
-
+            await this.getById(id);
             await em.getRepository(User).update(id, { ...dto });
-            return;
         }, em);
     }
 
@@ -71,14 +65,8 @@ export class UsersService {
 
     async delete(id: string, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
-            const user = await em.getRepository(User).findOne({ where: { id } });
-
-            if (!user) {
-                throw new NotFoundError('User not found');
-            }
-
+            const user = await this.getById(id);
             await em.softRemove(user);
-            return;
         }, em);
     }
 
@@ -100,7 +88,6 @@ export class UsersService {
         return transacting(async (em) => {
             await this.getById(id);
             await this.communicationsService.delete(commID);
-            return;
         }, em);
     }
 
