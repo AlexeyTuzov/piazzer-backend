@@ -3,9 +3,8 @@
 /node_modules
 
 
-#Environment and compose
+#Environment
 *.env
-docker-compose.yaml
 
 # Logs
 logs
