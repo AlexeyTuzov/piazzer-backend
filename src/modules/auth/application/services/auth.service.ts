@@ -39,7 +39,8 @@ export class AuthService {
                     password: encryptedPassword
                 }, em);
             const secret = generateNumericCode(4);
-            await this.emailService.send({to: dto.email, text: `Your approval code for PIAZZER is: ${secret}`});
+            //TODO: Need to find out what is wrong in emailer configuration
+            //await this.emailService.send({to: dto.email, text: `Your approval code for PIAZZER is: ${secret}`});
             return secret;
         }, em);
     }
