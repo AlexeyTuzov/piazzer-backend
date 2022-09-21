@@ -9,7 +9,8 @@ export function validationBoot(app: INestApplication) {
         return new NestValidationErrorToValidationErrorMapper(validationErrors).map();
       },
       skipMissingProperties: true,
-      whitelist: true
+      whitelist: true,
+      transform: true
     }),
   );
 }

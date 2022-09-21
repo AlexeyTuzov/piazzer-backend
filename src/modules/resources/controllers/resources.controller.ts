@@ -23,8 +23,8 @@ export class ResourcesController {
             file: file?.buffer,
             type: dto.type,
             link: dto.link,
-          };
-      
+        };
+
         return this.resourcesService.create(data);
     }
 
@@ -59,18 +59,12 @@ export class ResourcesController {
 
     @Get('/:id/image-resize')
     @HttpCode(HttpStatus.SEE_OTHER)
-    @UsePipes(new ValidationPipe({
-        transform: true,
-        whitelist: true
-    }))
     async resourcesImageResize(
-        @Param('id') id: string, 
+        @Param('id') id: string,
         @Query() dto: ImageResizeDto,
         @Res() res: Response,) {
-            console.log(dto);
-            // return dto;
-         res.json({})   
-        // const file = await this.resourcesService.imageResize(id, dto);
-        // file.pipe(res);
+
+        const file = await this.resourcesService.imageResize(id, dto);
+        file.pipe(res);
     }
 }

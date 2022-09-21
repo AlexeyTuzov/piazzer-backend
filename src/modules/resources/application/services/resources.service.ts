@@ -99,7 +99,6 @@ export class ResourcesService {
     }
 
     async imageResize(id: string, dto: ImageResizeDto): Promise<sharp.Sharp> {
-        console.log('dto:', dto);
         const stream = await this.AWS3.downloadWithStream(id);
         return stream.pipe(this.resizeService.transformer(dto));
     }
