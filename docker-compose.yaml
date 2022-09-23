@@ -1,10 +1,25 @@
 services:
-  main:
-    build: ./
+  server:
     ports:
       - 3000:3000
+    image: registry.gitlab.com/piazzer/piazzer-server
+    build:
+      context: backend
+    volumes:
+      - ./backend:/usr/local/app
+    working_dir: /usr/local/app
 
-  db:
+  client:
+    ports:
+      - 3000:3000
+    image: registry.gitlab.com/piazzer/piazzer-front-end
+    build:
+      context: frontend
+    volumes:
+      - ./frontend:/usr/local/app
+    working_dir: /usr/local/app
+
+  db1:
     image: postgres
     restart: always
     environment:
@@ -15,7 +30,6 @@ services:
       - data:/var/lib/postgresql/data
     ports:
       - 5432:5432
-
 
   adminer:
     image: adminer
