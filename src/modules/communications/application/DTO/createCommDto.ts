@@ -2,21 +2,20 @@ import { AutoMap } from "@automapper/classes";
 import CommunicationsTypes from "../../domain/enums/comm-types";
 import { User } from '../../../users/domain/entities/users.entity';
 import { Venue } from '../../../venues/domain/entities/venues.entity';
+import { IsEnum, IsString } from "class-validator";
 
 export default class CreateCommDto {
 
-    @AutoMap()
+    @IsEnum(CommunicationsTypes)
     readonly type: CommunicationsTypes;
 
-    @AutoMap()
+    @IsString()
     readonly value: string;
 
-    @AutoMap()
+    @IsString()
     readonly description?: string;
 
-    @AutoMap(() => User)
     readonly user?: User;
 
-    @AutoMap(() => Venue)
     readonly venue?: Venue;
 }

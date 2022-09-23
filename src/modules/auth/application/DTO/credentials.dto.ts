@@ -1,10 +1,13 @@
-import { AutoMap } from "@automapper/classes";
+import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 export default class CredentialsDto {
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
+    @IsEmail()
     readonly email: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly password: string;
 }

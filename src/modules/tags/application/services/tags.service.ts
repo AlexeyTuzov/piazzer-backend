@@ -44,7 +44,7 @@ export class TagsService {
     async update(id: string, dto: UpdateTagDto, em?: EntityManager): Promise<void> {
         return transacting(async (em) => {
             await this.getById(id);
-            await em.getRepository(Tag).update(id, {...dto});
+            await em.getRepository(Tag).update(id, dto);
         }, em);
     }
 

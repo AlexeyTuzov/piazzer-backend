@@ -1,54 +1,52 @@
-import { AutoMap } from "@automapper/classes";
+import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Communication } from "src/modules/communications/domain/entities/communications.entity";
 import CreateCoordinatesDto from "./createCoordinates.dto";
 
 export default class CreateVenueDto {
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly title: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly address: string;
 
-    @AutoMap()
+    @IsString()
     readonly coverId?: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly city: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly contactPerson: string;
 
-    @AutoMap()
+    @IsString()
     readonly short?: string;
 
-    @AutoMap()
     readonly coordinates?: CreateCoordinatesDto;
 
-    @AutoMap(() => Communication)
+    @IsArray()
+    @IsNotEmpty()
     readonly communications: Communication[];
 
-    @AutoMap()
+    @IsString()
     readonly description?: string;
 
-    @AutoMap()
+    @IsArray()
     readonly propertiesIds?: string[];
 
-    @AutoMap()
+    @IsArray()
     readonly attributesIds?: string[];
 
-    @AutoMap()
+    @IsNumber()
     readonly capacity?: number;
 
-    @AutoMap()
+    @IsNumber()
     readonly cost?: number;
 
-    @AutoMap()
-    readonly isBlocked?: boolean;
-
-    @AutoMap()
-    readonly isDraft?: boolean;
-
-    @AutoMap()
+    @IsArray()
     readonly resourcesIds: string[];
 }

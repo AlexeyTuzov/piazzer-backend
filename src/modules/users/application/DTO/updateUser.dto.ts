@@ -1,11 +1,12 @@
-import { IsDefined, IsEmail, IsString, Length } from "class-validator";
+import { IsEmail, IsString } from "class-validator";
 
 export default class UpdateUserDto {
 
     @IsEmail()
+    @IsString()
     readonly email?: string;
 
-    @Length(6)
+    @IsString()
     readonly password?: string;
 
     @IsString()

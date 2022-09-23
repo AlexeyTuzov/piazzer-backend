@@ -26,7 +26,7 @@ export class AuthService {
     async signUp(dto: SignUpDto, em?: EntityManager): Promise<string> {
         return transacting(async (em) => {
             const existingUser = await this.usersService.getOneByEmail(dto.email, em);
-
+            
             if (existingUser) {
                 throw new HttpException(
                     'User with this email already exists!',

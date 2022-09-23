@@ -18,9 +18,10 @@ export class CommunicationsService {
         }, em);
     }
 
+    //TODO: belongingId need to be changed to UserId and VenueId
     async getFiltered(belongingId: string, dto: FilterCommDto, em?: EntityManager): Promise<Communication[]> {
         return transacting(async (em) => {
-            return await em.getRepository(Communication).find({ where: { belonging: { id: belongingId } } });
+            return await em.getRepository(Communication).find();
         }, em);
     }
 

@@ -1,28 +1,28 @@
-import { AutoMap } from "@automapper/classes";
+import { IsDateString, IsString } from "class-validator";
 
 export default class CreateScheduleItemDto {
 
-    @AutoMap()
+    @IsDateString()
     date: string;
 
-    @AutoMap()
+    @IsString()
     startTime: string;
 
-    @AutoMap()
+    @IsString()
     endTime: string;
 
-    @AutoMap()
+    @IsString()
     eventId: string;
 
-    @AutoMap()
+    @IsDateString()
     declinedAt: string;
 
-    @AutoMap()
+    @IsDateString()
     approvedAt: string;
 
-    @AutoMap()
+    @IsDateString()
     confirmedAt: string;
 
-    @AutoMap()
+    @IsDateString()
     canceledAt: string;
 }

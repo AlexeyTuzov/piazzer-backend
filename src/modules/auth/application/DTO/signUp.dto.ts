@@ -1,13 +1,18 @@
 import { AutoMap } from '@automapper/classes';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export default class SignUpDto {
 
-    @AutoMap()
+    @IsString()
+    @IsEmail()
+    @IsNotEmpty()
     readonly email: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly password: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly name: string;
 }

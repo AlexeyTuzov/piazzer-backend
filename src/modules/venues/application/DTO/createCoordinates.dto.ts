@@ -1,10 +1,10 @@
-import { AutoMap } from "@automapper/classes";
+import { IsNumber } from "class-validator";
 
 export default class CreateCoordinatesDto {
 
-    @AutoMap()
+    @IsNumber()
     lat: number;
 
-    @AutoMap()
+    @IsNumber()
     lon: number;
 }

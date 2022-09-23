@@ -1,13 +1,16 @@
 import { AutoMap } from "@automapper/classes";
+import { IsNotEmpty, IsObject, IsString } from "class-validator";
 
 export default class OAuthDto {
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly type: string;
 
-    @AutoMap()
+    @IsString()
+    @IsNotEmpty()
     readonly token: string;
 
-    @AutoMap()
+    @IsObject()
     readonly meta: {};
 }

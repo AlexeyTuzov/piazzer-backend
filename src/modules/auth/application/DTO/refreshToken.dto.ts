@@ -1,7 +1,7 @@
-import { AutoMap } from "@automapper/classes";
+import { IsString } from "class-validator";
 
 export default class RefreshTokenDto {
 
-    @AutoMap()
+    @IsString()
     readonly refreshToken: string;
 }

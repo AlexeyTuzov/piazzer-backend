@@ -10,8 +10,8 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 3000/tcp
 
 ENV NODE_ENV production
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]

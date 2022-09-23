@@ -1,26 +1,23 @@
-import { AutoMap } from "@automapper/classes";
+import { IsString } from "class-validator";
 import TagTypes from '../../domain/enums/tag-types';
 
 export default class UpdateTagDto {
 
-    @AutoMap()
+    @IsString()
     readonly label?: string;
 
-    @AutoMap()
+    @IsString()
     readonly value?: string;
 
-    @AutoMap()
+    @IsString()
     readonly description?: string;
 
-    @AutoMap()
+    @IsString()
     readonly avatarId?: string;
 
-    @AutoMap()
+    @IsString()
     readonly color?: string;
 
-    @AutoMap()
+    @IsString()
     readonly type?: TagTypes;
-
-    @AutoMap()
-    readonly belongingId?: string;
 }

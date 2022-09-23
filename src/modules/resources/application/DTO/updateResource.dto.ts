@@ -1,23 +1,26 @@
-import { AutoMap } from "@automapper/classes";
+import { IsEnum, IsString } from "class-validator";
+import { User } from "src/modules/users/domain/entities/users.entity";
+import { Venue } from "src/modules/venues/domain/entities/venues.entity";
 import ResourcesTypes from "../../domain/enums/resourceTypes";
 
 export default class UpdateResourceDto {
 
-    @AutoMap()
+    @IsString()
     readonly name?: string;
     
-    @AutoMap()
+    @IsString()
     readonly size?: number;
 
-    @AutoMap()
+    @IsEnum(ResourcesTypes)
     readonly type?: ResourcesTypes;
 
-    @AutoMap()
+    @IsString()
     readonly link?: string;
 
-    @AutoMap()
+    @IsString()
     readonly mimeType?: string;
 
-    @AutoMap()
-    readonly belongingId?: string;
+    readonly user?: User;
+
+    readonly venue?: Venue;
 }

@@ -1,7 +1,9 @@
-import { AutoMap } from "@automapper/classes";
+import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 
 export default class ResendCodeDto {
 
-    @AutoMap()
+    @IsString()
+    @IsEmail()
+    @IsNotEmpty()
     readonly email: string;
 }

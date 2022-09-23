@@ -1,10 +1,10 @@
-import { AutoMap } from "@automapper/classes";
+import { IsString } from "class-validator";
 
 export default class SignUpConfirmDto {
 
-    @AutoMap()
+    @IsString()
     readonly secret: string;
 
-    @AutoMap()
+    @IsString()
     readonly code: string;
 }
