@@ -1,46 +1,49 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
-import ResendCodeDto from '../../application/DTO/resendCode.dto';
-import SignUpDto from '../../application/DTO/signUp.dto';
-import SignUpConfirmDto from '../../application/DTO/signUpConfirm.dto';
-import { AuthService } from '../../application/services/auth.service';
-import CredentialsDto from '../../application/DTO/credentials.dto';
-import RefreshTokenDto from '../../application/DTO/refreshToken.dto';
-import OAuthDto from '../../application/DTO/oAuth.dto';
-import UserTypes from 'src/modules/users/domain/enums/user-types';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common'
+import { AuthService } from '../../application/services/auth.service'
+import SignUpDto from '../../application/dto/signUp.dto'
+import ResendCodeDto from '../../application/dto/resendCode.dto'
+import SignUpConfirmDto from '../../application/dto/signUpConfirm.dto'
+import CredentialsDto from '../../application/dto/credentials.dto'
+import RefreshTokenDto from '../../application/dto/refreshToken.dto'
+import OAuthDto from '../../application/dto/oAuth.dto'
 
 @Controller('auth')
 export class AuthController {
-    private readonly logger = new Logger(AuthController.name)
-    constructor(private authService: AuthService) { }
- 
-    @Post('/sign-up')
-    signUpUser(@Body() dto: SignUpDto) {
-        this.logger.debug('sign-up')
-        return this.authService.signUp(dto);
-    }
+	constructor(private authService: AuthService) {}
 
-    @Post('/sign-up/resend-code')
-    signUpResendCode(@Body() dto: ResendCodeDto) {
-        return this.authService.signUpResendCode(dto);
-    }
+	@HttpCode(200)
+	@Post('/sign-up')
+	async signUpUser(@Body() body: SignUpDto) {
+		return await this.authService.signUp(body)
+	}
 
-    @Post('sign-up/confirm')
-    signUpConfirm(@Body() dto: SignUpConfirmDto) {
-        return this.authService.signUpConfirm(dto);
-    }
+	@HttpCode(200)
+	@Post('/sign-up/resend-code')
+	signUpResendCode(@Body() body: ResendCodeDto) {
+		return this.authService.signUpResendCode(body)
+	}
 
-    @Post('/sign-in')
-    signIn(@Body() dto: CredentialsDto) {
-        return this.authService.signIn(dto);
-    }
+	@HttpCode(200)
+	@Post('sign-up/confirm')
+	signUpConfirm(@Body() body: SignUpConfirmDto) {
+		return this.authService.signUpConfirm(body)
+	}
 
-    @Post('/refresh')
-    authRefresh(@Body() dto: RefreshTokenDto) {
-        return this.authService.refreshToken(dto);
-    }
+	@HttpCode(200)
+	@Post('/sign-in')
+	signIn(@Body() body: CredentialsDto) {
+		return this.authService.signIn(body)
+	}
 
-    @Post('/o-auth')
-    authOAuth(@Body() dto: OAuthDto) {
-        return this.authService.oAuth(dto);
-    }
+	@HttpCode(200)
+	@Post('/refresh')
+	authRefresh(@Body() body: RefreshTokenDto) {
+		return this.authService.refreshToken(body)
+	}
+
+	@HttpCode(200)
+	@Post('/o-auth')
+	authOAuth(@Body() body: OAuthDto) {
+		return this.authService.oAuth(body)
+	}
 }

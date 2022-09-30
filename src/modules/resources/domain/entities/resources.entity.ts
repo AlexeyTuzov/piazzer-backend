@@ -1,53 +1,63 @@
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne } from "typeorm";
-import { AutoMap } from "@automapper/classes";
-import ResourceTypes from "../enums/resourceTypes";
-import { Venue } from "src/modules/venues/domain/entities/venues.entity";
-import { Event } from "src/modules/events/domain/entities/events.entity"; 
+import {
+	BaseEntity,
+	Column,
+	CreateDateColumn,
+	DeleteDateColumn,
+	Entity,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
+} from 'typeorm'
+import { FileTypesEnum } from '../enums/fileTypes.enum'
+import { User } from '../../../users/domain/entities/users.entity'
+import { Venue } from '../../../venues/domain/entities/venues.entity'
+import { Event } from '../../../events/domain/entities/events.entity'
+import { Comment } from '../../../comments/domain/entities/comments.entity'
 
 @Entity()
 export class Resource extends BaseEntity {
+	@PrimaryGeneratedColumn('uuid')
+	id: string
 
-    @AutoMap()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+	@Column()
+	name: string
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    name: string;
+	@Column()
+	size: number
 
-    @AutoMap()
-    @Column({ type: 'integer', nullable: true })
-    size: number;
+	@Column({
+		type: 'enum',
+		enum: FileTypesEnum,
+	})
+	type: FileTypesEnum
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    type: ResourceTypes;
+	@Column({ nullable: true })
+	link: string
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    link: string;
+	@Column()
+	creatorId: string
 
-    @AutoMap()
-    @Column({type: 'varchar', nullable: true})
-    mimeType: string;
+	@Column()
+	mimeType: string
 
-    @AutoMap({ type: () => Date })
-    @CreateDateColumn()
-    createdAt: string;
+	@CreateDateColumn()
+	createdAt: Date
 
-    @AutoMap({ type: () => Date })
-    @UpdateDateColumn()
-    updatedAt: string;
+	@UpdateDateColumn()
+	updatedAt: Date
 
-    @AutoMap({ type: () => Date })
-    @DeleteDateColumn({ type: 'date', default: null })
-    deletedAt: string;
+	@DeleteDateColumn()
+	deletedAt: Date
 
-    @AutoMap(() => Venue)
-    @ManyToOne(() => Venue, venue => venue.resources)
-    venue: Venue;
+	@ManyToOne(() => User, (user) => user.resources)
+	creator: User
 
-    @AutoMap(() => Event)
-    @ManyToOne(() => Event, event => event.resources)
-    event: Event;
+	@ManyToOne(() => Venue, (venue) => venue.resources)
+	venue: Venue
+
+	@ManyToOne(() => Event, (venue) => venue.resources)
+	event: Event
+
+	@ManyToOne(() => Comment, (comment) => comment.resources)
+	comment: Comment
 }

@@ -1,21 +1,20 @@
-import { IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { Communication } from '../../../communications/domain/entities/communications.entity';
+import { IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator'
+import { Communication } from '../../domain/entities/communications.entity'
 
-export default class CreateUserDto {
+export class CreateUserDto {
+	@IsNotEmpty()
+	@IsEmail()
+	@IsString()
+	email: string
 
-    @IsNotEmpty()
-    @IsEmail()
-    @IsString()
-    readonly email: string;
+	@IsNotEmpty()
+	@IsString()
+	password: string
 
-    @IsNotEmpty()
-    @IsString()
-    readonly password: string;
+	@IsNotEmpty()
+	@IsString()
+	name: string
 
-    @IsNotEmpty()
-    @IsString()
-    readonly name: string;
-
-    @IsArray()
-    readonly communications?: Communication[];
+	@IsArray()
+	communications?: Communication[]
 }

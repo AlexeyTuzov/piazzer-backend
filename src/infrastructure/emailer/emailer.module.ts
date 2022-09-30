@@ -1,31 +1,29 @@
-import { Module } from '@nestjs/common';
-import { EmailService } from './service/emailer.service';
-import { MailerModule } from '@nestjs-modules/mailer';
+import { Global, Module } from '@nestjs/common'
+import { EmailService } from './service/emailer.service'
+import { MailerModule } from '@nestjs-modules/mailer'
+import { ConfigService } from '@nestjs/config'
 
-// const EmailServiceProvider = {
-//     provide: 'IEmailService',
-//     useClass: EmailService,
-// };
-
+@Global()
 @Module({
-    imports: [
-        MailerModule.forRootAsync({
-            useFactory: () => {
-                return {
-                    transport: {
-                        host: process.env.MAIL_HOST,
-                        port: +process.env.MAIL_PORT,
-                        secure: false,
-                        auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS },
-                    },
-                    defaults: {
-                        from: process.env.MAIL_USER,
-                    }
-                }
-            }
-        })
-    ],
-    providers: [EmailService],
-    exports: [EmailService],
+	imports: [
+		MailerModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (config: ConfigService) => ({
+				transport: {
+					host: config.get<string>('MAIL_HOST'),
+					port: config.get<number>('PORT'),
+					auth: {
+						user: config.get<string>('MAIL_USER'),
+						pass: config.get<string>('MAIL_PASS'),
+					},
+				},
+				defaults: {
+					from: config.get<string>('MAIL_USER'),
+				},
+			}),
+		}),
+	],
+	providers: [EmailService],
+	exports: [EmailService],
 })
-export class EmailModule { }
+export class EmailModule {}

@@ -1,114 +1,222 @@
-import { Injectable } from '@nestjs/common';
-import CreateCommDto from 'src/modules/communications/application/DTO/createCommDto';
-import FilterUserDto from '../../infrastructure/DTO/filterUser.dto';
-import ChangeRoleDto from '../DTO/changeRole.dto';
-import CreateUserDto from '../DTO/createUser.dto';
-import ConfirmUserCommDto from '../../../communications/application/DTO/confirmUserComm.dto';
-import UpdateUserDto from '../DTO/updateUser.dto';
-import { User } from '../../domain/entities/users.entity';
-import FilterCommDto from '../../../communications/infrastructure/filterComm.dto';
-import NotFoundError from 'src/infrastructure/exceptions/not-found';
-import { transacting } from 'src/infrastructure/database/transacting';
-import { EntityManager } from 'typeorm';
-import { CommunicationsService } from 'src/modules/communications/application/services/communications.service';
-import { Communication } from 'src/modules/communications/domain/entities/communications.entity';
-import CommunicationsTypes from 'src/modules/communications/domain/enums/comm-types';
+import { Injectable } from '@nestjs/common'
+import { DataSource } from 'typeorm'
+import { Communication } from '../../domain/entities/communications.entity'
+import { User } from '../../domain/entities/users.entity'
+import { CreateUserDto } from '../dto/createUser.dto'
+import { CommunicationTypesEnum } from '../../domain/enums/communicationTypes.enum'
+import { UserRolesEnum } from '../../domain/enums/userRoles.enum'
+import { FindService } from '../../../../infrastructure/findService'
+import { SortService } from '../../../../infrastructure/sortService'
+import { CommunicationConfirm } from '../../../verification-codes/domain/entities/communication-confirm.entity'
 
 @Injectable()
 export class UsersService {
+	constructor(private readonly dataSource: DataSource) {}
 
-    constructor(private communicationsService: CommunicationsService) { }
+	async create(body: CreateUserDto): Promise<User> {
+		return this.dataSource.transaction(async () => {
+			const user = User.create({
+				password: body.password,
+				name: body.name,
+				communications: [
+					{
+						type: CommunicationTypesEnum.EMAIL,
+						value: body.email,
+					},
+				],
+			})
+			await user.save()
+			return user
+		})
+	}
 
-    async create(dto: CreateUserDto, em?: EntityManager): Promise<string> {
-        return transacting(async (em) => {
-            const user = em.getRepository(User).create();
-            const communications = [{type: CommunicationsTypes.EMAIL, value: dto.email}];
-            Object.assign(user, {...dto, communications});
-            await em.save(user);
-            return user.id;
-        }, em);
-    }
+	async getOne(criteria, relations?: string[]) {
+		return this.dataSource.transaction(async () => {
+			return User.findOneOrFail({
+				where: criteria,
+				relations,
+			})
+		})
+	}
 
-    async update(id: string, dto: UpdateUserDto, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            await this.getById(id);
-            await em.getRepository(User).update(id, { ...dto });
-        }, em);
-    }
+	getOneByEmail(email: string): Promise<User> {
+		return this.dataSource.transaction(async () => {
+			const communication = await Communication.findOne({
+				where: {
+					value: email,
+				},
+				relations: ['user'],
+			})
 
-    async getById(id: string, em?: EntityManager): Promise<User> {
-        return transacting(async (em) => {
-            const user = await em.getRepository(User).findOne({ where: { id }, relations: ['communications'] });
+			return communication?.user
+		})
+	}
 
-            if (!user) {
-                throw new NotFoundError('User not found');
-            }
+	async verification(userId: string) {
+		await User.update(userId, {
+			verified: true,
+		})
+	}
 
-            return user;
-        }, em);
-    }
+	async getAll(query) {
+		return this.dataSource.transaction(async () => {
+			const response = {
+				limit: query.limit,
+				page: query.page,
+				total: 0,
+				data: [],
+				$aggregations: {},
+			}
 
-    async getOneByEmail(email: string, em?: EntityManager): Promise<User> {
-        return transacting(async (em) => {
-            const user = await em.getRepository(User).findOne({ where: { email } });
-            return user;
-        }, em);
-    }
+			const users = User.createQueryBuilder('user').leftJoinAndMapMany(
+				'user.communications',
+				'user.communications',
+				'communications',
+			)
 
-    async getFiltered(dto: FilterUserDto, em?: EntityManager): Promise<User[]> {
-        return transacting(async (em) => {
-            //TODO pagination
-            const users = await em.getRepository(User).find();
-            return users;
-        }, em);
-    }
+			FindService.apply(users, this.dataSource, User, 'user', query.query)
+			SortService.apply(users, this.dataSource, User, 'user', query.sort)
 
-    async delete(id: string, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            const user = await this.getById(id);
-            await em.softRemove(user);
-        }, em);
-    }
+			await users
+				.skip((response.page - 1) * response.limit)
+				.take(response.limit)
+				.getManyAndCount()
+				.then(([data, total]) => {
+					response.data = data
+					response.total = total
+				})
 
-    async getAllUserComms(id: string, dto: FilterCommDto, em?: EntityManager): Promise<Communication[]> {
-        return transacting(async (em) => {
-            const user = await this.getById(id);
-            return await this.communicationsService.getFiltered(user.id, dto, em);
-        }, em);
-    }
+			return response
+		})
+	}
 
-    async createComm(id: string, dto: CreateCommDto, em?: EntityManager): Promise<string> {
-        return transacting(async (em) => {
-            const user = await this.getById(id);
-            return await this.communicationsService.create({ user, ...dto }, em);
-        }, em);
-    }
+	async update(criteria, body) {
+		await this.dataSource.transaction(async () => {
+			await this.getOne(criteria)
+			await User.update(criteria, body)
+		})
+	}
 
-    async deleteComm(id: string, commID: string, em?: EntityManager) {
-        return transacting(async (em) => {
-            await this.getById(id);
-            await this.communicationsService.delete(commID);
-        }, em);
-    }
+	async delete(criteria) {
+		await this.dataSource.transaction(async () => {
+			await this.getOne(criteria)
+			await User.softRemove(criteria)
+		})
+	}
 
-    async confirmComm(id: string, commId: string, dto: ConfirmUserCommDto, em?: EntityManager) {
-        //here we gonna call the mailer service's method
-    }
+	async usersChangeRole(id: string, role: UserRolesEnum) {
+		await this.dataSource.transaction(async () => {
+			await User.findOneByOrFail({ id })
+			await User.update(
+				{ id },
+				{
+					role,
+				},
+			)
+		})
+	}
 
-    async sendCode(id: string, commId: string, em?: EntityManager) {
+	async usersBlock(id: string) {
+		await this.dataSource.transaction(async () => {
+			await this.getOne({ id })
+			await User.update({ id }, { blocked: true })
+		})
+	}
 
-    }
+	async usersUnBlock(id: string) {
+		await this.dataSource.transaction(async () => {
+			await this.getOne({ id })
+			return User.update({ id }, { blocked: false })
+		})
+	}
 
-    async changeRole(id: string, dto: ChangeRoleDto, em?: EntityManager) {
+	async communicationsGetAll(userId, query) {
+		const response = {
+			page: query.page,
+			limit: query.limit,
+			total: 0,
+			data: [],
+			$aggregations: {},
+			$filters: [],
+		}
 
-    }
+		const communications = Communication.createQueryBuilder('communications')
+			.leftJoin('communications.user', 'user')
+			.where('user.id = :userId', { userId })
 
-    async block(id: string, em?: EntityManager) {
+		FindService.apply(
+			communications,
+			this.dataSource,
+			Communication,
+			'communications',
+			query.query,
+		)
+		SortService.apply(
+			communications,
+			this.dataSource,
+			Communication,
+			'communications',
+			query.sort,
+		)
 
-    }
+		await communications
+			.skip((response.page - 1) * response.limit)
+			.take(response.limit)
+			.getManyAndCount()
+			.then(([data, total]) => {
+				response.total = total
+				response.data = data
+			})
 
-    async unblock(id: string, em?: EntityManager) {
+		return response
+	}
 
-    }
+	async communicationAdd(userId: string, body) {
+		return this.dataSource.transaction(async (em) => {
+			const communication = Communication.create()
+			Object.assign(communication, {
+				...body,
+				user: {
+					id: userId,
+				},
+			})
+			await communication.save()
+			return communication
+		})
+	}
 
+	async communicationsConfirm(userId: string, communicationId: string, body) {
+		await this.dataSource.transaction(async () => {
+			const record = await CommunicationConfirm.findOneOrFail({
+				where: {
+					code: body.code,
+					communication: {
+						id: communicationId,
+					},
+				},
+			})
+
+			const { affected } = await Communication.update(communicationId, {
+				confirmed: true,
+			})
+
+			if (affected) {
+				await CommunicationConfirm.delete(record.id)
+			}
+		})
+	}
+
+	async communicationsRemove(userId: string, communicationId: string) {
+		await this.dataSource.transaction(async () => {
+			const communication = await Communication.findOneOrFail({
+				where: {
+					id: communicationId,
+					user: {
+						id: userId,
+					},
+				},
+			})
+			await Communication.delete({ id: communication.id })
+		})
+	}
 }

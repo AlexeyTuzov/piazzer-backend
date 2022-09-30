@@ -1,69 +1,55 @@
-import { AutoMap } from "@automapper/classes";
 import {
-    BaseEntity,
-    Column,
-    Entity,
-    PrimaryGeneratedColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn, ManyToOne
-} from 'typeorm';
-import { Venue } from '../../../venues/domain/entities/venues.entity';
-import { Event } from '../../../events/domain/entities/events.entity';
-import TagTypes from '../enums/tag-types';
+	BaseEntity,
+	Column,
+	CreateDateColumn,
+	DeleteDateColumn,
+	Entity,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
+} from 'typeorm'
+import { TagTypesEnum } from '../enums/tagTypes.enum'
+import { Venue } from '../../../venues/domain/entities/venues.entity'
 
 @Entity()
 export class Tag extends BaseEntity {
+	@PrimaryGeneratedColumn('uuid')
+	id: string
 
-    @AutoMap()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+	@Column({ nullable: false })
+	label: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    label: string;
+	@Column({ nullable: true })
+	value: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    value: string;
+	@Column()
+	description: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    description: string;
+	@Column({ type: 'uuid', nullable: true })
+	avatarId: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    avatarId: string;
+	@Column({ nullable: true })
+	color: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    color: string;
+	@Column({
+		type: 'enum',
+		enum: TagTypesEnum,
+		default: TagTypesEnum.TAG,
+	})
+	type: TagTypesEnum
 
-    @AutoMap({ type: () => String})
-    @Column({type: 'enum', enum: TagTypes})
-    type: TagTypes;
+	@CreateDateColumn()
+	createdAt: Date
 
-    @AutoMap({ type: () => Date })
-    @CreateDateColumn()
-    createdAt: string;
+	@UpdateDateColumn()
+	updatedAt: Date
 
-    @AutoMap({ type: () => Date })
-    @UpdateDateColumn()
-    updatedAt: string;
+	@DeleteDateColumn()
+	deletedAt: Date
 
-    @AutoMap({type: () => Date})
-    @DeleteDateColumn()
-    deletedAt: string;
+	@ManyToOne(() => Venue, (venue) => venue.properties)
+	venueProperties: Venue
 
-    @AutoMap(() => Venue)
-    @ManyToOne(() => Venue, venue => venue.attributes)
-    venueAttribute: Venue;
-
-    @AutoMap(() => Venue)
-    @ManyToOne(() => Venue, venue => venue.properties)
-    venueProperty: Venue;
-
-    @AutoMap(() => Event)
-    @ManyToOne(() => Event, event => event.tags)
-    event: Event;
+	@ManyToOne(() => Venue, (venue) => venue.attributes)
+	venueAttributes: Venue
 }

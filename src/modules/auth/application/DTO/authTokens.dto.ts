@@ -1,10 +1,9 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsString } from 'class-validator'
 
 export default class AuthTokensDto {
+	@IsString()
+	accessToken: string
 
-    @IsString()
-    readonly accessToken: string;
-
-    @IsString()
-    readonly refreshToken: string;
+	@IsString()
+	refreshToken: string
 }

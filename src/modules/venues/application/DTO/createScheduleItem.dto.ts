@@ -1,28 +1,27 @@
-import { IsDateString, IsString } from "class-validator";
+import { IsDateString, IsString } from 'class-validator'
 
 export default class CreateScheduleItemDto {
+	@IsDateString()
+	date: string
 
-    @IsDateString()
-    date: string;
+	@IsString()
+	startTime: string
 
-    @IsString()
-    startTime: string;
+	@IsString()
+	endTime: string
 
-    @IsString()
-    endTime: string;
+	@IsString()
+	eventId: string
 
-    @IsString()
-    eventId: string;
+	@IsDateString()
+	declinedAt: string
 
-    @IsDateString()
-    declinedAt: string;
+	@IsDateString()
+	approvedAt: string
 
-    @IsDateString()
-    approvedAt: string;
+	@IsDateString()
+	confirmedAt: string
 
-    @IsDateString()
-    confirmedAt: string;
-
-    @IsDateString()
-    canceledAt: string;
+	@IsDateString()
+	canceledAt: string
 }

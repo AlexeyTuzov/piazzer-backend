@@ -1,83 +1,55 @@
-import { AutoMap } from "@automapper/classes";
-import { User } from "src/modules/users/domain/entities/users.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, OneToOne, BaseEntity } from "typeorm";
-import { Resource } from "../../../resources/domain/entities/resources.entity";
-import { VenueScheduleItem } from "../../../venues/domain/entities/venueScheduleItem.entity";
-import { Tag } from '../../../tags/domain/entities/tags.entity';
+import {
+	Entity,
+	BaseEntity,
+	PrimaryGeneratedColumn,
+	Column,
+	ManyToOne,
+	OneToMany,
+	CreateDateColumn,
+	UpdateDateColumn,
+	OneToOne,
+} from 'typeorm'
+import { User } from '../../../users/domain/entities/users.entity'
+import { Resource } from '../../../resources/domain/entities/resources.entity'
+import { Communication } from '../../../users/domain/entities/communications.entity'
+import { Venue } from '../../../venues/domain/entities/venues.entity'
+import { VenueScheduleItem } from '../../../venues/domain/entities/venueScheduleItem.entity'
 
 @Entity()
 export class Event extends BaseEntity {
+	@PrimaryGeneratedColumn('uuid')
+	id: string
 
-    @AutoMap()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+	@Column({ default: false })
+	isDraft: boolean
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    title: string;
+	@Column()
+	title: string
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    description: string;
+	@Column({ type: 'uuid' })
+	coverId: string
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable:true })
-    duration: string;
+	@CreateDateColumn()
+	createdAt: Date
 
-    @AutoMap()
-    @Column({ type: 'integer', default: 0 })
-    numberOfParticipants: number;
+	@UpdateDateColumn()
+	updatedAt: Date
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    email: string;
+	@Column()
+	description: string
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    phone: string;
+	@ManyToOne(() => User, (user) => user.events)
+	organizer: User
 
-    @AutoMap()
-    @Column({ type: 'boolean', default: false })
-    isBooked: boolean;
+	@OneToMany(() => Resource, (resource) => resource.event)
+	resources: Resource[]
 
-    @AutoMap()
-    @Column({ type: 'boolean', default: false })
-    isPublished: boolean;
+	@OneToMany(() => Communication, (communication) => communication.event)
+	communications: Communication[]
 
-    @AutoMap()
-    @Column({ type: 'boolean', default: false })
-    isBlocked: boolean;
+	@ManyToOne(() => Venue, (venue) => venue.events)
+	venue: Venue
 
-    @AutoMap({ type: () => Date })
-    @CreateDateColumn()
-    createdAt: string;
-
-    @AutoMap({ type: () => Date })
-    @UpdateDateColumn()
-    updatedAt: string;
-
-    @AutoMap({ type: () => Date })
-    @DeleteDateColumn({ type: 'date', default: null })
-    deletedAt: string;
-
-    @AutoMap(() => Resource)
-    @OneToMany(() => Resource, resource => resource.event)
-    resources: Resource[];
-
-    @AutoMap(() => VenueScheduleItem)
-    @OneToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.event)
-    scheduleItem: VenueScheduleItem;
-
-    @AutoMap(() => Tag)
-    @OneToMany(() => Tag, tag => tag.event, {cascade: true})
-    tags: Tag[];
-
-    /*
-    @ManyToMany(() => User, user => user.EventsToVisit,
-        { cascade: true })
-    Participants: User[];
-
-    @ManyToOne(() => User, user => user.OwnMeetings)
-    Organiser: User;
-    */
+	@OneToOne(() => VenueScheduleItem, (scheduleItem) => scheduleItem.event)
+	scheduleItem: VenueScheduleItem
 }

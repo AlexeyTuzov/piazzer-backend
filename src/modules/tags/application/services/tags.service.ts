@@ -1,57 +1,82 @@
-import { Injectable } from '@nestjs/common';
-import FilterTagsDto from '../../infrastructure/filterTags.dto';
-import CreateTagDto from '../DTO/createTag.dto';
-import UpdateTagDto from '../DTO/updateTag.dto';
-import { EntityManager } from 'typeorm';
-import { transacting } from '../../../../infrastructure/database/transacting';
-import { Tag } from '../../domain/entities/tags.entity';
-import NotFoundError from '../../../../infrastructure/exceptions/not-found';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { DataSource } from 'typeorm'
+import CreateTagDto from '../dto/createTag.dto'
+import { Tag } from '../../domain/entities/tags.entity'
+import NotFoundError from '../../../../infrastructure/exceptions/not-found'
+import { FindService } from '../../../../infrastructure/findService'
+import { SortService } from '../../../../infrastructure/sortService'
 
 @Injectable()
 export class TagsService {
+	constructor(private readonly dataSource: DataSource) {}
 
-    constructor() {
-    }
+	async create(dto: CreateTagDto): Promise<Tag> {
+		return this.dataSource.transaction(async () => {
+			const tag = Tag.create()
+			Object.assign(tag, dto)
+			await tag.save()
+			return tag
+		})
+	}
 
-    async create(dto: CreateTagDto, em?: EntityManager): Promise<string> {
-        return transacting(async (em) => {
-            const tag = em.getRepository(Tag).create();
-            Object.assign(tag, dto);
-            await em.save(tag);
-            return tag.id;
-        }, em);
-    }
+	async getFiltered(query) {
+		return this.dataSource.transaction(async () => {
+			const response = {
+				limit: query.limit,
+				page: query.page,
+				total: 0,
+				data: [],
+				$aggregations: {},
+			}
 
-    async getFiltered(dto: FilterTagsDto, em?: EntityManager): Promise<Tag[]> {
-        return transacting(async (em) => {
-            //TODO pagination
-            return await em.getRepository(Tag).find();
-        }, em);
-    }
+			const tags = Tag.createQueryBuilder('tags')
 
-    async getById(id: string, em?: EntityManager): Promise<Tag> {
-        return transacting(async (em) => {
-            const tag = await em.getRepository(Tag).findOne({ where: { id } });
+			FindService.apply(tags, this.dataSource, Tag, 'tags', query.query)
+			SortService.apply(tags, this.dataSource, Tag, 'tags', query.sort)
 
-            if (!tag) {
-                throw new NotFoundError('Tag not found');
-            }
+			await tags
+				.skip((response.page - 1) * response.limit)
+				.take(response.limit)
+				.getManyAndCount()
+				.then(([data, total]) => {
+					response.data = data
+					response.total = total
+				})
 
-            return tag;
-        }, em);
-    }
+			return response
+		})
+	}
 
-    async update(id: string, dto: UpdateTagDto, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            await this.getById(id);
-            await em.getRepository(Tag).update(id, dto);
-        }, em);
-    }
+	async getById(id: string): Promise<Tag> {
+		return this.dataSource.transaction(async () => {
+			const tag = await Tag.findOne({ where: { id } })
 
-    async delete(id: string, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            const tag = await this.getById(id);
-            await em.softRemove(tag);
-        }, em);
-    }
+			if (!tag) {
+				throw new HttpException(
+					{
+						message: 'Tag not found',
+						code: 'NOT_FOUND_EXCEPTION',
+						status: HttpStatus.NOT_FOUND,
+					},
+					HttpStatus.NOT_FOUND,
+				)
+			}
+
+			return tag
+		})
+	}
+
+	async update(id: string, dto): Promise<void> {
+		return this.dataSource.transaction(async () => {
+			await this.getById(id)
+			await Tag.update(id, dto)
+		})
+	}
+
+	async delete(id: string): Promise<void> {
+		return this.dataSource.transaction(async (em) => {
+			const tag = await this.getById(id)
+			await em.softRemove(tag)
+		})
+	}
 }

@@ -1,11 +1,10 @@
-import { IsEmail, IsString } from "class-validator";
+import { IsEmail, IsString } from 'class-validator'
 
 export default class SearchUserDto {
+	@IsEmail()
+	@IsString()
+	email?: string
 
-    @IsEmail()
-    @IsString()
-    readonly email?: string;
-
-    @IsString()
-    readonly name?: string;
+	@IsString()
+	name?: string
 }

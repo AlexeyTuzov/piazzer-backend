@@ -1,47 +1,46 @@
-import { IsArray, IsNumber, IsString } from "class-validator";
-import { Communication } from "src/modules/communications/domain/entities/communications.entity";
-import CreateCoordinatesDto from "./createCoordinates.dto";
+import { IsArray, IsNumber, IsString } from 'class-validator'
+import { Communication } from 'src/modules/users/domain/entities/communications.entity'
+import CreateCoordinatesDto from './createCoordinates.dto'
 
 export default class UpdateVenueDto {
+	@IsString()
+	title?: string
 
-    @IsString()
-    readonly title?: string;
+	@IsString()
+	address?: string
 
-    @IsString()
-    readonly address?: string;
+	@IsString()
+	coverId?: string
 
-    @IsString()
-    readonly coverId?: string;
+	@IsString()
+	city?: string
 
-    @IsString()
-    readonly city?: string;
+	@IsString()
+	contactPerson?: string
 
-    @IsString()
-    readonly contactPerson?: string;
+	@IsString()
+	short?: string
 
-    @IsString()
-    readonly short?: string;
+	@IsString()
+	coordinates?: CreateCoordinatesDto
 
-    @IsString()
-    readonly coordinates?: CreateCoordinatesDto;
+	communications?: Communication[]
 
-    readonly communications?: Communication[];
+	@IsString()
+	description?: string
 
-    @IsString()
-    readonly description?: string;
+	@IsArray()
+	propertiesIds?: string[]
 
-    @IsArray()
-    readonly propertiesIds?: string[];
+	@IsArray()
+	attributesIds?: string[]
 
-    @IsArray()
-    readonly attributesIds?: string[];
+	@IsNumber()
+	capacity?: number
 
-    @IsNumber()
-    readonly capacity?: number;
+	@IsNumber()
+	cost?: number
 
-    @IsNumber()
-    readonly cost?: number;
-
-    @IsArray()
-    readonly resourcesIds?: string[];
+	@IsArray()
+	resourcesIds?: string[]
 }

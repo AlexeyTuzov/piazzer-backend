@@ -1,10 +1,9 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator'
 
 export default class SignUpConfirmDto {
+	@IsString()
+	secret: string
 
-    @IsString()
-    readonly secret: string;
-
-    @IsString()
-    readonly code: string;
+	@IsString()
+	code: string
 }
