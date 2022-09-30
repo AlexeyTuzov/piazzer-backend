@@ -1,8 +1,7 @@
-import { IsEnum } from "class-validator";
-import UserRoles from "../../domain/enums/user-types";
+import { IsEnum } from 'class-validator'
+import { UserRolesEnum } from '../../domain/enums/userRoles.enum'
 
 export default class ChangeRoleDto {
-
-    @IsEnum(UserRoles)
-    readonly role: UserRoles;
+	@IsEnum(UserRolesEnum)
+	role: UserRolesEnum
 }

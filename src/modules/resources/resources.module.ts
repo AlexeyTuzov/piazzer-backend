@@ -1,19 +1,11 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ResourcesService } from './application/services/resources.service';
-import { ResourcesController } from './controllers/resources.controller';
-import { Resource } from './domain/entities/resources.entity';
-import ResizeService from './infrastructure/resize.service';
-import AWSCloudService from './infrastructure/AWSCloud.service';
+import { Module } from '@nestjs/common'
+import { ResourcesService } from './application/services/resources.service'
+import { ResourcesController } from './web/controllers/resources.controller'
+import { YandexCloudService } from './application/services/yandexCloud.service'
 
 @Module({
-    providers: [ResourcesService, AWSCloudService, ResizeService],
-    controllers: [ResourcesController],
-    imports: [
-        TypeOrmModule.forFeature([Resource])
-    ],
-    exports: [
-        ResourcesService
-    ]
+	controllers: [ResourcesController],
+	providers: [ResourcesService, YandexCloudService],
+	exports: [ResourcesService, YandexCloudService],
 })
-export class ResourcesModule { };
+export class ResourcesModule {}

@@ -1,10 +1,9 @@
-import { IsNumber } from "class-validator";
+import { IsNumber } from 'class-validator'
 
 export default class CreateCoordinatesDto {
+	@IsNumber()
+	lat: number
 
-    @IsNumber()
-    lat: number;
-
-    @IsNumber()
-    lon: number;
+	@IsNumber()
+	lon: number
 }

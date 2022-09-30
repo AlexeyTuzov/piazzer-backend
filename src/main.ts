@@ -1,17 +1,16 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { exceptionBoot } from './infrastructure/exceptions/exception.boot';
-import { validationBoot } from './infrastructure/validation/validation.boot';
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { exceptionBoot } from './infrastructure/exceptions/exception.boot'
+import { validationBoot } from './infrastructure/validation/validation.boot'
+import { RequestInterceptor } from './infrastructure/inceptors/request.interceptor'
+import { LoggerService } from './infrastructure/logger/logger.service'
 
 async function bootstrap() {
-    const PORT = process.env.PORT || 3000;
-    const app = await NestFactory.create(AppModule);
-    exceptionBoot(app);
-    validationBoot(app);
-    await app.listen(PORT, () => {
-        console.log(`Server has been started on port ${PORT}`);
-    });
+	const app = await NestFactory.create(AppModule)
+	app.enableCors()
+	exceptionBoot(app)
+	validationBoot(app)
+	app.useGlobalInterceptors(new RequestInterceptor(new LoggerService()))
+	await app.listen(3000)
 }
-
-bootstrap();
+bootstrap()

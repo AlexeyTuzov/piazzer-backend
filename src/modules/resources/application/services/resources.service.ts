@@ -1,105 +1,91 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { transacting } from 'src/infrastructure/database/transacting';
-import NotFoundError from 'src/infrastructure/exceptions/not-found';
-import { EntityManager } from 'typeorm';
-import { Resource } from '../../domain/entities/resources.entity';
-import ResourcesTypes from '../../domain/enums/resourceTypes';
-import FilterResourcesDto from '../../infrastructure/filter-resources.dto';
-import ResizeService from '../../infrastructure/resize.service';
-import AWSCloudService from '../../infrastructure/AWSCloud.service';
-import CreateResourceDto from '../DTO/createResource.dto';
-import {ImageResizeDto} from '../DTO/imageResize.dto';
-import UpdateResourceDto from '../DTO/updateResource.dto';
-import sharp from 'sharp';
-import * as axios from 'axios';
-import * as https from 'https';
+import { Injectable } from '@nestjs/common'
+import { DataSource } from 'typeorm'
+import { Resource } from '../../domain/entities/resources.entity'
+import { YandexCloudService } from './yandexCloud.service'
+import { CreateResourceDto } from '../dto/createResource.dto'
+import { TransformerTypeDto } from '../dto/transformerType.dto'
+import { ResizeService } from './resize.service'
 
 @Injectable()
 export class ResourcesService {
+	constructor(
+		private readonly dataSource: DataSource,
+		private readonly s3Yandex: YandexCloudService, // private readonly resizeService: ResizeService,
+	) {}
 
-    constructor(
-        private AWS3: AWSCloudService,
-        private resizeService: ResizeService) { }
+	create(creatorId: string, { file, ...other }: CreateResourceDto) {
+		return this.dataSource.transaction(async () => {
+			const resource = Resource.create()
+			Object.assign(resource, other)
+			resource.creatorId = creatorId
+			await resource.save()
+			await this.s3Yandex.upload(file, resource.id)
+			return resource
+		})
+	}
 
-    async create(dto: CreateResourceDto, em?: EntityManager): Promise<string> {
-        return transacting(async (em) => {
-            console.log('dto:', dto);
-            if (dto.type === ResourcesTypes.FILE) {
-                const resource = em.getRepository(Resource).create();
-                Object.assign(resource, dto);
-                await em.save(resource);
-                await this.AWS3.upload(dto.file, resource.id);
-                return resource.id;
-            }
+	async getAll(query) {
+		const response = {
+			limit: query.limit,
+			page: query.page,
+			total: 0,
+			data: [],
+			$aggregations: {},
+			$filters: [],
+		}
 
-            try {
-                const { headers } = await axios.default.head(dto.link, {
-                    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-                });
+		const resources = Resource.createQueryBuilder('resource')
 
-                const size = headers['content-length'] ? +headers['content-length'] : 0;
-                const mimeType = headers['content-type'] ? headers['content-type'] : 'not found';
+		await resources
+			.skip((response.page - 1) * response.limit)
+			.take(response.limit)
+			.getManyAndCount()
+			.then(([data, total]) => {
+				response.data = data
+				response.total = total
+			})
 
-                const resource = em.getRepository(Resource).create();
-                Object.assign(resource, { ...dto, mimeType, size });
+		return response
+	}
 
-                await em.save(resource);
-                return resource.id;
-            } catch (err) {
-                throw new HttpException('ERROR_IN_LINK', HttpStatus.BAD_REQUEST);
-            }
-        }, em);
-    }
+	getOne(resourceId: string) {
+		return this.dataSource.transaction(async (em) => {
+			return await em
+				.getRepository(Resource)
+				.findOneByOrFail({ id: resourceId })
+		})
+	}
 
-    async getFiltered(dto: FilterResourcesDto, em?: EntityManager): Promise<Resource[]> {
-        return transacting(async (em) => {
-            //TODO pagination
-            return await em.getRepository(Resource).find();
-        }, em);
-    }
+	update(resourceId: string, body) {
+		return this.dataSource.transaction(async (em) => {
+			const resource = await em
+				.getRepository(Resource)
+				.findOneByOrFail({ id: resourceId })
+			em.getRepository(Resource).merge(resource, Object.assign(resource, body))
+			await resource.save()
+		})
+	}
 
-    async getById(id: string, em?: EntityManager): Promise<Resource> {
-        return transacting(async (em) => {
-            const resource = await em.getRepository(Resource).findOne(
-                { where: { id }, relations: ['venue'] }
-            );
+	remove(resourceId: string) {
+		return this.dataSource.transaction(async (em) => {
+			await em.getRepository(Resource).findOneByOrFail({ id: resourceId })
+			await em.getRepository(Resource).softDelete(resourceId)
+		})
+	}
 
-            if (!resource) {
-                throw new NotFoundError('Resource not found');
-            }
+	async resolve(resourceId: string) {
+		await Resource.findOneByOrFail({ id: resourceId })
+		return await this.s3Yandex.downloadWithLink(resourceId)
+	}
 
-            return resource;
-        }, em);
-    }
+	resolveBuffer(resourceId: string) {
+		return this.s3Yandex.downloadBuffer(resourceId)
+	}
 
-    async update(id: string, dto: UpdateResourceDto, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            await this.getById(id);
-            await em.getRepository(Resource).update(id, { ...dto });
-            return;
-        }, em);
-    }
-
-    async delete(id: string, em?: EntityManager): Promise<void> {
-        return transacting(async (em) => {
-            const resource = await this.getById(id);
-            await this.AWS3.delete(id);
-            await em.softRemove(resource);
-        }, em);
-    }
-
-    async resolve(id: string): Promise<string> {
-        const resource = await this.getById(id);
-
-        if (resource.type === ResourcesTypes.LINK) {
-            return resource.link;
-        } else {
-            return this.AWS3.downloadWithLink(id);
-        }
-    }
-
-    async imageResize(id: string, dto: ImageResizeDto): Promise<sharp.Sharp> {
-        const stream = await this.AWS3.downloadWithStream(id);
-        return stream.pipe(this.resizeService.transformer(dto));
-    }
+	async imageResize(fileId, dto?: TransformerTypeDto) {
+		// return (await this.s3Yandex.downloadWithStream(fileId)).pipe(
+		// 	this.resizeService.transformer(dto),
+		// );
+		return
+	}
 }

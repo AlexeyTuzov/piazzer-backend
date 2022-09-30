@@ -1,17 +1,11 @@
-FROM node
+FROM node:16-alpine
 
-WORKDIR /app
+WORKDIR /home/node
+USER node
 
-COPY package*.json tsconfig*.json ./
-
+COPY --chown=node package*.json ./
 RUN npm ci
 
-COPY . .
+COPY --chown=node . .
 
-RUN npm run build
-
-EXPOSE 3000/tcp
-
-ENV NODE_ENV production
-
-CMD ["node", "dist/src/main.js"]
+CMD npm run start

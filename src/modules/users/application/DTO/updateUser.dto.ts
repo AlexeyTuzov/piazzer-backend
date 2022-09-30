@@ -1,14 +1,11 @@
-import { IsEmail, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from 'class-validator'
 
-export default class UpdateUserDto {
+export class UpdateUserDto {
+	@IsString()
+	@IsNotEmpty()
+	name: string
 
-    @IsEmail()
-    @IsString()
-    readonly email?: string;
-
-    @IsString()
-    readonly password?: string;
-
-    @IsString()
-    readonly name?: string;
+	@IsString()
+	@IsNotEmpty()
+	position: string
 }

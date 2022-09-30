@@ -1,35 +1,28 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { UsersModule } from 'src/modules/users/users.module';
-import { AuthService } from './application/services/auth.service';
-import { AuthController } from './web/controllers/auth.controller';
-import AccessTokenGenerator from './infrastructure/tokenGenerators/accessToken.generator';
-import AuthTokensGenerator from './infrastructure/tokenGenerators/authTokens.generator';
-import CryptoService from './infrastructure/crypto.service';
-import RefreshTokenGenerator from './infrastructure/tokenGenerators/refreshToken.generator';
-import JwtDecoder from './infrastructure/jwtDecoder';
-import { EmailModule } from '../../infrastructure/emailer/emailer.module';
+import { Module } from '@nestjs/common'
+import { AuthService } from './application/services/auth.service'
+import { AuthController } from './web/controllers/auth.controller'
+import { JwtModule } from '@nestjs/jwt'
+import { UsersModule } from '../users/users.module'
+import { CommunicationConfirmModule } from '../verification-codes/communication-confirm.module'
+import { ConfigService } from '@nestjs/config'
+import { JwtStrategy } from './web/strategies/jwt.strategy'
 
 @Module({
-    providers: [
-        AuthService,
-        AccessTokenGenerator,
-        RefreshTokenGenerator,
-        AuthTokensGenerator,
-        CryptoService,
-        JwtDecoder
-    ],
-    controllers: [AuthController],
-    imports: [
-        forwardRef(() => UsersModule),
-        JwtModule.register({
-            secret: process.env.JWT_PRIVATE_KEY || 'SECRET',
-            signOptions: {
-                expiresIn: process.env.JWT_ACCESS_EXPIRES_IN
-            }
-        }),
-        EmailModule
-    ],
-    exports: [JwtDecoder]
+	imports: [
+		JwtModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: (config: ConfigService) => ({
+				secret: config.get<string>('JWT_PRIVATE_KEY'),
+				signOptions: {
+					expiresIn: '10m',
+				},
+			}),
+		}),
+		UsersModule,
+		CommunicationConfirmModule,
+	],
+	controllers: [AuthController],
+	providers: [AuthService, JwtStrategy],
+	exports: [AuthService, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

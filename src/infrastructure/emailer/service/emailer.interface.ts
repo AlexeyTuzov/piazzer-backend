@@ -1,5 +1,5 @@
-import { IEmailSendOptions } from './emailer.options';
+import { IEmailSendOptions } from './emailer.options'
 
 export interface IEmailService {
-    send(emailSendOptions: IEmailSendOptions): Promise<boolean>;
+	send(emailSendOptions: IEmailSendOptions): Promise<boolean>
 }

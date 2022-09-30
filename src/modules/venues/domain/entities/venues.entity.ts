@@ -1,105 +1,103 @@
-import { AutoMap } from "@automapper/classes";
-import { User } from "src/modules/users/domain/entities/users.entity";
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { VenueType } from "./venueTypes.entity";
-import { Resource } from "src/modules/resources/domain/entities/resources.entity";
-import { VenueScheduleItem } from "./venueScheduleItem.entity";
-import { Communication } from "src/modules/communications/domain/entities/communications.entity";
-import { Tag } from '../../../tags/domain/entities/tags.entity';
-import { Coordinates } from "./coordinates.entity";
+import {
+	BaseEntity,
+	Column,
+	CreateDateColumn,
+	Entity,
+	ManyToOne,
+	OneToMany,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn,
+} from 'typeorm'
+import { Coordinates } from '../types/coordinates'
+import { User } from '../../../users/domain/entities/users.entity'
+import { Tag } from '../../../tags/domain/entities/tags.entity'
+import { Communication } from '../../../users/domain/entities/communications.entity'
+import { Resource } from '../../../resources/domain/entities/resources.entity'
+import { Event } from '../../../events/domain/entities/events.entity'
+import { VenueScheduleItem } from './venueScheduleItem.entity'
 
 @Entity()
 export class Venue extends BaseEntity {
+	@PrimaryGeneratedColumn('uuid')
+	id: string
 
-    @AutoMap()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+	@Column()
+	title: string
 
-    @AutoMap()
-    @Column({ type: 'varchar' })
-    title: string;
+	@Column({ nullable: true })
+	address: string
 
-    @AutoMap()
-    @Column({ type: 'varchar' })
-    address: string;
+	@Column({ type: 'uuid' })
+	coverId: string
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    city: string;
+	@OneToMany(() => Resource, (resource) => resource.venue, {
+		cascade: true,
+		onDelete: 'NO ACTION',
+	})
+	resources: Resource[]
 
-    @AutoMap()
-    @Column({type: 'varchar'})
-    contactPerson: string;
+	@Column({ nullable: true })
+	city: string
 
-    @AutoMap()
-    @Column({type: 'varchar', nullable: true})
-    coverId: string;
+	@Column()
+	short: string
 
-    @AutoMap()
-    @Column({type: 'varchar', nullable: true})
-    short: string;
+	@CreateDateColumn()
+	createdAt: Date
 
-    @AutoMap()
-    @Column({ type: 'varchar', nullable: true })
-    description: string;
+	@UpdateDateColumn()
+	updatedAt: Date
 
-    @AutoMap()
-    @Column({ type: 'integer', default: 0 })
-    capacity: number;
+	@Column({
+		type: 'jsonb',
+		default: {
+			lat: 0,
+			lon: 0,
+		} as Coordinates,
+	})
+	coordinates: Coordinates
 
-    @AutoMap()
-    @Column({ type: 'integer', default: 0 })
-    cost: number;
+	@OneToMany(() => Communication, (comm) => comm.venue, { cascade: true })
+	communications: Communication[]
 
-    @AutoMap()
-    @Column({ type: 'boolean', default: false })
-    isBlocked: boolean;
+	@OneToMany(() => Event, (event) => event.venue, { cascade: true })
+	events: Event[]
 
-    @AutoMap()
-    @Column({type: 'boolean', default: false})
-    isDraft: boolean;
+	@Column({ nullable: true })
+	contactPerson: string
 
-    @AutoMap({type: () => Date})
-    @CreateDateColumn()
-    createdAt: string;
+	@Column()
+	description: string
 
-    @AutoMap({type: () => Date})
-    @UpdateDateColumn()
-    updatedAt: string;
+	@OneToMany(() => Tag, (tag) => tag.venueProperties, {
+		cascade: true,
+		onDelete: 'NO ACTION',
+	})
+	properties: Tag[]
 
-    @AutoMap({type: () => Date})
-    @DeleteDateColumn({ type: 'date', default: null })
-    deletedAt: string;
+	@OneToMany(() => Tag, (tag) => tag.venueAttributes, {
+		cascade: true,
+		onDelete: 'NO ACTION',
+	})
+	attributes: Tag[]
 
-    @AutoMap(() => Coordinates)
-    @OneToOne(() => Coordinates, coordinates => coordinates.venue, {cascade: true})
-    coordinates: Coordinates;
+	@Column({ nullable: true })
+	capacity: number
 
-    @AutoMap(() => Resource)
-    @OneToMany(() => Resource, resource => resource.venue, {cascade: true})
-    resources: Resource [];
+	@Column({ nullable: true })
+	cost: number
 
-    @AutoMap(() => Communication)
-    @OneToMany(() => Communication, comm => comm.venue, {cascade: true})
-    communications: Communication[];
+	@Column({ default: false })
+	isBlocked: boolean
 
-    @AutoMap(() => VenueType)
-    @ManyToOne(() => VenueType, type => type.venues)
-    type: VenueType;
+	@Column({ default: false })
+	isDraft: boolean
 
-    @AutoMap(() => VenueScheduleItem)
-    @ManyToOne(() => VenueScheduleItem, scheduleItem => scheduleItem.venue, {cascade: true})
-    scheduleItems: VenueScheduleItem[];
+	@ManyToOne(() => User, (user) => user.venues)
+	owner: User
 
-    @AutoMap(() => User)
-    @ManyToOne(() => User, user => user.venues)
-    owner: User;
-
-    @AutoMap(() => Tag)
-    @OneToMany(() => Tag, tag => tag.venueAttribute, {cascade: true})
-    attributes: Tag[];
-
-    @AutoMap(() => Tag)
-    @OneToMany(() => Tag, tag => tag.venueProperty, {cascade: true})
-    properties: Tag[];
+	@ManyToOne(() => VenueScheduleItem, (scheduleItem) => scheduleItem.venue, {
+		cascade: true,
+	})
+	scheduleItems: VenueScheduleItem[]
 }

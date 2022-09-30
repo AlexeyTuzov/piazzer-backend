@@ -1,23 +1,25 @@
-import { IsString } from "class-validator";
-import TagTypes from '../../domain/enums/tag-types';
+import { IsOptional, IsString, IsUUID } from 'class-validator'
+import { TagTypesEnum } from '../../domain/enums/tagTypes.enum'
 
-export default class UpdateTagDto {
+export default class CreateTagDto {
+	@IsString()
+	label: string
 
-    @IsString()
-    readonly label?: string;
+	@IsOptional()
+	@IsString()
+	value: string
 
-    @IsString()
-    readonly value?: string;
+	@IsString()
+	description: string
 
-    @IsString()
-    readonly description?: string;
+	@IsOptional()
+	@IsUUID()
+	avatarId: string
 
-    @IsString()
-    readonly avatarId?: string;
+	@IsString()
+	color: string
 
-    @IsString()
-    readonly color?: string;
-
-    @IsString()
-    readonly type?: TagTypes;
+	@IsOptional()
+	@IsString()
+	type: TagTypesEnum
 }

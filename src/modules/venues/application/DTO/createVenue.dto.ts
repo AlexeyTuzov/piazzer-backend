@@ -1,52 +1,70 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { Communication } from "src/modules/communications/domain/entities/communications.entity";
-import CreateCoordinatesDto from "./createCoordinates.dto";
+import {
+	IsBoolean,
+	IsNotEmpty,
+	IsNumber,
+	IsObject,
+	IsOptional,
+	IsString,
+	IsUUID,
+	ValidateNested,
+} from 'class-validator'
+import CreateCoordinatesDto from './createCoordinates.dto'
 
 export default class CreateVenueDto {
+	@IsString()
+	@IsNotEmpty()
+	title: string
 
-    @IsString()
-    @IsNotEmpty()
-    readonly title: string;
+	@IsOptional()
+	@IsString()
+	@IsNotEmpty()
+	address: string
 
-    @IsString()
-    @IsNotEmpty()
-    readonly address: string;
+	@IsOptional()
+	@IsUUID()
+	coverId: string
 
-    @IsString()
-    readonly coverId?: string;
+	@IsOptional()
+	@IsString()
+	@IsNotEmpty()
+	city: string
 
-    @IsString()
-    @IsNotEmpty()
-    readonly city: string;
+	@IsString()
+	@IsNotEmpty()
+	short: string
 
-    @IsString()
-    @IsNotEmpty()
-    readonly contactPerson: string;
+	@IsOptional()
+	@IsObject()
+	@ValidateNested({ each: true })
+	coordinates: CreateCoordinatesDto
 
-    @IsString()
-    readonly short?: string;
+	@IsString()
+	@IsNotEmpty()
+	contactPerson: string
 
-    readonly coordinates?: CreateCoordinatesDto;
+	@IsString()
+	description: string
 
-    @IsArray()
-    @IsNotEmpty()
-    readonly communications: Communication[];
+	@IsUUID('4', { each: true })
+	propertiesIds: string
 
-    @IsString()
-    readonly description?: string;
+	@IsUUID('4', { each: true })
+	attributesIds: string
 
-    @IsArray()
-    readonly propertiesIds?: string[];
+	@IsOptional()
+	@IsNumber()
+	capacity: number
 
-    @IsArray()
-    readonly attributesIds?: string[];
+	@IsOptional()
+	@IsNumber()
+	cost: number
 
-    @IsNumber()
-    readonly capacity?: number;
+	@IsBoolean()
+	isBlocked: boolean
 
-    @IsNumber()
-    readonly cost?: number;
+	@IsBoolean()
+	isDraft: boolean
 
-    @IsArray()
-    readonly resourcesIds: string[];
+	@IsUUID('4', { each: true })
+	resourcesIds: string
 }

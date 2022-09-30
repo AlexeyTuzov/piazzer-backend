@@ -1,23 +1,21 @@
-import { IsEnum, IsString } from "class-validator";
-import ResourcesTypes from "../../domain/enums/resourceTypes";
+import { IsEnum, IsString } from 'class-validator'
+import { FileTypesEnum } from '../../domain/enums/fileTypes.enum'
 
-export default class CreateResourceDto {
+export class CreateResourceDto {
+	@IsString()
+	name?: string
 
-    @IsString()
-    name?: string;
+	@IsString()
+	link?: string
 
-    @IsString()
-    link?: string;
+	@IsString()
+	size?: number
 
-    @IsString()
-    size?: number;
+	@IsEnum(FileTypesEnum)
+	type?: FileTypesEnum
 
-    @IsEnum(ResourcesTypes)
-    type?: ResourcesTypes;
+	@IsString()
+	mimeType?: string
 
-    @IsString()
-    mimeType?: string;
-
-    file?: Buffer;
-
+	file?: Buffer
 }
