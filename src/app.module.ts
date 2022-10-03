@@ -59,6 +59,7 @@ import { VenuesModule } from './modules/venues/venues.module'
 		ResourcesModule,
 		TagsModule,
 		// VenuesModule,
+		// EventsModule,
 	],
 })
 export class AppModule {}
