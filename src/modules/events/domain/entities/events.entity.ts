@@ -12,7 +12,7 @@ import {
 } from 'typeorm'
 import { User } from '../../../users/domain/entities/users.entity'
 import { Resource } from '../../../resources/domain/entities/resources.entity'
-import { Communication } from '../../../users/domain/entities/communications.entity'
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { VenueScheduleItem } from '../../../venues/domain/entities/venueScheduleItem.entity'
 import { AutoMap } from '@automapper/classes'

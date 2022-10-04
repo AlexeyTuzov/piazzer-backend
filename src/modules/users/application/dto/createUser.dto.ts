@@ -1,5 +1,5 @@
 import { IsArray, IsEmail, IsNotEmpty, IsString } from 'class-validator'
-import { Communication } from '../../domain/entities/communications.entity'
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 
 export class CreateUserDto {
 	@IsNotEmpty()

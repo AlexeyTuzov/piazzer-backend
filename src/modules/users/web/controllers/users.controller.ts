@@ -22,8 +22,8 @@ import { User } from '../../domain/entities/users.entity'
 import { UserResponseDto } from '../../application/dto/response/user.response.dto'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
-import { CommunicationAddDto } from '../../application/dto/communicationAdd.dto'
-import { CommunicationConfirmDto } from '../../application/dto/communicationConfirm.dto'
+import { CommunicationAddDto } from '../../../communications/application/dto/communicationAdd.dto'
+import { CommunicationConfirmDto } from '../../../communications/application/dto/communicationConfirm.dto'
 
 @Controller('users')
 export class UsersController {

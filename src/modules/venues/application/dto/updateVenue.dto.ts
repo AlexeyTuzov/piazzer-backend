@@ -9,7 +9,6 @@ import {
 	IsUUID,
 	ValidateNested,
 } from 'class-validator'
-import { Communication } from 'src/modules/users/domain/entities/communications.entity'
 import CreateCoordinatesDto from './createCoordinates.dto'
 import { Type } from 'class-transformer'
 

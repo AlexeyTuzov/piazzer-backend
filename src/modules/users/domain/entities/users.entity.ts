@@ -11,7 +11,7 @@ import {
 	UpdateDateColumn,
 } from 'typeorm'
 import { UserRolesEnum } from '../enums/userRoles.enum'
-import { Communication } from './communications.entity'
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 import { createHash } from 'crypto'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
