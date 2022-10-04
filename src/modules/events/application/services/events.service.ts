@@ -66,8 +66,32 @@ export class EventsService {
 		})
 	}
 
-	getOne() {
-		return 'getOne'
+	getById(id: string) {
+		return this.dataSource.transaction(async () => {
+			const event = await Event.findOne({
+				where: { id },
+				relations: [
+					'organizer',
+					'resources',
+					'communications',
+					'venue',
+					'venue.resources',
+				],
+			})
+
+			if (!event) {
+				throw new HttpException(
+					{
+						message: 'Event not found',
+						code: 'NOT_FOUND_EXCEPTION',
+						status: 404,
+					},
+					HttpStatus.NOT_FOUND,
+				)
+			}
+
+			return event
+		})
 	}
 
 	update() {

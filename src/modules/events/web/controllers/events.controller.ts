@@ -10,6 +10,7 @@ import {
     UseGuards,
     Response,
     Query,
+	Param,
 } from '@nestjs/common'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
