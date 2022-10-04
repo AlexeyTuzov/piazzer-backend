@@ -90,8 +90,7 @@ export class ResourcesController {
 		@Query() param: TransformerTypeDto,
 		@Response() res,
 	) {
-		// const file = await this.resourcesService.imageResize(id, param);
-		// file.pipe(res);
-		//TODO
+		const file = await this.resourcesService.imageResize(id, param);
+		file.pipe(res);
 	}
 }

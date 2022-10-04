@@ -10,7 +10,8 @@ import { ResizeService } from './resize.service'
 export class ResourcesService {
 	constructor(
 		private readonly dataSource: DataSource,
-		private readonly s3Yandex: YandexCloudService, // private readonly resizeService: ResizeService,
+		private readonly s3Yandex: YandexCloudService,
+		private readonly resizeService: ResizeService,
 	) {}
 
 	create(creatorId: string, { file, ...other }: CreateResourceDto) {
@@ -83,10 +84,9 @@ export class ResourcesService {
 	}
 
 	async imageResize(fileId, dto?: TransformerTypeDto) {
-		// return (await this.s3Yandex.downloadWithStream(fileId)).pipe(
-		// 	this.resizeService.transformer(dto),
-		// );
-		return
+		return (await this.s3Yandex.downloadWithStream(fileId)).pipe(
+			this.resizeService.transformer(dto),
+		);
 	}
 
 	async getByIds(ids: string[]): Promise<Resource[]> {
