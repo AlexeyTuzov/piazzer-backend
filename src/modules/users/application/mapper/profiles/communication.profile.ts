@@ -1,6 +1,6 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs'
 import { createMap, Mapper, MappingProfile } from '@automapper/core'
-import { Communication } from '../../../domain/entities/communications.entity'
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 import { CommunicationResponseDto } from '../../dto/response/communication.response.dto'
 
 export class CommunicationProfile extends AutomapperProfile {

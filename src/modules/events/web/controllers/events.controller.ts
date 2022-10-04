@@ -1,5 +1,16 @@
-import { Controller, Delete, Get, Patch, Post, UseGuards } from '@nestjs/common'
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Patch,
+	Post,
+	UseGuards,
+	Response,
+} from '@nestjs/common'
+import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
+import { CreateEventDto } from '../../application/dto/createEvent.dto'
 import { EventsService } from '../../application/services/events.service'
 
 @Controller('events')
@@ -8,8 +19,13 @@ export class EventsController {
 	constructor(private readonly eventsService: EventsService) {}
 
 	@Post()
-	create() {
-		return this.eventsService.create()
+	async eventsCreate(
+		@AuthUser() creator,
+		@Body() body: CreateEventDto,
+		@Response() res,
+	) {
+		const event = await this.eventsService.create(creator, body)
+		res.json(event.id)
 	}
 
 	@Get()

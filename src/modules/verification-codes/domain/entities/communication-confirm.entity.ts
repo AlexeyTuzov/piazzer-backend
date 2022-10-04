@@ -7,7 +7,7 @@ import {
 	ManyToOne,
 	PrimaryGeneratedColumn,
 } from 'typeorm'
-import { Communication } from '../../../users/domain/entities/communications.entity'
+import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 
 @Entity()
 export class CommunicationConfirm extends BaseEntity {

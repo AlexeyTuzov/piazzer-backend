@@ -8,8 +8,8 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm'
-import { CommunicationTypesEnum } from '../enums/communicationTypes.enum'
-import { User } from './users.entity'
+import { CommunicationTypesEnum } from '../../../communications/domain/enums/communicationTypes.enum'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
 import { CommunicationConfirm } from '../../../verification-codes/domain/entities/communication-confirm.entity'
@@ -29,7 +29,7 @@ export class Communication extends BaseEntity {
 	type: CommunicationTypesEnum
 
 	@AutoMap()
-	@Column({ unique: true, nullable: false })
+	@Column({ nullable: false })
 	value: string
 
 	@AutoMap()
