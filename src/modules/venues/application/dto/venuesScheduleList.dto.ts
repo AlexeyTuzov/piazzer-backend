@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes'
 import { VenueShortDto } from './venueShort.dto'
-import { EventShortDto } from '../../../events/application/dto/eventShort.dto'
+import { EventShortDto } from 'src/modules/events/application/dto/response/eventShort.dto'
 
 export class VenuesScheduleListDto {
 	@AutoMap()

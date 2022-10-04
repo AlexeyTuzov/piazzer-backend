@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes'
-import { UserShortDto } from '../../../users/application/dto/response/userShort.dto'
+import { UserShortDto } from 'src/modules/users/application/dto/response/userShort.dto'
 
 export class EventShortDto {
 	@AutoMap()

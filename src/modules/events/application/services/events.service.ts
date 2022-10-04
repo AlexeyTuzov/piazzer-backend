@@ -4,6 +4,9 @@ import { DataSource } from 'typeorm'
 import { Event } from '../../domain/entities/events.entity'
 import { CreateEventDto } from '../dto/createEvent.dto'
 import { CommunicationsService } from 'src/modules/communications/application/services/communications.service'
+import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
+import { FindService } from '../../../../infrastructure/findService'
+import { SortService } from '../../../../infrastructure/sortService'
 
 @Injectable()
 export class EventsService {
@@ -31,8 +34,36 @@ export class EventsService {
 		})
 	}
 
-	getAll() {
-		return 'getAll'
+	getFiltered(query: ListingDto) {
+		return this.dataSource.transaction(async () => {
+			const response = {
+				limit: query.limit,
+				page: query.page,
+				total: 0,
+				data: [],
+				$aggregations: {},
+			}
+
+			const events = Event.createQueryBuilder('events').leftJoinAndMapOne(
+				'events.organizer',
+				'events.organizer',
+				'organizer',
+			)
+
+			FindService.apply(events, this.dataSource, Event, 'events', query.query)
+			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
+
+			await events
+				.skip((response.page - 1) * response.limit)
+				.take(response.limit)
+				.getManyAndCount()
+				.then(([data, total]) => {
+					response.data = data
+					response.total = total
+				})
+
+			return response
+		})
 	}
 
 	getOne() {
