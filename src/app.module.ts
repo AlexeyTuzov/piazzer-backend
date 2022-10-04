@@ -61,7 +61,7 @@ import { CommunicationsModule } from './modules/communications/communications.mo
 		ResourcesModule,
 		CommunicationsModule,
 		TagsModule,
-		// VenuesModule,
+		VenuesModule,
 		EventsModule,
 	],
 })
