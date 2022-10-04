@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { DataSource } from 'typeorm'
+import { DataSource, FindOptionsWhere } from 'typeorm'
 import { Venue } from '../../domain/entities/venues.entity'
 import CreateScheduleItemDto from '../dto/createScheduleItem.dto'
 import UpdateVenueDto from '../dto/updateVenue.dto'
@@ -265,6 +265,27 @@ export class VenuesService {
 					declinedAt: new Date(),
 				},
 			)
+		})
+	}
+
+	async scheduleItemFindOneByOrFail(
+		criteria: FindOptionsWhere<VenueScheduleItem>,
+	): Promise<VenueScheduleItem> {
+		return this.dataSource.transaction(async () => {
+			const item = VenueScheduleItem.findOneBy(criteria)
+
+			if (!item) {
+				throw new HttpException(
+					{
+						message: 'VenueScheduleItem not found',
+						code: 'NOT_FOUND_EXCEPTION',
+						status: 404,
+					},
+					HttpStatus.NOT_FOUND,
+				)
+			}
+
+			return item
 		})
 	}
 }

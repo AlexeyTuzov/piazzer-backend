@@ -3,7 +3,7 @@ import {
 	ValidationError as NestValidationError,
 } from '@nestjs/common'
 import { ValidationError } from '../errors/validation.error'
-import { ValidationErrorResponse } from '..//errors/validationError.response'
+import { ValidationErrorResponse } from '../errors/validationError.response'
 import { ValidationException } from '../errors/validation.exception'
 
 export class NestValidationErrorToValidationErrorMapper {

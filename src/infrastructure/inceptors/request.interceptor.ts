@@ -14,7 +14,7 @@ export class RequestInterceptor implements NestInterceptor {
 
 	intercept(
 		context: ExecutionContext,
-		next: CallHandler<any>,
+		next: CallHandler,
 	): Observable<any> | Promise<Observable<any>> {
 		const now = Date.now()
 		const ctx = context.switchToHttp()

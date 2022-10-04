@@ -1,11 +1,5 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs'
-import {
-	afterMap,
-	createMap,
-	forMember,
-	Mapper,
-	MappingProfile,
-} from '@automapper/core'
+import { afterMap, createMap, Mapper, MappingProfile } from '@automapper/core'
 import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
 import { VenuesScheduleListDto } from '../dto/venuesScheduleList.dto'
 

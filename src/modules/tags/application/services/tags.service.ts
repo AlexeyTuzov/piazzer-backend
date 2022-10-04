@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource, In } from 'typeorm'
 import CreateTagDto from '../dto/createTag.dto'
 import { Tag } from '../../domain/entities/tags.entity'
-import NotFoundError from '../../../../infrastructure/exceptions/not-found'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 

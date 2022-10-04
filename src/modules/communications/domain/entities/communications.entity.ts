@@ -8,7 +8,7 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm'
-import { CommunicationTypesEnum } from '../../../communications/domain/enums/communicationTypes.enum'
+import { CommunicationTypesEnum } from '../enums/communicationTypes.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { Event } from '../../../events/domain/entities/events.entity'

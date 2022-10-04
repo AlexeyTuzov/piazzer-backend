@@ -20,6 +20,7 @@ import { TagsModule } from './modules/tags/tags.module'
 import { VenuesModule } from './modules/venues/venues.module'
 import { EventsModule } from './modules/events/events.module'
 import { CommunicationsModule } from './modules/communications/communications.module'
+import { CommentsModule } from './modules/comments/comments.module'
 
 @Module({
 	imports: [
@@ -63,6 +64,7 @@ import { CommunicationsModule } from './modules/communications/communications.mo
 		TagsModule,
 		VenuesModule,
 		EventsModule,
+		CommentsModule,
 	],
 })
 export class AppModule {}
