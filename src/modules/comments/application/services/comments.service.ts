@@ -6,6 +6,8 @@ import { VenuesService } from '../../../venues/application/services/venues.servi
 import { CommentEntityTypesEnum } from '../../domain/enums/commentEntityTypes.enum'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
+import { CommentsCreateDto } from '../dto/commentsCreate.dto'
+import { User } from 'aws-sdk/clients/budgets'
 
 @Injectable()
 export class CommentsService {
@@ -15,9 +17,9 @@ export class CommentsService {
 		private readonly venueService: VenuesService,
 	) {}
 
-	create(body, authUser) {
+	create(body: CommentsCreateDto, authUser: User) {
 		return this.dataSource.transaction(async () => {
-			if (body.entityType === CommentEntityTypesEnum.VENUE_SCHEDULE_ITEM) {
+			if (body.entityId && body.entityType === CommentEntityTypesEnum.VENUE_SCHEDULE_ITEM) {
 				await this.venueService.scheduleItemFindOneByOrFail({
 					id: body.entityId,
 				})

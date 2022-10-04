@@ -8,14 +8,17 @@ import {
 	IsUUID,
 } from 'class-validator'
 
-export class CommentsCreateUpdateDto {
+export class CommentsUpdateDto {
+	@IsOptional()
 	@IsString()
 	@IsNotEmpty()
 	content: string
 
+	@IsOptional()
 	@IsEnum(CommentEntityTypesEnum)
 	entityType: CommentEntityTypesEnum
 
+	@IsOptional()
 	@IsUUID()
 	entityId: string
 
@@ -23,6 +26,7 @@ export class CommentsCreateUpdateDto {
 	@IsUUID()
 	parentId: string
 
+	@IsOptional()
 	@IsUUID('4', { each: true })
 	@IsArray()
 	attachmentsIds: string[]

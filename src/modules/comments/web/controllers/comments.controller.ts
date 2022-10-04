@@ -14,12 +14,13 @@ import {
 import { CommentsService } from '../../application/services/comments.service'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
-import { CommentsCreateUpdateDto } from '../../application/dto/commentsCreateUpdate.dto'
+import { CommentsCreateDto } from '../../application/dto/commentsCreate.dto'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { InjectMapper } from '@automapper/nestjs'
 import { Mapper } from '@automapper/core'
 import { CommentsReadDto } from '../../application/dto/commentsRead.dto'
 import { Comment } from '../../domain/entities/comments.entity'
+import { CommentsUpdateDto } from '../../application/dto/commentsUpdate.dto'
 
 @Controller('comments')
 export class CommentsController {
@@ -32,7 +33,7 @@ export class CommentsController {
 	@UseGuards(jwtAuthGuard)
 	async create(
 		@AuthUser() authUser,
-		@Body() body: CommentsCreateUpdateDto,
+		@Body() body: CommentsCreateDto,
 		@Response() res,
 	) {
 		const comment = await this.commentsService.create(body, authUser)
@@ -61,7 +62,7 @@ export class CommentsController {
 	@UseGuards(jwtAuthGuard)
 	update(
 		@Param('commentId') id: string,
-		@Body() body: CommentsCreateUpdateDto,
+		@Body() body: CommentsUpdateDto,
 	) {
 		return this.commentsService.update({ id }, body)
 	}
