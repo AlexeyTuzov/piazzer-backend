@@ -7,6 +7,7 @@ import { CommunicationsService } from 'src/modules/communications/application/se
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
+import UpdateEventDto from '../dto/updateEvent.dto'
 
 @Injectable()
 export class EventsService {
@@ -94,12 +95,26 @@ export class EventsService {
 		})
 	}
 
-	update() {
-		return 'update'
+	update(id: string, body: UpdateEventDto): Promise<void> {
+		return this.dataSource.transaction(async (em) => {
+			const event = await Event.findOneOrFail({
+				where: { id },
+				relations: ['resources', 'communications'],
+			})
+
+			const data = await this.dataMapping(body.coverId, body.resourcesIds)
+
+			em.getRepository(Event).merge(event, { ...body, ...data })
+
+			await event.save()
+		})
 	}
 
-	delete() {
-		return 'delete'
+	delete(id: string) {
+		return this.dataSource.transaction(async (em) => {
+			await this.getById(id)
+			await em.getRepository(Event).softDelete(id)
+		})
 	}
 
 	getRequests() {

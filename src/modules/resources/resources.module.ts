@@ -7,7 +7,17 @@ import { ResizeService } from './application/services/resize.service'
 
 @Module({
 	controllers: [ResourcesController],
-	providers: [ResourcesService, YandexCloudService, ResizeService, ResourcesProfile],
-	exports: [ResourcesService, YandexCloudService, ResizeService, ResourcesProfile],
+	providers: [
+		ResourcesService,
+		YandexCloudService,
+		ResizeService,
+		ResourcesProfile,
+	],
+	exports: [
+		ResourcesService,
+		YandexCloudService,
+		ResizeService,
+		ResourcesProfile,
+	],
 })
 export class ResourcesModule {}

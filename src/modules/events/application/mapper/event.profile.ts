@@ -12,7 +12,7 @@ export class VenuesScheduleProfile extends AutomapperProfile {
 	override get profile(): MappingProfile {
 		return (mapper: Mapper) => {
 			createMap(mapper, Event, EventShortDto),
-            createMap(mapper, Event, EventResponseDto)
+				createMap(mapper, Event, EventResponseDto)
 		}
 	}
 }

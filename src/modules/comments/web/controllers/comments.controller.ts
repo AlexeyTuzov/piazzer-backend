@@ -60,10 +60,7 @@ export class CommentsController {
 	@HttpCode(204)
 	@Patch(':commentId')
 	@UseGuards(jwtAuthGuard)
-	update(
-		@Param('commentId') id: string,
-		@Body() body: CommentsUpdateDto,
-	) {
+	update(@Param('commentId') id: string, @Body() body: CommentsUpdateDto) {
 		return this.commentsService.update({ id }, body)
 	}
 

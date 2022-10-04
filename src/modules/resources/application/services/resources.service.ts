@@ -86,7 +86,7 @@ export class ResourcesService {
 	async imageResize(fileId, dto?: TransformerTypeDto) {
 		return (await this.s3Yandex.downloadWithStream(fileId)).pipe(
 			this.resizeService.transformer(dto),
-		);
+		)
 	}
 
 	async getByIds(ids: string[]): Promise<Resource[]> {

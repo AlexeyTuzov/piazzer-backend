@@ -19,7 +19,10 @@ export class CommentsService {
 
 	create(body: CommentsCreateDto, authUser: User) {
 		return this.dataSource.transaction(async () => {
-			if (body.entityId && body.entityType === CommentEntityTypesEnum.VENUE_SCHEDULE_ITEM) {
+			if (
+				body.entityId &&
+				body.entityType === CommentEntityTypesEnum.VENUE_SCHEDULE_ITEM
+			) {
 				await this.venueService.scheduleItemFindOneByOrFail({
 					id: body.entityId,
 				})

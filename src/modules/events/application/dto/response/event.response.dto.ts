@@ -20,24 +20,24 @@ export class EventResponseDto {
 	@AutoMap(() => UserShortDto)
 	organizer: UserShortDto
 
-    @AutoMap()
-    description: string
+	@AutoMap()
+	description: string
 
-    @AutoMap(() => [ResourcesResponseDto])
-    resources: ResourcesResponseDto[]
+	@AutoMap(() => [ResourcesResponseDto])
+	resources: ResourcesResponseDto[]
 
-    @AutoMap(() => [CommunicationResponseDto])
-    communications: CommunicationResponseDto[]
+	@AutoMap(() => [CommunicationResponseDto])
+	communications: CommunicationResponseDto[]
 
-    @AutoMap(() => VenueShortDto)
-    venue: VenueShortDto
+	@AutoMap(() => VenueShortDto)
+	venue: VenueShortDto
 
-    @AutoMap()
-    resourcesIds: string[]
+	@AutoMap()
+	resourcesIds: string[]
 
-    @AutoMap(() => Date)
-    createdAt: Date
+	@AutoMap(() => Date)
+	createdAt: Date
 
-    @AutoMap(() => Date)
-    updatedAt: Date
+	@AutoMap(() => Date)
+	updatedAt: Date
 }
