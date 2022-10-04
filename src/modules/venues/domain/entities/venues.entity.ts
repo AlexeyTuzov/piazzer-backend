@@ -2,6 +2,7 @@ import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
+	DeleteDateColumn,
 	Entity,
 	ManyToOne,
 	OneToMany,
@@ -15,38 +16,50 @@ import { Communication } from '../../../users/domain/entities/communications.ent
 import { Resource } from '../../../resources/domain/entities/resources.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItem } from './venueScheduleItem.entity'
+import { AutoMap } from '@automapper/classes'
 
 @Entity()
 export class Venue extends BaseEntity {
+	@AutoMap()
 	@PrimaryGeneratedColumn('uuid')
 	id: string
 
+	@AutoMap()
 	@Column()
 	title: string
 
+	@AutoMap()
 	@Column({ nullable: true })
 	address: string
 
+	@AutoMap()
 	@Column({ type: 'uuid' })
 	coverId: string
 
+	@AutoMap(() => Resource)
 	@OneToMany(() => Resource, (resource) => resource.venue, {
 		cascade: true,
-		onDelete: 'NO ACTION',
 	})
 	resources: Resource[]
 
+	@AutoMap()
 	@Column({ nullable: true })
 	city: string
 
+	@AutoMap()
 	@Column()
 	short: string
 
+	@AutoMap()
 	@CreateDateColumn()
 	createdAt: Date
 
+	@AutoMap()
 	@UpdateDateColumn()
 	updatedAt: Date
+
+	@DeleteDateColumn()
+	deletedAt: Date
 
 	@Column({
 		type: 'jsonb',
@@ -57,10 +70,10 @@ export class Venue extends BaseEntity {
 	})
 	coordinates: Coordinates
 
-	@OneToMany(() => Communication, (comm) => comm.venue, { cascade: true })
+	@OneToMany(() => Communication, (comm) => comm.venue)
 	communications: Communication[]
 
-	@OneToMany(() => Event, (event) => event.venue, { cascade: true })
+	@OneToMany(() => Event, (event) => event.venue)
 	events: Event[]
 
 	@Column({ nullable: true })
@@ -71,13 +84,11 @@ export class Venue extends BaseEntity {
 
 	@OneToMany(() => Tag, (tag) => tag.venueProperties, {
 		cascade: true,
-		onDelete: 'NO ACTION',
 	})
 	properties: Tag[]
 
 	@OneToMany(() => Tag, (tag) => tag.venueAttributes, {
 		cascade: true,
-		onDelete: 'NO ACTION',
 	})
 	attributes: Tag[]
 
@@ -96,7 +107,7 @@ export class Venue extends BaseEntity {
 	@ManyToOne(() => User, (user) => user.venues)
 	owner: User
 
-	@ManyToOne(() => VenueScheduleItem, (scheduleItem) => scheduleItem.venue, {
+	@OneToMany(() => VenueScheduleItem, (scheduleItem) => scheduleItem.venue, {
 		cascade: true,
 	})
 	scheduleItems: VenueScheduleItem[]

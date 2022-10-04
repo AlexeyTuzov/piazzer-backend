@@ -9,25 +9,40 @@ import {
 	Delete,
 	HttpCode,
 	UseGuards,
+	Response,
 } from '@nestjs/common'
 import { VenuesService } from '../../application/services/venues.service'
 import CreateVenueDto from '../../application/dto/createVenue.dto'
 import UpdateVenueDto from '../../application/dto/updateVenue.dto'
 import CreateScheduleItemDto from '../../application/dto/createScheduleItem.dto'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
+import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
+import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
+import { Mapper } from '@automapper/core'
+import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
+import { InjectMapper } from '@automapper/nestjs'
+import { VenuesScheduleListDto } from '../../application/dto/venuesScheduleList.dto'
 
 @Controller('venues')
 @UseGuards(jwtAuthGuard)
 export class VenuesController {
-	constructor(private readonly venuesService: VenuesService) {}
+	constructor(
+		private readonly venuesService: VenuesService,
+		@InjectMapper() private readonly mapper: Mapper,
+	) {}
 
 	@Post()
-	venuesCreate(@Body() body: CreateVenueDto) {
-		return this.venuesService.create(body)
+	async venuesCreate(
+		@AuthUser() authUser,
+		@Body() body: CreateVenueDto,
+		@Response() res,
+	) {
+		const venue = await this.venuesService.create(body, authUser)
+		res.json(venue.id)
 	}
 
 	@Get()
-	venuesFind(@Query() dto) {
+	venuesFind(@Query() dto: ListingDto) {
 		return this.venuesService.getFiltered(dto)
 	}
 
@@ -36,37 +51,51 @@ export class VenuesController {
 		return this.venuesService.getById(id)
 	}
 
+	@HttpCode(204)
 	@Patch('/:id')
 	venuesUpdate(@Param('id') id: string, @Body() dto: UpdateVenueDto) {
 		return this.venuesService.update(id, dto)
 	}
 
-	@Delete('/:id')
 	@HttpCode(204)
+	@Delete('/:id')
 	venuesRemove(@Param('id') id: string) {
 		return this.venuesService.delete(id)
 	}
 
 	@Get('/:id/schedule')
-	venuesScheduleList(@Param('id') id: string, @Query() dto) {
-		return this.venuesService.getSchedule(id, dto)
+	async venuesScheduleList(
+		@Param('id') id: string,
+		@Query() query: ListingDto,
+	) {
+		const result = await this.venuesService.getSchedule(id, query)
+		return {
+			...result,
+			data: this.mapper.mapArray(
+				result.data,
+				VenueScheduleItem,
+				VenuesScheduleListDto,
+			),
+		}
 	}
 
 	@Post('/:id/schedule')
-	venuesScheduleItemCreate(
+	async venuesScheduleItemCreate(
 		@Param('id') id: string,
-		dto: CreateScheduleItemDto,
+		@Body() body: CreateScheduleItemDto,
+		@Response() res,
 	) {
-		return this.venuesService.createScheduleItem(id, dto)
+		const schedule = await this.venuesService.createScheduleItem(id, body)
+		res.json(schedule.id)
 	}
 
-	@Post('/:id/schedule/:scheduleId/approve')
 	@HttpCode(204)
+	@Post('/:venueId/schedule/:venueScheduleId/approve')
 	venuesScheduleItemApprove(
-		@Param('id') id: string,
-		@Param('scheduleId') scheduleId: string,
+		@Param('venueId') venueId: string,
+		@Param('venueScheduleId') venueScheduleId: string,
 	) {
-		return this.venuesService.approveScheduleItem(id, scheduleId)
+		return this.venuesService.approveScheduleItem(venueId, venueScheduleId)
 	}
 
 	@Post('/:id/schedule/:scheduleId/decline')

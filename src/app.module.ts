@@ -58,7 +58,7 @@ import { VenuesModule } from './modules/venues/venues.module'
 		AuthModule,
 		ResourcesModule,
 		TagsModule,
-		// VenuesModule,
+		VenuesModule,
 		// EventsModule,
 	],
 })

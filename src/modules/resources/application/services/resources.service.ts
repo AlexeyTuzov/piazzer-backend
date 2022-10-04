@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { DataSource } from 'typeorm'
+import { DataSource, In } from 'typeorm'
 import { Resource } from '../../domain/entities/resources.entity'
 import { YandexCloudService } from './yandexCloud.service'
 import { CreateResourceDto } from '../dto/createResource.dto'
@@ -87,5 +87,13 @@ export class ResourcesService {
 		// 	this.resizeService.transformer(dto),
 		// );
 		return
+	}
+
+	async getByIds(ids: string[]): Promise<Resource[]> {
+		return await Resource.find({
+			where: {
+				id: In(ids),
+			},
+		})
 	}
 }

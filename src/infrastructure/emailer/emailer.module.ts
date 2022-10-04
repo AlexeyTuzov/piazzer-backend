@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config'
 			useFactory: (config: ConfigService) => ({
 				transport: {
 					host: config.get<string>('MAIL_HOST'),
-					port: config.get<number>('PORT'),
+					port: config.get<number>('MAIL_PORT'),
 					auth: {
 						user: config.get<string>('MAIL_USER'),
 						pass: config.get<string>('MAIL_PASS'),

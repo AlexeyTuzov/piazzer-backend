@@ -13,39 +13,50 @@ import { User } from '../../../users/domain/entities/users.entity'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
 import { Comment } from '../../../comments/domain/entities/comments.entity'
+import { AutoMap } from '@automapper/classes'
 
 @Entity()
 export class Resource extends BaseEntity {
+	@AutoMap()
 	@PrimaryGeneratedColumn('uuid')
 	id: string
 
+	@AutoMap()
 	@Column()
 	name: string
 
+	@AutoMap()
 	@Column()
 	size: number
 
+	@AutoMap()
 	@Column({
 		type: 'enum',
 		enum: FileTypesEnum,
 	})
 	type: FileTypesEnum
 
+	@AutoMap()
 	@Column({ nullable: true })
 	link: string
 
+	@AutoMap()
 	@Column()
 	creatorId: string
 
+	@AutoMap()
 	@Column()
 	mimeType: string
 
+	@AutoMap()
 	@CreateDateColumn()
 	createdAt: Date
 
+	@AutoMap()
 	@UpdateDateColumn()
 	updatedAt: Date
 
+	@AutoMap()
 	@DeleteDateColumn()
 	deletedAt: Date
 

@@ -8,24 +8,30 @@ import {
 	CreateDateColumn,
 	UpdateDateColumn,
 	OneToOne,
+	JoinColumn,
 } from 'typeorm'
 import { User } from '../../../users/domain/entities/users.entity'
 import { Resource } from '../../../resources/domain/entities/resources.entity'
 import { Communication } from '../../../users/domain/entities/communications.entity'
 import { Venue } from '../../../venues/domain/entities/venues.entity'
 import { VenueScheduleItem } from '../../../venues/domain/entities/venueScheduleItem.entity'
+import { AutoMap } from '@automapper/classes'
 
 @Entity()
 export class Event extends BaseEntity {
+	@AutoMap()
 	@PrimaryGeneratedColumn('uuid')
 	id: string
 
+	@AutoMap()
 	@Column({ default: false })
 	isDraft: boolean
 
+	@AutoMap()
 	@Column()
 	title: string
 
+	@AutoMap()
 	@Column({ type: 'uuid' })
 	coverId: string
 
@@ -38,6 +44,7 @@ export class Event extends BaseEntity {
 	@Column()
 	description: string
 
+	@AutoMap(() => User)
 	@ManyToOne(() => User, (user) => user.events)
 	organizer: User
 
@@ -50,6 +57,8 @@ export class Event extends BaseEntity {
 	@ManyToOne(() => Venue, (venue) => venue.events)
 	venue: Venue
 
-	@OneToOne(() => VenueScheduleItem, (scheduleItem) => scheduleItem.event)
-	scheduleItem: VenueScheduleItem
+	@OneToMany(() => VenueScheduleItem, (scheduleItem) => scheduleItem.event, {
+		cascade: true,
+	})
+	scheduleItem: VenueScheduleItem[]
 }

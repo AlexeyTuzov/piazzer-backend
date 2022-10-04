@@ -1,17 +1,16 @@
-import { AutoMap } from '@automapper/classes'
 import { Event } from '../../../events/domain/entities/events.entity'
 import {
 	BaseEntity,
 	Column,
 	CreateDateColumn,
 	Entity,
-	OneToMany,
-	OneToOne,
+	ManyToOne,
 	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from 'typeorm'
 import { Venue } from './venues.entity'
 import { VenueScheduleItemStatusesEnum } from '../enums/venueScheduleItemStatuses.enum'
+import { AutoMap } from '@automapper/classes'
 
 @Entity()
 export class VenueScheduleItem extends BaseEntity {
@@ -31,11 +30,27 @@ export class VenueScheduleItem extends BaseEntity {
 	@Column('time')
 	endTime: Date
 
+	@AutoMap(() => Venue)
+	@ManyToOne(() => Venue, (venue) => venue.scheduleItems)
+	venue: Venue
+
 	@AutoMap()
+	@Column()
+	venueId: string
+
+	@AutoMap(() => Event)
+	@ManyToOne(() => Event, (event) => event.scheduleItem)
+	event: Event
+
+	@AutoMap()
+	@Column()
+	eventId: string
+
+	@AutoMap(() => Date)
 	@Column()
 	declinedAt: Date
 
-	@AutoMap()
+	@AutoMap(() => Date)
 	@Column()
 	approvedAt: Date
 
@@ -47,23 +62,19 @@ export class VenueScheduleItem extends BaseEntity {
 	@Column()
 	canceledAt: Date
 
-	@AutoMap({ type: () => String })
-	@Column({ type: 'enum', enum: VenueScheduleItemStatusesEnum })
+	@AutoMap()
+	@Column({
+		type: 'enum',
+		enum: VenueScheduleItemStatusesEnum,
+		default: VenueScheduleItemStatusesEnum.CREATED,
+	})
 	status: VenueScheduleItemStatusesEnum
 
-	@AutoMap({ type: () => Date })
+	@AutoMap()
 	@CreateDateColumn()
 	createdAt: Date
 
-	@AutoMap({ type: () => Date })
+	@AutoMap()
 	@UpdateDateColumn()
 	updatedAt: Date
-
-	@AutoMap(() => Venue)
-	@OneToMany(() => Venue, (venue) => venue.scheduleItems)
-	venue: Venue
-
-	@AutoMap(() => Event)
-	@OneToOne(() => Event, (event) => event.scheduleItem)
-	event: Event
 }

@@ -86,7 +86,7 @@ export class AuthService {
 	}
 
 	async signUpConfirm(body) {
-		await this.dataSource.transaction(async () => {
+		return await this.dataSource.transaction(async () => {
 			const record = await CommunicationConfirm.findOne({
 				where: {
 					code: body.code,
@@ -113,6 +113,7 @@ export class AuthService {
 				})
 				await this.usersService.verification(communication.user.id)
 				await CommunicationConfirm.delete(record.id)
+				return this.login(communication.user)
 			} catch (e) {
 				console.error(e)
 			}

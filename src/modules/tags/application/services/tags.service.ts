@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { DataSource } from 'typeorm'
+import { DataSource, In } from 'typeorm'
 import CreateTagDto from '../dto/createTag.dto'
 import { Tag } from '../../domain/entities/tags.entity'
 import NotFoundError from '../../../../infrastructure/exceptions/not-found'
@@ -77,6 +77,14 @@ export class TagsService {
 		return this.dataSource.transaction(async (em) => {
 			const tag = await this.getById(id)
 			await em.softRemove(tag)
+		})
+	}
+
+	async getByIds(ids: string[]): Promise<Tag[]> {
+		return await Tag.find({
+			where: {
+				id: In(ids),
+			},
 		})
 	}
 }

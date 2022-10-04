@@ -1,4 +1,5 @@
 import {
+	IsArray,
 	IsBoolean,
 	IsNotEmpty,
 	IsNumber,
@@ -8,6 +9,7 @@ import {
 	IsUUID,
 	ValidateNested,
 } from 'class-validator'
+import { Type } from 'class-transformer'
 import CreateCoordinatesDto from './createCoordinates.dto'
 
 export default class CreateVenueDto {
@@ -29,13 +31,14 @@ export default class CreateVenueDto {
 	@IsNotEmpty()
 	city: string
 
+	//TODO IsNotEmpty
 	@IsString()
-	@IsNotEmpty()
 	short: string
 
 	@IsOptional()
 	@IsObject()
-	@ValidateNested({ each: true })
+	@ValidateNested()
+	@Type(() => CreateCoordinatesDto)
 	coordinates: CreateCoordinatesDto
 
 	@IsString()
@@ -46,10 +49,12 @@ export default class CreateVenueDto {
 	description: string
 
 	@IsUUID('4', { each: true })
-	propertiesIds: string
+	@IsArray()
+	propertiesIds: string[]
 
 	@IsUUID('4', { each: true })
-	attributesIds: string
+	@IsArray()
+	attributesIds: string[]
 
 	@IsOptional()
 	@IsNumber()
@@ -66,5 +71,6 @@ export default class CreateVenueDto {
 	isDraft: boolean
 
 	@IsUUID('4', { each: true })
-	resourcesIds: string
+	@IsArray()
+	resourcesIds: string[]
 }
