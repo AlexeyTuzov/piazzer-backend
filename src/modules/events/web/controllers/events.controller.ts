@@ -18,6 +18,7 @@ import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { CreateEventDto } from '../../application/dto/createEvent.dto'
+import { EventResponseDto } from '../../application/dto/response/event.response.dto'
 import { EventShortDto } from '../../application/dto/response/eventShort.dto'
 import UpdateEventDto from '../../application/dto/updateEvent.dto'
 import { EventsService } from '../../application/services/events.service'
@@ -53,7 +54,7 @@ export class EventsController {
 	@Get('/:id')
 	async eventsRead(@Param('id') id: string) {
 		const event = await this.eventsService.getById(id)
-		return this.mapper.map(event, Event, EventShortDto)
+		return this.mapper.map(event, Event, EventResponseDto)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
