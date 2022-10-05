@@ -8,6 +8,7 @@ import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import UpdateEventDto from '../dto/updateEvent.dto'
+import { VenueScheduleItem } from '../../../venues/domain/entities/venueScheduleItem.entity'
 
 @Injectable()
 export class EventsService {
@@ -117,8 +118,49 @@ export class EventsService {
 		})
 	}
 
-	getRequests() {
-		return 'getRequests'
+	getRequests(id: string, query: ListingDto) {
+		return this.dataSource.transaction(async () => {
+			const response = {
+				limit: query.limit,
+				page: query.page,
+				total: 0,
+				data: [],
+				$aggregations: {},
+			}
+
+			const scheduleItems = VenueScheduleItem.createQueryBuilder('schedule')
+				.where('schedule.eventId = :eventId', { eventId: id })
+				.leftJoinAndMapOne('schedule.venue', 'schedule.venue', 'venue')
+				.leftJoinAndMapMany('venue.resources', 'venue.resources', 'resources')
+				.leftJoinAndMapOne('schedule.event', 'schedule.event', 'event')
+				.leftJoinAndMapMany('event.organizer', 'event.organizer', 'organizer')
+
+			FindService.apply(
+				scheduleItems,
+				this.dataSource,
+				VenueScheduleItem,
+				'schedule',
+				query.query,
+			)
+			SortService.apply(
+				scheduleItems,
+				this.dataSource,
+				VenueScheduleItem,
+				'schedule',
+				query.sort,
+			)
+
+			await scheduleItems
+				.skip((response.page - 1) * response.limit)
+				.take(response.limit)
+				.getManyAndCount()
+				.then(([data, total]) => {
+					response.data = data
+					response.total = total
+				})
+
+			return response
+		})
 	}
 
 	confirmRequest() {

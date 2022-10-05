@@ -46,12 +46,15 @@ export class Event extends BaseEntity {
 	@ManyToOne(() => User, (user) => user.events)
 	organizer: User
 
+	@AutoMap(() => Resource)
 	@OneToMany(() => Resource, (resource) => resource.event)
 	resources: Resource[]
 
+	@AutoMap(() => Communication)
 	@OneToMany(() => Communication, (communication) => communication.event)
 	communications: Communication[]
 
+	@AutoMap(() => Venue)
 	@ManyToOne(() => Venue, (venue) => venue.events)
 	venue: Venue
 

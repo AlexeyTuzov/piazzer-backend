@@ -16,6 +16,8 @@ import {
 } from '@nestjs/common'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
+import { VenuesScheduleListDto } from 'src/modules/venues/application/dto/venuesScheduleList.dto'
+import { VenueScheduleItem } from 'src/modules/venues/domain/entities/venueScheduleItem.entity'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { CreateEventDto } from '../../application/dto/createEvent.dto'
 import { EventResponseDto } from '../../application/dto/response/event.response.dto'
@@ -69,9 +71,17 @@ export class EventsController {
 		return this.eventsService.delete(id)
 	}
 
-	@Get(':eventId/requests')
-	getRequests() {
-		return this.eventsService.getRequests()
+	@Get('/:id/requests')
+	async eventsRequestsList(@Param('id') id: string, @Query() dto: ListingDto) {
+		const result = await this.eventsService.getRequests(id, dto)
+		return {
+			...result,
+			data: this.mapper.mapArray(
+				result.data,
+				VenueScheduleItem,
+				VenuesScheduleListDto,
+			),
+		}
 	}
 
 	@Post(':eventId/requests/:scheduleItemId/confirm')
