@@ -16,6 +16,11 @@ before_script:
 # ======================================================== ENV =========================================================
 
 .env_dev: &env_dev
+  variables:
+    SSH_HOST: ${SSH_HOST_DEV}
+    SSH_USER: ${SSH_USER_DEV}
+    SSH_PRIVATE_KEY: ${SSH_KEY_DEV}
+    PROJECT_DIR: ${PROJECT_DIR_DEV}
   only:
     - develop
 
@@ -75,7 +80,6 @@ build_prod:
 deploy_dev:
   <<: *deploy
   <<: *env_dev
-  when: manual
 
 deploy_prod:
   <<: *deploy
