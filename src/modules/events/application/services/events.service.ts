@@ -67,7 +67,7 @@ export class EventsService {
 		})
 	}
 
-	getById(id: string) {
+	getById(id: string): Promise<Event> {
 		return this.dataSource.transaction(async () => {
 			const event = await Event.findOne({
 				where: { id },
@@ -110,7 +110,7 @@ export class EventsService {
 		})
 	}
 
-	delete(id: string) {
+	delete(id: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
 			await this.getById(id)
 			await em.getRepository(Event).softDelete(id)
