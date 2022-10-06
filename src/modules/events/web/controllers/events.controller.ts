@@ -84,9 +84,13 @@ export class EventsController {
 		}
 	}
 
-	@Post(':eventId/requests/:scheduleItemId/confirm')
-	confirmRequest() {
-		return this.eventsService.confirmRequest()
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@Post('/:eventId/requests/:scheduleId/confirm')
+	eventsScheduleItemConfirm(
+		@Param('eventId') eventId: string,
+		@Param('scheduleId') scheduleId: string,
+	) {
+		return this.eventsService.confirmRequest(eventId, scheduleId)
 	}
 
 	@Post(':eventId/requests/:scheduleItemId/cancel')

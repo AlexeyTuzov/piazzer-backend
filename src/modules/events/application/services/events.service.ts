@@ -8,7 +8,9 @@ import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import UpdateEventDto from '../dto/updateEvent.dto'
-import { VenueScheduleItem } from '../../../venues/domain/entities/venueScheduleItem.entity'
+import SchedulerService from 'src/infrastructure/scheduler/scheduler.service'
+import { VenueScheduleItem } from 'src/modules/venues/domain/entities/venueScheduleItem.entity'
+import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/venueScheduleItemStatuses.enum'
 
 @Injectable()
 export class EventsService {
@@ -16,6 +18,7 @@ export class EventsService {
 		private readonly dataSource: DataSource,
 		private readonly resourcesService: ResourcesService,
 		private readonly communicationsService: CommunicationsService,
+		private readonly schedulerService: SchedulerService,
 	) {}
 
 	create(creator, body: CreateEventDto) {
@@ -163,8 +166,35 @@ export class EventsService {
 		})
 	}
 
-	confirmRequest() {
-		return 'confirmRequest'
+	confirmRequest(eventId: string, scheduleId: string) {
+		return this.dataSource.transaction(async () => {
+			const event = await Event.findOneOrFail({
+				where: { id: eventId },
+			})
+
+			const scheduleItem = await VenueScheduleItem.findOneOrFail({
+				where: { eventId: event.id },
+			})
+
+			const check = this.schedulerService.checkStatusChange(
+				scheduleItem.status,
+				VenueScheduleItemStatusesEnum.CONFIRMED,
+			)
+
+			if (!check) {
+				throw new HttpException(
+					{
+						message: 'Event has not been approved by a venue owner yet',
+						code: 'NOT_ACCEPTABLE',
+						status: 406,
+					},
+					HttpStatus.NOT_ACCEPTABLE,
+				)
+			}
+
+			scheduleItem.status = VenueScheduleItemStatusesEnum.CONFIRMED
+			await scheduleItem.save()
+		})
 	}
 
 	cancelRequest() {
