@@ -29,7 +29,7 @@ export class VenuesService {
 	) {
 		const data = {} as Venue
 
-		if (resourcesIds?.length || coverId) {
+		// if (resourcesIds?.length || coverId) {
 			const resources = await this.resourcesService.getByIds(
 				[].concat(resourcesIds, coverId),
 			)
@@ -49,15 +49,15 @@ export class VenuesService {
 				}
 				data.coverId = resources.find((res) => res.id === coverId)?.id || null
 			}
-		}
+		// }
 
-		if (propertiesIds?.length || attributesIds?.length) {
+		// if (propertiesIds?.length || attributesIds?.length) {
 			const tags = await this.tagsService.getByIds(
 				[].concat(attributesIds, propertiesIds),
 			)
 			data.properties = tags.filter((tag) => propertiesIds.includes(tag.id))
 			data.attributes = tags.filter((tag) => attributesIds.includes(tag.id))
-		}
+		// }
 
 		return data
 	}
@@ -178,8 +178,18 @@ export class VenuesService {
 				body.propertiesIds,
 				body.attributesIds,
 			)
+			
+			const even = (element) => !venue.resources.map((res) => res.id).includes(element)
+			const test = body.resourcesIds.filter(even)
+			console.log(test);
+			console.log(data.resources);
+			
+			
 
 			em.getRepository(Venue).merge(venue, { ...body, ...data })
+			venue.resources = data.resources
+			venue.properties = data.properties
+			venue.attributes = data.attributes
 
 			await venue.save()
 		})
