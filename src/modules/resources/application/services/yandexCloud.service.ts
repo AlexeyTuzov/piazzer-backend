@@ -11,7 +11,7 @@ export class YandexCloudService {
 		this.bucket = this.configService.get('AWS_BUCKET_NAME')
 
 		this.s3 = new S3({
-			endpoint: 'https://storage.yandexcloud.net',
+			endpoint: this.configService.get('AWS_ENDPOINT'),
 			accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
 			secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
 			region: this.configService.get('AWS_REGION'),
