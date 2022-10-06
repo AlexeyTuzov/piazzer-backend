@@ -22,6 +22,8 @@ import { Mapper } from '@automapper/core'
 import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
 import { InjectMapper } from '@automapper/nestjs'
 import { VenuesScheduleListDto } from '../../application/dto/venuesScheduleList.dto'
+import { VenueReadDto } from '../../application/mapper/venueRead.dto'
+import { Venue } from '../../domain/entities/venues.entity'
 
 @Controller('venues')
 @UseGuards(jwtAuthGuard)
@@ -42,13 +44,18 @@ export class VenuesController {
 	}
 
 	@Get()
-	venuesFind(@Query() dto: ListingDto) {
-		return this.venuesService.getFiltered(dto)
+	async venuesFind(@Query() query: ListingDto) {
+		const result = await this.venuesService.getFiltered(query)
+		return {
+			...result,
+			data: this.mapper.mapArray(result.data, Venue, VenueReadDto),
+		}
 	}
 
 	@Get('/:id')
-	venuesRead(@Param('id') id: string) {
-		return this.venuesService.getById(id)
+	async venuesRead(@Param('id') id: string) {
+		const venue = await this.venuesService.getById(id)
+		return this.mapper.map(venue, Venue, VenueReadDto)
 	}
 
 	@HttpCode(204)

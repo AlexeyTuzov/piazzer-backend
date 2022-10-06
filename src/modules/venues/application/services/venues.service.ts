@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
-import { DataSource, FindOptionsWhere } from 'typeorm'
+import { Brackets, DataSource, FindOptionsWhere } from 'typeorm'
 import { Venue } from '../../domain/entities/venues.entity'
 import CreateScheduleItemDto from '../dto/createScheduleItem.dto'
 import UpdateVenueDto from '../dto/updateVenue.dto'
@@ -11,6 +11,7 @@ import { ResourcesService } from '../../../resources/application/services/resour
 import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItemStatusesEnum } from '../../domain/enums/venueScheduleItemStatuses.enum'
+import { VenuesFilterManager } from '../filters/venues.filterManager'
 
 @Injectable()
 export class VenuesService {
@@ -87,16 +88,45 @@ export class VenuesService {
 				total: 0,
 				data: [],
 				$aggregations: {},
+				$filters: VenuesFilterManager.transformForResponse(),
 			}
 
-			const venues = Venue.createQueryBuilder('venues').leftJoinAndMapMany(
+			const venues = Venue.createQueryBuilder('venues')
+			.leftJoinAndMapMany(
 				'venues.resources',
 				'venues.resources',
 				'resources',
+			).leftJoinAndMapMany(
+				'venues.communications',
+				'venues.communications',
+				'communications',
+			).leftJoinAndMapMany(
+				'venues.properties',
+				'venues.properties',
+				'properties',
+			).leftJoinAndMapMany(
+				'venues.attributes',
+				'venues.attributes',
+				'attributes',
+			).leftJoinAndMapOne(
+				'venues.owner',
+				'venues.owner',
+				'owner',
+			).leftJoinAndMapMany(
+				'owner.communications',
+				'owner.communications',
+				'owner_communications',
 			)
 
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
 			SortService.apply(venues, this.dataSource, Venue, 'venues', query.sort)
+			venues.andWhere(
+				new Brackets((qb) => {
+					return query.filter
+						? VenuesFilterManager.apply(qb, query.filter)
+						: {}
+				})
+			)
 
 			await venues
 				.skip((response.page - 1) * response.limit)

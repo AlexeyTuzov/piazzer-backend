@@ -61,6 +61,7 @@ export class Venue extends BaseEntity {
 	@DeleteDateColumn()
 	deletedAt: Date
 
+	@AutoMap()
 	@Column({
 		type: 'jsonb',
 		default: {
@@ -70,40 +71,50 @@ export class Venue extends BaseEntity {
 	})
 	coordinates: Coordinates
 
+	@AutoMap()
 	@OneToMany(() => Communication, (comm) => comm.venue)
 	communications: Communication[]
 
 	@OneToMany(() => Event, (event) => event.venue)
 	events: Event[]
 
+	@AutoMap()
 	@Column({ nullable: true })
 	contactPerson: string
 
+	@AutoMap()
 	@Column()
 	description: string
 
+	@AutoMap()
 	@OneToMany(() => Tag, (tag) => tag.venueProperties, {
 		cascade: true,
 	})
 	properties: Tag[]
 
+	@AutoMap()
 	@OneToMany(() => Tag, (tag) => tag.venueAttributes, {
 		cascade: true,
 	})
 	attributes: Tag[]
 
+	@AutoMap()
 	@Column({ nullable: true })
 	capacity: number
 
+	@AutoMap()
 	@Column({ nullable: true })
 	cost: number
 
+	@AutoMap()
 	@Column({ default: false })
 	isBlocked: boolean
 
+	@AutoMap()
 	@Column({ default: false })
 	isDraft: boolean
 
+	@AutoMap(() => User)
 	@ManyToOne(() => User, (user) => user.venues)
 	owner: User
 
