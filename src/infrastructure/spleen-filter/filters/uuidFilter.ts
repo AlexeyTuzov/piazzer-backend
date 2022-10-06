@@ -13,15 +13,15 @@ export class UUIDFilter extends Filter {
 	}
 
 	validateValue(value: string | string[]): void {
-		if (!isUUID(value)) {
-			throw new HttpException(
-				{
-					filter: this.filterName,
-					message: `each value in ${this.filterName} must be a UUID`,
-					code: 'VALIDATION_EXCEPTION',
-				},
-				HttpStatus.UNPROCESSABLE_ENTITY,
-			)
-		}
+		// if (!isUUID(value)) {
+		// 	throw new HttpException(
+		// 		{
+		// 			filter: this.filterName,
+		// 			message: `each value in ${this.filterName} must be a UUID`,
+		// 			code: 'VALIDATION_EXCEPTION',
+		// 		},
+		// 		HttpStatus.UNPROCESSABLE_ENTITY,
+		// 	)
+		// }
 	}
 }
