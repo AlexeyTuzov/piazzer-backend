@@ -39,6 +39,7 @@ export class Event extends BaseEntity {
 	@UpdateDateColumn()
 	updatedAt: Date
 
+	@AutoMap()
 	@Column()
 	description: string
 

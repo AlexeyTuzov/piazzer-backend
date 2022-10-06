@@ -1,7 +1,7 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs'
 import { createMap, Mapper, MappingProfile } from '@automapper/core'
 import { Communication } from '../../domain/entities/communications.entity'
-import { CommunicationReadDto } from '../dto/communicationRead.dto'
+import { CommunicationResponseDto } from '../dto/response/communication.response.dto'
 
 export class CommunicationProfile extends AutomapperProfile {
 	constructor(@InjectMapper() mapper: Mapper) {
@@ -10,7 +10,7 @@ export class CommunicationProfile extends AutomapperProfile {
 
 	override get profile(): MappingProfile {
 		return (mapper: Mapper) => {
-			createMap(mapper, Communication, CommunicationReadDto)
+			createMap(mapper, Communication, CommunicationResponseDto)
 		}
 	}
 }

@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes'
-import { CommunicationResponseDto } from './communication.response.dto'
+import { CommunicationResponseDto } from '../../../../communications/application/dto/response/communication.response.dto'
 
 export class UserResponseDto {
 	@AutoMap()
@@ -25,7 +25,4 @@ export class UserResponseDto {
 
 	@AutoMap(() => [CommunicationResponseDto])
 	communications: CommunicationResponseDto[]
-
-	@AutoMap()
-	position: string
 }

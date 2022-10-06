@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes'
-import { ResourcesResponseDto } from '../../../resources/application/dto/resources.response.dto'
-import { UserShortDto } from '../../../users/application/dto/response/userShort.dto'
+import { ResourcesResponseDto } from '../../../../resources/application/dto/response/resources.response.dto'
+import { UserShortDto } from '../../../../users/application/dto/response/userShort.dto'
 
-export class CommentsReadDto {
+export class CommentsResponseDto {
 	@AutoMap()
 	id: string
 

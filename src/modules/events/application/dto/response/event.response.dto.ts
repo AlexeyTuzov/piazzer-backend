@@ -1,8 +1,8 @@
 import { AutoMap } from '@automapper/classes'
-import { ResourcesResponseDto } from 'src/modules/resources/application/dto/resources.response.dto'
-import { CommunicationResponseDto } from 'src/modules/users/application/dto/response/communication.response.dto'
+import { ResourcesResponseDto } from 'src/modules/resources/application/dto/response/resources.response.dto'
+import { CommunicationResponseDto } from 'src/modules/communications/application/dto/response/communication.response.dto'
 import { UserShortDto } from 'src/modules/users/application/dto/response/userShort.dto'
-import { VenueShortDto } from 'src/modules/venues/application/dto/venueShort.dto'
+import { VenueShortDto } from 'src/modules/venues/application/dto/response/venueShort.dto'
 
 export class EventResponseDto {
 	@AutoMap()

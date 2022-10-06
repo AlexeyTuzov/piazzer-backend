@@ -29,35 +29,31 @@ export class VenuesService {
 	) {
 		const data = {} as Venue
 
-		// if (resourcesIds?.length || coverId) {
-			const resources = await this.resourcesService.getByIds(
-				[].concat(resourcesIds, coverId),
-			)
-			data.resources = resources.filter((res) => resourcesIds.includes(res.id))
+		const resources = await this.resourcesService.getByIds(
+			[].concat(resourcesIds, coverId),
+		)
+		data.resources = resources.filter((res) => resourcesIds.includes(res.id))
 
-			if (coverId) {
-				const coverIdInDB = resources.find((res) => res.id === coverId)?.id
-				if (!coverIdInDB) {
-					throw new HttpException(
-						{
-							message: 'Cover not found',
-							code: 'NOT_FOUND_EXCEPTION',
-							status: HttpStatus.NOT_FOUND,
-						},
-						HttpStatus.NOT_FOUND,
-					)
-				}
-				data.coverId = resources.find((res) => res.id === coverId)?.id || null
+		if (coverId) {
+			const coverIdInDB = resources.find((res) => res.id === coverId)?.id
+			if (!coverIdInDB) {
+				throw new HttpException(
+					{
+						message: 'Cover not found',
+						code: 'NOT_FOUND_EXCEPTION',
+						status: HttpStatus.NOT_FOUND,
+					},
+					HttpStatus.NOT_FOUND,
+				)
 			}
-		// }
+			data.coverId = resources.find((res) => res.id === coverId)?.id || null
+		}
 
-		// if (propertiesIds?.length || attributesIds?.length) {
-			const tags = await this.tagsService.getByIds(
-				[].concat(attributesIds, propertiesIds),
-			)
-			data.properties = tags.filter((tag) => propertiesIds.includes(tag.id))
-			data.attributes = tags.filter((tag) => attributesIds.includes(tag.id))
-		// }
+		const tags = await this.tagsService.getByIds(
+			[].concat(attributesIds, propertiesIds),
+		)
+		data.properties = tags.filter((tag) => propertiesIds.includes(tag.id))
+		data.attributes = tags.filter((tag) => attributesIds.includes(tag.id))
 
 		return data
 	}
@@ -149,7 +145,6 @@ export class VenuesService {
 					'owner.communications',
 				],
 			})
-
 			if (!venue) {
 				throw new HttpException(
 					{
@@ -178,13 +173,6 @@ export class VenuesService {
 				body.propertiesIds,
 				body.attributesIds,
 			)
-			
-			const even = (element) => !venue.resources.map((res) => res.id).includes(element)
-			const test = body.resourcesIds.filter(even)
-			console.log(test);
-			console.log(data.resources);
-			
-			
 
 			em.getRepository(Venue).merge(venue, { ...body, ...data })
 			venue.resources = data.resources
