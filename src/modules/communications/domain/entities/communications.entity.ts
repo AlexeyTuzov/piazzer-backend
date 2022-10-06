@@ -21,11 +21,11 @@ export class Communication extends BaseEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string
 
+	@AutoMap()
 	@Column({
 		type: 'enum',
 		enum: CommunicationTypesEnum,
 	})
-	@AutoMap()
 	type: CommunicationTypesEnum
 
 	@AutoMap()

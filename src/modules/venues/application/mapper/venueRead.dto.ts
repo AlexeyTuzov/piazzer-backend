@@ -1,4 +1,6 @@
 import { AutoMap } from '@automapper/classes'
+import { CommunicationReadDto } from 'src/modules/communications/application/dto/communicationRead.dto'
+import { TagReadDto } from 'src/modules/tags/application/dto/tagRead.dto'
 import { ResourcesResponseDto } from '../../../resources/application/dto/resources.response.dto'
 import { UserShortDto } from '../../../users/application/dto/response/userShort.dto'
 
@@ -33,8 +35,8 @@ export class VenueReadDto {
 	@AutoMap()
 	coordinates: any //TODO coordinates type
 
-	@AutoMap()
-	communications //TODO Communications DTO
+	@AutoMap(() => [CommunicationReadDto])
+	communications: CommunicationReadDto[]
 
 	@AutoMap()
 	contactPerson: string
@@ -42,11 +44,11 @@ export class VenueReadDto {
 	@AutoMap()
 	description: string
 
-	@AutoMap()
-	properties //TODO Tag DTO
+	@AutoMap(() => [TagReadDto])
+	properties: TagReadDto[]
 
-	@AutoMap()
-	attributes //TODO Tag DTO
+	@AutoMap(() => [TagReadDto])
+	attributes: TagReadDto[]
 
 	@AutoMap()
 	capacity: number

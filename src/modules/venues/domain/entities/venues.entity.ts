@@ -86,13 +86,13 @@ export class Venue extends BaseEntity {
 	@Column()
 	description: string
 
-	@AutoMap()
+	@AutoMap(() => Tag)
 	@OneToMany(() => Tag, (tag) => tag.venueProperties, {
 		cascade: true,
 	})
 	properties: Tag[]
 
-	@AutoMap()
+	@AutoMap(() => Tag)
 	@OneToMany(() => Tag, (tag) => tag.venueAttributes, {
 		cascade: true,
 	})
