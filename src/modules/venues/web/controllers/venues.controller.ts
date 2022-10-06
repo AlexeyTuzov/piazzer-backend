@@ -26,7 +26,6 @@ import { VenueReadDto } from '../../application/mapper/venueRead.dto'
 import { Venue } from '../../domain/entities/venues.entity'
 
 @Controller('venues')
-@UseGuards(jwtAuthGuard)
 export class VenuesController {
 	constructor(
 		private readonly venuesService: VenuesService,
@@ -34,6 +33,7 @@ export class VenuesController {
 	) {}
 
 	@Post()
+	@UseGuards(jwtAuthGuard)
 	async venuesCreate(
 		@AuthUser() authUser,
 		@Body() body: CreateVenueDto,
@@ -60,17 +60,20 @@ export class VenuesController {
 
 	@HttpCode(204)
 	@Patch('/:id')
+	@UseGuards(jwtAuthGuard)
 	venuesUpdate(@Param('id') id: string, @Body() dto: UpdateVenueDto) {
 		return this.venuesService.update(id, dto)
 	}
 
 	@HttpCode(204)
 	@Delete('/:id')
+	@UseGuards(jwtAuthGuard)
 	venuesRemove(@Param('id') id: string) {
 		return this.venuesService.delete(id)
 	}
 
 	@Get('/:id/schedule')
+	@UseGuards(jwtAuthGuard)
 	async venuesScheduleList(
 		@Param('id') id: string,
 		@Query() query: ListingDto,
@@ -87,6 +90,7 @@ export class VenuesController {
 	}
 
 	@Post('/:id/schedule')
+	@UseGuards(jwtAuthGuard)
 	async venuesScheduleItemCreate(
 		@Param('id') id: string,
 		@Body() body: CreateScheduleItemDto,
@@ -97,6 +101,7 @@ export class VenuesController {
 	}
 
 	@HttpCode(204)
+	@UseGuards(jwtAuthGuard)
 	@Post('/:venueId/schedule/:venueScheduleId/approve')
 	venuesScheduleItemApprove(
 		@Param('venueId') venueId: string,
@@ -107,6 +112,7 @@ export class VenuesController {
 
 	@Post('/:id/schedule/:scheduleId/decline')
 	@HttpCode(204)
+	@UseGuards(jwtAuthGuard)
 	venuesScheduleItemDecline(
 		@Param('id') id: string,
 		@Param('scheduleId') scheduleId: string,
