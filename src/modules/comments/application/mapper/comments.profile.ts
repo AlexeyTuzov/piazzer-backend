@@ -8,7 +8,7 @@ import {
 	MappingProfile,
 } from '@automapper/core'
 import { Comment } from '../../domain/entities/comments.entity'
-import { CommentsReadDto } from '../dto/commentsRead.dto'
+import { CommentsResponseDto } from '../dto/response/comments.response.dto'
 
 export class CommentsProfile extends AutomapperProfile {
 	constructor(@InjectMapper() mapper: Mapper) {
@@ -20,10 +20,9 @@ export class CommentsProfile extends AutomapperProfile {
 			createMap(
 				mapper,
 				Comment,
-				CommentsReadDto,
+				CommentsResponseDto,
 				forMember((destination) => destination.resources, ignore()),
 				afterMap(async (source, destination) => {
-					console.log('attachments')
 					destination['attachments'] = await source.resources
 				}),
 			)

@@ -18,7 +18,7 @@ import { CommentsCreateDto } from '../../application/dto/commentsCreate.dto'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { InjectMapper } from '@automapper/nestjs'
 import { Mapper } from '@automapper/core'
-import { CommentsReadDto } from '../../application/dto/commentsRead.dto'
+import { CommentsResponseDto } from '../../application/dto/response/comments.response.dto'
 import { Comment } from '../../domain/entities/comments.entity'
 import { CommentsUpdateDto } from '../../application/dto/commentsUpdate.dto'
 
@@ -46,7 +46,7 @@ export class CommentsController {
 		return {
 			...comments,
 			data: comments.data.map((item) =>
-				this.mapper.map(item, Comment, CommentsReadDto),
+				this.mapper.map(item, Comment, CommentsResponseDto),
 			),
 		}
 	}
@@ -54,7 +54,7 @@ export class CommentsController {
 	@Get(':commentId')
 	async getOne(@Param('commentId') id: string) {
 		const comment = await this.commentsService.getOne({ id })
-		return this.mapper.map(comment, Comment, CommentsReadDto)
+		return this.mapper.map(comment, Comment, CommentsResponseDto)
 	}
 
 	@HttpCode(204)

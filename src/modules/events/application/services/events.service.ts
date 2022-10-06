@@ -49,11 +49,15 @@ export class EventsService {
 				$aggregations: {},
 			}
 
-			const events = Event.createQueryBuilder('events').leftJoinAndMapOne(
-				'events.organizer',
-				'events.organizer',
-				'organizer',
-			)
+			const events = Event.createQueryBuilder('events')
+				.leftJoinAndMapOne('events.organizer', 'events.organizer', 'organizer')
+				.leftJoinAndMapMany('events.resources', 'events.resources', 'resources')
+				.leftJoinAndMapMany(
+					'events.communications',
+					'events.communications',
+					'communications',
+				)
+				.leftJoinAndMapOne('events.venue', 'events.venue', 'venue')
 
 			FindService.apply(events, this.dataSource, Event, 'events', query.query)
 			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
@@ -109,6 +113,8 @@ export class EventsService {
 			const data = await this.dataMapping(body.coverId, body.resourcesIds)
 
 			em.getRepository(Event).merge(event, { ...body, ...data })
+            event.resources = data.resources
+            event.communications = data.communications
 
 			await event.save()
 		})

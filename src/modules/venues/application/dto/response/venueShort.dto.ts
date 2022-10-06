@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes'
-import { ResourcesResponseDto } from '../../../resources/application/dto/resources.response.dto'
+import { ResourcesResponseDto } from '../../../../resources/application/dto/response/resources.response.dto'
 
 export class VenueShortDto {
 	@AutoMap()

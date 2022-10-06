@@ -17,6 +17,7 @@ import { Resource } from '../../../resources/domain/entities/resources.entity'
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItem } from './venueScheduleItem.entity'
 import { AutoMap } from '@automapper/classes'
+import CoordinatesResponseDto from '../../application/dto/response/coordinates.response.dto'
 
 @Entity()
 export class Venue extends BaseEntity {
@@ -61,7 +62,7 @@ export class Venue extends BaseEntity {
 	@DeleteDateColumn()
 	deletedAt: Date
 
-	@AutoMap()
+	@AutoMap(() => CoordinatesResponseDto)
 	@Column({
 		type: 'jsonb',
 		default: {
@@ -71,7 +72,7 @@ export class Venue extends BaseEntity {
 	})
 	coordinates: Coordinates
 
-	@AutoMap()
+	@AutoMap(() => Communication)
 	@OneToMany(() => Communication, (comm) => comm.venue)
 	communications: Communication[]
 

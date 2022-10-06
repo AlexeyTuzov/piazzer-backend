@@ -49,7 +49,7 @@ export class EventsController {
 		const result = await this.eventsService.getFiltered(dto)
 		return {
 			...result,
-			data: this.mapper.mapArray(result.data, Event, EventShortDto),
+			data: this.mapper.mapArray(result.data, Event, EventResponseDto),
 		}
 	}
 

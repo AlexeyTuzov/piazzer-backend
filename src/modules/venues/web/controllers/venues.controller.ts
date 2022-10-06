@@ -22,7 +22,7 @@ import { Mapper } from '@automapper/core'
 import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
 import { InjectMapper } from '@automapper/nestjs'
 import { VenuesScheduleListDto } from '../../application/dto/venuesScheduleList.dto'
-import { VenueReadDto } from '../../application/mapper/venueRead.dto'
+import { VenueResponseDto } from '../../application/dto/response/venue.response.dto'
 import { Venue } from '../../domain/entities/venues.entity'
 
 @Controller('venues')
@@ -48,14 +48,14 @@ export class VenuesController {
 		const result = await this.venuesService.getFiltered(query)
 		return {
 			...result,
-			data: this.mapper.mapArray(result.data, Venue, VenueReadDto),
+			data: this.mapper.mapArray(result.data, Venue, VenueResponseDto),
 		}
 	}
 
 	@Get('/:id')
 	async venuesRead(@Param('id') id: string) {
 		const venue = await this.venuesService.getById(id)
-		return this.mapper.map(venue, Venue, VenueReadDto)
+		return this.mapper.map(venue, Venue, VenueResponseDto)
 	}
 
 	@HttpCode(204)

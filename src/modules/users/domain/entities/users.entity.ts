@@ -45,10 +45,6 @@ export class User extends BaseEntity {
 	@Column({ default: false })
 	blocked: boolean
 
-	@AutoMap()
-	@Column({ nullable: true })
-	position: string
-
 	@Column()
 	password: string
 

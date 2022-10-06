@@ -47,19 +47,19 @@ export class VenueScheduleItem extends BaseEntity {
 	eventId: string
 
 	@AutoMap(() => Date)
-	@Column()
+	@Column({ nullable: true })
 	declinedAt: Date
 
 	@AutoMap(() => Date)
-	@Column()
+	@Column({ nullable: true })
 	approvedAt: Date
 
 	@AutoMap()
-	@Column()
+	@Column({ nullable: true })
 	confirmedAt: Date
 
 	@AutoMap()
-	@Column()
+	@Column({ nullable: true })
 	canceledAt: Date
 
 	@AutoMap()
