@@ -29,6 +29,13 @@ export class Filter implements IFilter {
 	}
 	apply(qb: SelectQueryBuilder<BaseEntity>, statement: Clause, run) {
 		const { operator, object } = statement.value
-		run(qb, this.tableAlias, this.field, operator.type, object, statement.conjunctive)
+		run(
+			qb,
+			this.tableAlias,
+			this.field,
+			operator.type,
+			object,
+			statement.conjunctive,
+		)
 	}
 }

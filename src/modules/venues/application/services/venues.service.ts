@@ -92,40 +92,35 @@ export class VenuesService {
 			}
 
 			const venues = Venue.createQueryBuilder('venues')
-			.leftJoinAndMapMany(
-				'venues.resources',
-				'venues.resources',
-				'resources',
-			).leftJoinAndMapMany(
-				'venues.communications',
-				'venues.communications',
-				'communications',
-			).leftJoinAndMapMany(
-				'venues.properties',
-				'venues.properties',
-				'properties',
-			).leftJoinAndMapMany(
-				'venues.attributes',
-				'venues.attributes',
-				'attributes',
-			).leftJoinAndMapOne(
-				'venues.owner',
-				'venues.owner',
-				'owner',
-			).leftJoinAndMapMany(
-				'owner.communications',
-				'owner.communications',
-				'owner_communications',
-			)
+				.leftJoinAndMapMany('venues.resources', 'venues.resources', 'resources')
+				.leftJoinAndMapMany(
+					'venues.communications',
+					'venues.communications',
+					'communications',
+				)
+				.leftJoinAndMapMany(
+					'venues.properties',
+					'venues.properties',
+					'properties',
+				)
+				.leftJoinAndMapMany(
+					'venues.attributes',
+					'venues.attributes',
+					'attributes',
+				)
+				.leftJoinAndMapOne('venues.owner', 'venues.owner', 'owner')
+				.leftJoinAndMapMany(
+					'owner.communications',
+					'owner.communications',
+					'owner_communications',
+				)
 
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
 			SortService.apply(venues, this.dataSource, Venue, 'venues', query.sort)
 			venues.andWhere(
 				new Brackets((qb) => {
-					return query.filter
-						? VenuesFilterManager.apply(qb, query.filter)
-						: {}
-				})
+					return query.filter ? VenuesFilterManager.apply(qb, query.filter) : {}
+				}),
 			)
 
 			await venues

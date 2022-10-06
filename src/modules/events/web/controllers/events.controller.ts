@@ -93,8 +93,12 @@ export class EventsController {
 		return this.eventsService.confirmRequest(eventId, scheduleId)
 	}
 
-	@Post(':eventId/requests/:scheduleItemId/cancel')
-	cancelRequest() {
-		return this.eventsService.cancelRequest()
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@Post('/:eventId/requests/:scheduleId/cancel')
+	eventsScheduleItemCancel(
+		@Param('eventId') eventId: string,
+		@Param('scheduleId') scheduleId: string,
+	) {
+		return this.eventsService.cancelRequest(eventId, scheduleId)
 	}
 }

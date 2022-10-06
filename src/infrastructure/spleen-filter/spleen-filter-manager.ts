@@ -15,42 +15,80 @@ export class SpleenFilterManager extends SpleenFilter {
 		return [...this.filters].find((filter) => filter.filterName === filterName)
 	}
 
-  static run(qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder, alias: string, field: string, operator: string, object, conjunctive) {
+	static run(
+		qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder,
+		alias: string,
+		field: string,
+		operator: string,
+		object,
+		conjunctive,
+	) {
 		const makeParamName = (length) => {
 			const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-			return new Array(length).fill(0).reduce((prev) => (prev += chars[Math.floor(Math.random() * chars.length)]), '')
+			return new Array(length)
+				.fill(0)
+				.reduce(
+					(prev) => (prev += chars[Math.floor(Math.random() * chars.length)]),
+					'',
+				)
 		}
 		const operators = {
 			eq: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} = :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} = :${paramName}`, {
+					[paramName]: object,
+				}),
 			neq: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} != :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} != :${paramName}`, {
+					[paramName]: object,
+				}),
 			gt: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} > :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} > :${paramName}`, {
+					[paramName]: object,
+				}),
 			gte: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} >= :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} >= :${paramName}`, {
+					[paramName]: object,
+				}),
 			lt: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} < :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} < :${paramName}`, {
+					[paramName]: object,
+				}),
 			lte: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} <= :${paramName}`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} <= :${paramName}`, {
+					[paramName]: object,
+				}),
 			in: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} IN (:...${paramName})`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} IN (:...${paramName})`, {
+					[paramName]: object,
+				}),
 			nin: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} NOT IN (:...${paramName})`, { [paramName]: object }),
+				qb[conjunctive](`${alias}.${field} NOT IN (:...${paramName})`, {
+					[paramName]: object,
+				}),
 			between: (firstParamName, secondParamName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} BETWEEN :${firstParamName} AND :${secondParamName}`, {
-					[firstParamName]: object.lower,
-					[secondParamName]: object.upper,
-				}),
+				qb[conjunctive](
+					`${alias}.${field} BETWEEN :${firstParamName} AND :${secondParamName}`,
+					{
+						[firstParamName]: object.lower,
+						[secondParamName]: object.upper,
+					},
+				),
 			nbetween: (firstParamName, secondParamName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} NOT BETWEEN :${firstParamName} AND :${secondParamName}`, {
-					[firstParamName]: object.lower,
-					[secondParamName]: object.upper,
-				}),
+				qb[conjunctive](
+					`${alias}.${field} NOT BETWEEN :${firstParamName} AND :${secondParamName}`,
+					{
+						[firstParamName]: object.lower,
+						[secondParamName]: object.upper,
+					},
+				),
 			like: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} ILIKE :${paramName}`, { [paramName]: object.value.replace(/\*/g, '%') }),
+				qb[conjunctive](`${alias}.${field} ILIKE :${paramName}`, {
+					[paramName]: object.value.replace(/\*/g, '%'),
+				}),
 			nlike: (paramName, conjunctive, object) =>
-				qb[conjunctive](`${alias}.${field} NOT ILIKE :${paramName}`, { [paramName]: object.value.replace(/\*/g, '%') }),
+				qb[conjunctive](`${alias}.${field} NOT ILIKE :${paramName}`, {
+					[paramName]: object.value.replace(/\*/g, '%'),
+				}),
 		}
 		const conj = conjunctive === 'or' ? 'orWhere' : 'andWhere'
 
@@ -61,14 +99,19 @@ export class SpleenFilterManager extends SpleenFilter {
 		}
 	}
 
-	static apply(qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder, expression: string) {
+	static apply(
+		qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder,
+		expression: string,
+	) {
 		if (!expression) {
 			return
 		}
 
 		const filter = this.parse(expression)
 
-		const handle = async (qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder) => {
+		const handle = async (
+			qb: SelectQueryBuilder<BaseEntity> | WhereExpressionBuilder,
+		) => {
 			filter.statements.forEach((statement: Filter | Clause) => {
 				if (statement.value instanceof Filter) {
 					this.apply(qb, statement.value)
@@ -100,7 +143,7 @@ export class SpleenFilterManager extends SpleenFilter {
 				}
 
 				filter.validate(statement.value.operator.type, statement.value.object)
-        filter.apply(qb, statement, this.run)
+				filter.apply(qb, statement, this.run)
 			})
 		}
 

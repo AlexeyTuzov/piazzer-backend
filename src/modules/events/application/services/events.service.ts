@@ -173,8 +173,19 @@ export class EventsService {
 			})
 
 			const scheduleItem = await VenueScheduleItem.findOneOrFail({
-				where: { eventId: event.id },
+				where: { eventId: event.id, id: scheduleId },
 			})
+
+			if (scheduleItem.status === VenueScheduleItemStatusesEnum.CONFIRMED) {
+				throw new HttpException(
+					{
+						message: 'Event is already confirmed',
+						code: 'FORBIDDEN',
+						status: HttpStatus.FORBIDDEN,
+					},
+					HttpStatus.FORBIDDEN,
+				)
+			}
 
 			const check = this.schedulerService.checkStatusChange(
 				scheduleItem.status,
@@ -185,10 +196,10 @@ export class EventsService {
 				throw new HttpException(
 					{
 						message: 'Event has not been approved by a venue owner yet',
-						code: 'NOT_ACCEPTABLE',
-						status: 406,
+						code: 'FORBIDDEN',
+						status: HttpStatus.FORBIDDEN,
 					},
-					HttpStatus.NOT_ACCEPTABLE,
+					HttpStatus.FORBIDDEN,
 				)
 			}
 
@@ -197,8 +208,46 @@ export class EventsService {
 		})
 	}
 
-	cancelRequest() {
-		return 'cancelRequest'
+	cancelRequest(eventId: string, scheduleId: string) {
+		return this.dataSource.transaction(async () => {
+			const event = await Event.findOneOrFail({
+				where: { id: eventId },
+			})
+
+			const scheduleItem = await VenueScheduleItem.findOneOrFail({
+				where: { eventId: event.id, id: scheduleId },
+			})
+
+			if (scheduleItem.status === VenueScheduleItemStatusesEnum.CANCELED) {
+				throw new HttpException(
+					{
+						message: 'Event is already cancelled',
+						code: 'FORBIDDEN',
+						status: HttpStatus.FORBIDDEN,
+					},
+					HttpStatus.FORBIDDEN,
+				)
+			}
+
+			const check = this.schedulerService.checkStatusChange(
+				scheduleItem.status,
+				VenueScheduleItemStatusesEnum.CANCELED,
+			)
+
+			if (!check) {
+				throw new HttpException(
+					{
+						message: 'Event can not be cancelled now',
+						code: 'FORBIDDEN',
+						status: HttpStatus.FORBIDDEN,
+					},
+					HttpStatus.FORBIDDEN,
+				)
+			}
+
+			scheduleItem.status = VenueScheduleItemStatusesEnum.CANCELED
+			await scheduleItem.save()
+		})
 	}
 
 	private async dataMapping(coverId?: string, resourcesIds?: string[]) {
