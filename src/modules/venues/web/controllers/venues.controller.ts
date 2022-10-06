@@ -10,6 +10,7 @@ import {
 	HttpCode,
 	UseGuards,
 	Response,
+	HttpStatus,
 } from '@nestjs/common'
 import { VenuesService } from '../../application/services/venues.service'
 import CreateVenueDto from '../../application/dto/createVenue.dto'
@@ -58,14 +59,14 @@ export class VenuesController {
 		return this.mapper.map(venue, Venue, VenueResponseDto)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
 	@UseGuards(jwtAuthGuard)
 	venuesUpdate(@Param('id') id: string, @Body() dto: UpdateVenueDto) {
 		return this.venuesService.update(id, dto)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete('/:id')
 	@UseGuards(jwtAuthGuard)
 	venuesRemove(@Param('id') id: string) {
@@ -100,7 +101,7 @@ export class VenuesController {
 		res.json(schedule.id)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@UseGuards(jwtAuthGuard)
 	@Post('/:venueId/schedule/:venueScheduleId/approve')
 	venuesScheduleItemApprove(
@@ -111,7 +112,7 @@ export class VenuesController {
 	}
 
 	@Post('/:id/schedule/:scheduleId/decline')
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@UseGuards(jwtAuthGuard)
 	venuesScheduleItemDecline(
 		@Param('id') id: string,

@@ -8,6 +8,7 @@ import { UserRolesEnum } from '../../domain/enums/userRoles.enum'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommunicationConfirm } from '../../../verification-codes/domain/entities/communication-confirm.entity'
+import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 
 @Injectable()
 export class UsersService {
@@ -35,6 +36,7 @@ export class UsersService {
 			return User.findOneOrFail({
 				where: criteria,
 				relations,
+				withDeleted: true,
 			})
 		})
 	}
@@ -58,7 +60,7 @@ export class UsersService {
 		})
 	}
 
-	async getAll(query) {
+	async getAll(query: ListingDto, authUser: User) {
 		return this.dataSource.transaction(async () => {
 			const response = {
 				limit: query.limit,
@@ -76,6 +78,14 @@ export class UsersService {
 
 			FindService.apply(users, this.dataSource, User, 'user', query.query)
 			SortService.apply(users, this.dataSource, User, 'user', query.sort)
+
+			if (authUser.isAdmin()) {
+				users.withDeleted()
+			} else {
+				users
+					.andWhere('user.blocked = :blocked', { blocked: false })
+					.andWhere('user.verified = :verified', { verified: true })
+			}
 
 			await users
 				.skip((response.page - 1) * response.limit)
@@ -130,7 +140,7 @@ export class UsersService {
 		})
 	}
 
-	async communicationsGetAll(userId, query) {
+	async communicationsGetAll(userId: string, query: ListingDto) {
 		const response = {
 			page: query.page,
 			limit: query.limit,
@@ -143,6 +153,7 @@ export class UsersService {
 		const communications = Communication.createQueryBuilder('communications')
 			.leftJoin('communications.user', 'user')
 			.where('user.id = :userId', { userId })
+			.withDeleted()
 
 		FindService.apply(
 			communications,
@@ -172,7 +183,7 @@ export class UsersService {
 	}
 
 	async communicationAdd(userId: string, body) {
-		return this.dataSource.transaction(async (em) => {
+		return this.dataSource.transaction(async () => {
 			const communication = Communication.create()
 			Object.assign(communication, {
 				...body,

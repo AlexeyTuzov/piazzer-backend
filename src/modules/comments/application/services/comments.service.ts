@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import {
+	ForbiddenException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+} from '@nestjs/common'
 import { DataSource, FindOptionsWhere } from 'typeorm'
 import { Comment } from '../../domain/entities/comments.entity'
 import { ResourcesService } from '../../../resources/application/services/resources.service'
@@ -7,7 +12,7 @@ import { CommentEntityTypesEnum } from '../../domain/enums/commentEntityTypes.en
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommentsCreateDto } from '../dto/commentsCreate.dto'
-import { User } from 'aws-sdk/clients/budgets'
+import { User } from '../../../users/domain/entities/users.entity'
 
 @Injectable()
 export class CommentsService {
@@ -116,9 +121,12 @@ export class CommentsService {
 		})
 	}
 
-	update(criteria: FindOptionsWhere<Comment>, body) {
+	update(criteria: FindOptionsWhere<Comment>, body, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
 			const comment = await this.getOne(criteria)
+			if (!authUser.isAdmin() && comment.creator.id !== authUser.id) {
+				throw new ForbiddenException()
+			}
 			const resources = await this.resourcesService.getByIds(
 				body.attachmentsIds,
 			)
@@ -127,9 +135,12 @@ export class CommentsService {
 		})
 	}
 
-	delete(criteria: FindOptionsWhere<Comment>) {
+	delete(criteria: FindOptionsWhere<Comment>, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			await this.getOne(criteria)
+			const comment = await this.getOne(criteria)
+			if (!authUser.isAdmin() && comment.creator.id !== authUser.id) {
+				throw new ForbiddenException()
+			}
 			await em.getRepository(Comment).softDelete(criteria)
 		})
 	}

@@ -113,8 +113,8 @@ export class EventsService {
 			const data = await this.dataMapping(body.coverId, body.resourcesIds)
 
 			em.getRepository(Event).merge(event, { ...body, ...data })
-            event.resources = data.resources
-            event.communications = data.communications
+			event.resources = data.resources
+			event.communications = data.communications
 
 			await event.save()
 		})

@@ -92,4 +92,8 @@ export class User extends BaseEntity {
 
 		return createHash('md5').update(sha.digest()).digest('hex')
 	}
+
+	isAdmin() {
+		return this.role === UserRolesEnum.ADMIN
+	}
 }

@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common'
+import { ForbiddenException, Injectable } from '@nestjs/common'
 import { DataSource, In } from 'typeorm'
 import { Resource } from '../../domain/entities/resources.entity'
 import { YandexCloudService } from './yandexCloud.service'
 import { CreateResourceDto } from '../dto/createResource.dto'
 import { TransformerTypeDto } from '../dto/transformerType.dto'
 import { ResizeService } from './resize.service'
+import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 
 @Injectable()
 export class ResourcesService {
@@ -25,7 +27,7 @@ export class ResourcesService {
 		})
 	}
 
-	async getAll(query) {
+	async getAll(query: ListingDto, authUser: User) {
 		const response = {
 			limit: query.limit,
 			page: query.page,
@@ -36,6 +38,10 @@ export class ResourcesService {
 		}
 
 		const resources = Resource.createQueryBuilder('resource')
+
+		if (authUser.isAdmin()) {
+			resources.withDeleted()
+		}
 
 		await resources
 			.skip((response.page - 1) * response.limit)
@@ -49,27 +55,38 @@ export class ResourcesService {
 		return response
 	}
 
-	getOne(resourceId: string) {
+	getOne(resourceId: string, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			return await em
-				.getRepository(Resource)
-				.findOneByOrFail({ id: resourceId })
+			return await em.getRepository(Resource).findOneOrFail({
+				where: { id: resourceId },
+				withDeleted: authUser.isAdmin(),
+			})
 		})
 	}
 
-	update(resourceId: string, body) {
+	update(resourceId: string, body, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			const resource = await em
-				.getRepository(Resource)
-				.findOneByOrFail({ id: resourceId })
+			const resource = await em.getRepository(Resource).findOneOrFail({
+				where: { id: resourceId },
+				relations: ['creator'],
+			})
+			if (!authUser.isAdmin() && resource.creatorId !== authUser.id) {
+				throw new ForbiddenException()
+			}
 			em.getRepository(Resource).merge(resource, Object.assign(resource, body))
 			await resource.save()
 		})
 	}
 
-	remove(resourceId: string) {
+	remove(resourceId: string, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			await em.getRepository(Resource).findOneByOrFail({ id: resourceId })
+			const resource = await em.getRepository(Resource).findOneOrFail({
+				where: { id: resourceId },
+				relations: ['creator'],
+			})
+			if (!authUser.isAdmin() && resource.creatorId !== authUser.id) {
+				throw new ForbiddenException()
+			}
 			await em.getRepository(Resource).softDelete(resourceId)
 		})
 	}

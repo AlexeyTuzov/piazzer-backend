@@ -10,6 +10,7 @@ import {
 	Query,
 	Param,
 	HttpCode,
+	HttpStatus,
 } from '@nestjs/common'
 import { CommentsService } from '../../application/services/comments.service'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
@@ -21,6 +22,9 @@ import { Mapper } from '@automapper/core'
 import { CommentsResponseDto } from '../../application/dto/response/comments.response.dto'
 import { Comment } from '../../domain/entities/comments.entity'
 import { CommentsUpdateDto } from '../../application/dto/commentsUpdate.dto'
+import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
+import { Roles } from 'src/infrastructure/decorators/roles.decorator'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 
 @Controller('comments')
 export class CommentsController {
@@ -30,6 +34,7 @@ export class CommentsController {
 	) {}
 
 	@Post()
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async create(
 		@AuthUser() authUser,
@@ -57,17 +62,23 @@ export class CommentsController {
 		return this.mapper.map(comment, Comment, CommentsResponseDto)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch(':commentId')
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
-	update(@Param('commentId') id: string, @Body() body: CommentsUpdateDto) {
-		return this.commentsService.update({ id }, body)
+	update(
+		@AuthUser() authUser: User,
+		@Param('commentId') id: string,
+		@Body() body: CommentsUpdateDto,
+	) {
+		return this.commentsService.update({ id }, body, authUser)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':commentId')
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
-	delete(@Param('commentId') id: string) {
-		return this.commentsService.delete({ id })
+	delete(@AuthUser() authUser: User, @Param('commentId') id: string) {
+		return this.commentsService.delete({ id }, authUser)
 	}
 }

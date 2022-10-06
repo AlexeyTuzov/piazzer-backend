@@ -13,6 +13,7 @@ import {
 	HttpCode,
 	UseGuards,
 	Redirect,
+	HttpStatus,
 } from '@nestjs/common'
 import { ResourcesService } from '../../application/services/resources.service'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -22,6 +23,9 @@ import { CreateResourceDto } from '../../application/dto/createResource.dto'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { UpdateResourceDto } from '../../application/dto/updateResource.dto'
 import { TransformerTypeDto } from '../../application/dto/transformerType.dto'
+import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
+import { Roles } from 'src/infrastructure/decorators/roles.decorator'
+import { User } from '../../../users/domain/entities/users.entity'
 
 @Controller('resources')
 export class ResourcesController {
@@ -29,6 +33,7 @@ export class ResourcesController {
 
 	@Post()
 	@UseInterceptors(FileInterceptor('file'))
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async create(
 		@AuthUser('id') creatorId,
@@ -51,30 +56,33 @@ export class ResourcesController {
 	}
 
 	@Get()
-	getAll(@Query() query: ListingDto) {
-		return this.resourcesService.getAll(query)
+	getAll(@AuthUser() authUser, @Query() query: ListingDto) {
+		return this.resourcesService.getAll(query, authUser)
 	}
 
 	@Get(':resourceId')
-	getOne(@Param('resourceId') resourceId: string) {
-		return this.resourcesService.getOne(resourceId)
+	getOne(@AuthUser() authUser, @Param('resourceId') resourceId: string) {
+		return this.resourcesService.getOne(resourceId, authUser)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch(':resourceId')
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	update(
+		@AuthUser() authUser: User,
 		@Param('resourceId') resourceId: string,
 		@Body() body: UpdateResourceDto,
 	) {
-		return this.resourcesService.update(resourceId, body)
+		return this.resourcesService.update(resourceId, body, authUser)
 	}
 
-	@HttpCode(204)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':resourceId')
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
-	remove(@Param('resourceId') resourceId: string) {
-		return this.resourcesService.remove(resourceId)
+	remove(@AuthUser() authUser: User, @Param('resourceId') resourceId: string) {
+		return this.resourcesService.remove(resourceId, authUser)
 	}
 
 	@Get(':resourceId/resolve')
