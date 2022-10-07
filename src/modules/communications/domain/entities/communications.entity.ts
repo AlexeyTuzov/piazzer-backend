@@ -54,6 +54,9 @@ export class Communication extends BaseEntity {
 	@ManyToOne(() => Venue, (venue) => venue.communications)
 	venue: Venue
 
+	@Column({ nullable: true })
+	venueId: Venue['id']
+
 	@ManyToOne(() => Event, (event) => event.communications)
 	event: Event
 

@@ -73,7 +73,7 @@ export class Venue extends BaseEntity {
 	coordinates: Coordinates
 
 	@AutoMap(() => Communication)
-	@OneToMany(() => Communication, (comm) => comm.venue)
+	@OneToMany(() => Communication, (comm) => comm.venue, { cascade: ['insert'] })
 	communications: Communication[]
 
 	@OneToMany(() => Event, (event) => event.venue)

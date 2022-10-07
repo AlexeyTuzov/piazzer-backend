@@ -11,6 +11,7 @@ import {
 } from 'class-validator'
 import CreateCoordinatesDto from './createCoordinates.dto'
 import { Type } from 'class-transformer'
+import { CommunicationAddDto } from '../../../communications/application/dto/communicationAdd.dto'
 
 export default class UpdateVenueDto {
 	@IsOptional()
@@ -82,4 +83,9 @@ export default class UpdateVenueDto {
 	@IsUUID('4', { each: true })
 	@IsArray()
 	resourcesIds: string[]
+
+	@IsArray()
+	@ValidateNested()
+	@Type(() => CommunicationAddDto)
+	communications: CommunicationAddDto[]
 }

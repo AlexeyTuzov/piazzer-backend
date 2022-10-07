@@ -12,6 +12,9 @@ import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entit
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItemStatusesEnum } from '../../domain/enums/venueScheduleItemStatuses.enum'
 import { VenuesFilterManager } from '../filters/venues.filterManager'
+import { Communication } from '../../../communications/domain/entities/communications.entity'
+import { CommunicationTypesEnum } from '../../../communications/domain/enums/communicationTypes.enum'
+import { isEmail } from 'class-validator'
 
 @Injectable()
 export class VenuesService {
@@ -69,6 +72,11 @@ export class VenuesService {
 			)
 			Object.assign(venue, { ...body, ...data })
 			venue.owner = authUser
+			venue.communications = body.communications.map((item) => {
+				const communication = Communication.create()
+				Object.assign(communication, item)
+				return communication
+			})
 
 			await venue.save()
 

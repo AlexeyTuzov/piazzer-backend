@@ -11,6 +11,7 @@ import {
 } from 'class-validator'
 import { Type } from 'class-transformer'
 import CreateCoordinatesDto from './createCoordinates.dto'
+import { CommunicationAddDto } from '../../../communications/application/dto/communicationAdd.dto'
 
 export default class CreateVenueDto {
 	@IsString()
@@ -73,4 +74,9 @@ export default class CreateVenueDto {
 	@IsUUID('4', { each: true })
 	@IsArray()
 	resourcesIds: string[]
+
+	@IsArray()
+	@ValidateNested()
+	@Type(() => CommunicationAddDto)
+	communications: CommunicationAddDto[]
 }
