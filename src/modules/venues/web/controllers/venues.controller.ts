@@ -1,31 +1,33 @@
 import {
 	Body,
 	Controller,
-	Post,
+	Delete,
 	Get,
-	Query,
+	HttpCode,
+	HttpStatus,
 	Param,
 	Patch,
-	Delete,
-	HttpCode,
-	UseGuards,
+	Post,
+	Query,
 	Response,
-	HttpStatus,
-} from '@nestjs/common'
-import { VenuesService } from '../../application/services/venues.service'
-import CreateVenueDto from '../../application/dto/createVenue.dto'
-import UpdateVenueDto from '../../application/dto/updateVenue.dto'
-import CreateScheduleItemDto from '../../application/dto/createScheduleItem.dto'
-import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
-import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
-import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
-import { Mapper } from '@automapper/core'
-import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entity'
-import { InjectMapper } from '@automapper/nestjs'
-import { VenuesScheduleListDto } from '../../application/dto/venuesScheduleList.dto'
-import { VenueResponseDto } from '../../application/dto/response/venue.response.dto'
-import { Venue } from '../../domain/entities/venues.entity'
-import { User } from 'src/modules/users/domain/entities/users.entity'
+	UseGuards
+} from "@nestjs/common";
+import { VenuesService } from "../../application/services/venues.service";
+import CreateVenueDto from "../../application/dto/createVenue.dto";
+import UpdateVenueDto from "../../application/dto/updateVenue.dto";
+import CreateScheduleItemDto from "../../application/dto/createScheduleItem.dto";
+import jwtAuthGuard from "../../../auth/web/guards/jwt-auth.guard";
+import { ListingDto } from "../../../../infrastructure/pagination/dto/listing.dto";
+import { AuthUser } from "../../../auth/web/decorators/authUser.decorator";
+import { Mapper } from "@automapper/core";
+import { VenueScheduleItem } from "../../domain/entities/venueScheduleItem.entity";
+import { InjectMapper } from "@automapper/nestjs";
+import { VenuesScheduleListDto } from "../../application/dto/venuesScheduleList.dto";
+import { VenueResponseDto } from "../../application/dto/response/venue.response.dto";
+import { Venue } from "../../domain/entities/venues.entity";
+import { User } from "src/modules/users/domain/entities/users.entity";
+import { Roles } from "../../../../infrastructure/decorators/roles.decorator";
+import { UserRolesEnum } from "../../../users/domain/enums/userRoles.enum";
 
 @Controller('venues')
 export class VenuesController {
@@ -63,6 +65,7 @@ export class VenuesController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
 	@UseGuards(jwtAuthGuard)
+	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	venuesUpdate(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,

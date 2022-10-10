@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Brackets, DataSource, FindOptionsWhere } from 'typeorm'
 import { Venue } from '../../domain/entities/venues.entity'
 import CreateScheduleItemDto from '../dto/createScheduleItem.dto'
@@ -200,8 +200,12 @@ export class VenuesService {
 				where: { id },
 				relations: ['resources', 'properties', 'attributes'],
 			})
-			const ownerId = venue.owner.id
-			this.accessControlService.checkOwnership(authUser, ownerId)
+			// const ownerId = venue.owner.id
+			// this.accessControlService.checkOwnership(authUser, ownerId)
+
+			if (!authUser.isAdmin() && venue.owner.id !== authUser.id) {
+				throw new ForbiddenException()
+			}
 
 			const data = await this.dataMapping(
 				body.coverId,
