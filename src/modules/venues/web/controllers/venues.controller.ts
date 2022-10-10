@@ -26,8 +26,6 @@ import { VenuesScheduleListDto } from "../../application/dto/venuesScheduleList.
 import { VenueResponseDto } from "../../application/dto/response/venue.response.dto";
 import { Venue } from "../../domain/entities/venues.entity";
 import { User } from "src/modules/users/domain/entities/users.entity";
-import { Roles } from "../../../../infrastructure/decorators/roles.decorator";
-import { UserRolesEnum } from "../../../users/domain/enums/userRoles.enum";
 
 @Controller('venues')
 export class VenuesController {
@@ -65,7 +63,6 @@ export class VenuesController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
 	@UseGuards(jwtAuthGuard)
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	venuesUpdate(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,

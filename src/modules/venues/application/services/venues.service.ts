@@ -198,14 +198,10 @@ export class VenuesService {
 		return this.dataSource.transaction(async (em) => {
 			const venue = await Venue.findOneOrFail({
 				where: { id },
-				relations: ['resources', 'properties', 'attributes'],
+				relations: ['resources', 'properties', 'attributes', 'owner'],
 			})
-			// const ownerId = venue.owner.id
-			// this.accessControlService.checkOwnership(authUser, ownerId)
-
-			if (!authUser.isAdmin() && venue.owner.id !== authUser.id) {
-				throw new ForbiddenException()
-			}
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
 
 			const data = await this.dataMapping(
 				body.coverId,
