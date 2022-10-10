@@ -13,6 +13,7 @@ import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommentsCreateDto } from '../dto/commentsCreate.dto'
 import { User } from '../../../users/domain/entities/users.entity'
+import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
 
 @Injectable()
 export class CommentsService {
@@ -20,6 +21,7 @@ export class CommentsService {
 		private readonly dataSource: DataSource,
 		private readonly resourcesService: ResourcesService,
 		private readonly venueService: VenuesService,
+		private accessControlService: AccessControlService,
 	) {}
 
 	create(body: CommentsCreateDto, authUser: User) {
@@ -124,9 +126,8 @@ export class CommentsService {
 	update(criteria: FindOptionsWhere<Comment>, body, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
 			const comment = await this.getOne(criteria)
-			if (!authUser.isAdmin() && comment.creator.id !== authUser.id) {
-				throw new ForbiddenException()
-			}
+			const creatorId = comment.creator.id
+			this.accessControlService.checkOwnership(authUser, creatorId)
 			const resources = await this.resourcesService.getByIds(
 				body.attachmentsIds,
 			)
@@ -138,9 +139,8 @@ export class CommentsService {
 	delete(criteria: FindOptionsWhere<Comment>, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
 			const comment = await this.getOne(criteria)
-			if (!authUser.isAdmin() && comment.creator.id !== authUser.id) {
-				throw new ForbiddenException()
-			}
+			const creatorId = comment.creator.id
+			this.accessControlService.checkOwnership(authUser, creatorId)
 			await em.getRepository(Comment).softDelete(criteria)
 		})
 	}

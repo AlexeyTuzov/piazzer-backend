@@ -17,14 +17,12 @@ import {
 } from '@nestjs/common'
 import { ResourcesService } from '../../application/services/resources.service'
 import { FileInterceptor } from '@nestjs/platform-express'
-import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
+import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { CreateResourceDto } from '../../application/dto/createResource.dto'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { UpdateResourceDto } from '../../application/dto/updateResource.dto'
 import { TransformerTypeDto } from '../../application/dto/transformerType.dto'
-import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
-import { Roles } from 'src/infrastructure/decorators/roles.decorator'
 import { User } from '../../../users/domain/entities/users.entity'
 
 @Controller('resources')
@@ -33,7 +31,6 @@ export class ResourcesController {
 
 	@Post()
 	@UseInterceptors(FileInterceptor('file'))
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async create(
 		@AuthUser('id') creatorId,
@@ -56,18 +53,17 @@ export class ResourcesController {
 	}
 
 	@Get()
-	getAll(@AuthUser() authUser, @Query() query: ListingDto) {
-		return this.resourcesService.getAll(query, authUser)
+	getAll(@Query() query: ListingDto) {
+		return this.resourcesService.getAll(query)
 	}
 
 	@Get(':resourceId')
-	getOne(@AuthUser() authUser, @Param('resourceId') resourceId: string) {
-		return this.resourcesService.getOne(resourceId, authUser)
+	getOne(@Param('resourceId') resourceId: string) {
+		return this.resourcesService.getOne(resourceId)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch(':resourceId')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	update(
 		@AuthUser() authUser: User,
@@ -79,7 +75,6 @@ export class ResourcesController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':resourceId')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	remove(@AuthUser() authUser: User, @Param('resourceId') resourceId: string) {
 		return this.resourcesService.remove(resourceId, authUser)

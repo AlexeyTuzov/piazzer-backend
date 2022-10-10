@@ -7,6 +7,7 @@ import {
 	OneToMany,
 	CreateDateColumn,
 	UpdateDateColumn,
+	DeleteDateColumn,
 } from 'typeorm'
 import { User } from '../../../users/domain/entities/users.entity'
 import { Resource } from '../../../resources/domain/entities/resources.entity'
@@ -38,6 +39,9 @@ export class Event extends BaseEntity {
 
 	@UpdateDateColumn()
 	updatedAt: Date
+
+	@DeleteDateColumn()
+	deletedAt: Date
 
 	@AutoMap()
 	@Column()

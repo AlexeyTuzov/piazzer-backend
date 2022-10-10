@@ -10,7 +10,6 @@ import {
 	Query,
 	UseGuards,
 	Response,
-	ForbiddenException,
 	HttpStatus,
 } from '@nestjs/common'
 import { UsersService } from '../../application/services/users.service'
@@ -25,7 +24,6 @@ import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dt
 import { AuthUser } from '../../../auth/web/decorators/authUser.decorator'
 import { CommunicationAddDto } from '../../../communications/application/dto/communicationAdd.dto'
 import { CommunicationConfirmDto } from '../../../communications/application/dto/communicationConfirm.dto'
-import { Roles } from 'src/infrastructure/decorators/roles.decorator'
 
 @Controller('users')
 export class UsersController {
@@ -35,9 +33,8 @@ export class UsersController {
 	) {}
 
 	@Get()
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
-	async usersFind(@AuthUser() authUser, @Query() query: ListingDto) {
+	async usersFind(@AuthUser() authUser: User, @Query() query: ListingDto) {
 		const result = await this.usersService.getAll(query, authUser)
 		return {
 			...result,
@@ -46,96 +43,68 @@ export class UsersController {
 	}
 
 	@Get('/:id')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async usersRead(@AuthUser() authUser: User, @Param('id') id: string) {
-		if (!authUser.isAdmin() && id !== authUser.id) {
-			throw new ForbiddenException()
-		}
-		const user = await this.usersService.getOne({ id }, ['communications'])
+		const user = await this.usersService.getOne(authUser, id, [
+			'communications',
+		])
 		return this.mapper.map(user, User, UserResponseDto)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	usersUpdate(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,
 		@Body() dto: UpdateUserDto,
 	) {
-		if (!authUser.isAdmin() && id !== authUser.id) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.update({ id }, dto)
+		return this.usersService.update(authUser, id, dto)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete('/:id')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	usersRemove(@AuthUser() authUser, @Param('id') id: string) {
-		if (authUser.id === id) {
-			throw new ForbiddenException()
-		}
-		//TODO по спеке пользователь может удалить сам себя
-		return this.usersService.delete({ id })
+		return this.usersService.delete(authUser, id)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/change-role/:userRole')
-	@Roles(UserRolesEnum.ADMIN)
 	@UseGuards(jwtAuthGuard)
 	usersChangeRole(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
 		@Param('userRole') userRole: UserRolesEnum,
 	) {
-		if (authUser.id === userId) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.usersChangeRole(userId, userRole)
+		return this.usersService.usersChangeRole(authUser, userId, userRole)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/block')
-	@Roles(UserRolesEnum.ADMIN)
 	@UseGuards(jwtAuthGuard)
 	usersBlock(@AuthUser() authUser, @Param('userId') userId: string) {
-		if (authUser.id === userId) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.usersBlock(userId)
+		return this.usersService.usersBlock(authUser, userId)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/unblock')
-	@Roles(UserRolesEnum.ADMIN)
 	@UseGuards(jwtAuthGuard)
 	usersUnBlock(@AuthUser() authUser, @Param('userId') userId: string) {
-		if (authUser.id === userId) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.usersUnBlock(userId)
+		return this.usersService.usersUnBlock(authUser, userId)
 	}
 
 	@Get(':userId/communications')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	communicationsFind(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
 		@Query() query: ListingDto,
 	) {
-		if (!authUser.isAdmin() && authUser.id !== userId) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.communicationsGetAll(userId, query)
+		return this.usersService.communicationsGetAll(authUser, userId, query)
 	}
 
 	@Post(':userId/communications')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async communicationAdd(
 		@AuthUser() authUser: User,
@@ -143,31 +112,31 @@ export class UsersController {
 		@Body() body: CommunicationAddDto,
 		@Response() res,
 	) {
-		if (!authUser.isAdmin() && authUser.id !== userId) {
-			throw new ForbiddenException()
-		}
-		const communication = await this.usersService.communicationAdd(userId, body)
+		const communication = await this.usersService.communicationAdd(
+			authUser,
+			userId,
+			body,
+		)
 		res.json(communication.id)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':userId/communications/:communicationId')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	communicationsRemove(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
 		@Param('communicationId') communicationId: string,
 	) {
-		if (!authUser.isAdmin() && authUser.id !== userId) {
-			throw new ForbiddenException()
-		}
-		return this.usersService.communicationsRemove(userId, communicationId)
+		return this.usersService.communicationsRemove(
+			authUser,
+			userId,
+			communicationId,
+		)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/communications/:communicationId/confirm')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	communicationsConfirm(
 		@AuthUser() authUser: User,
@@ -175,10 +144,8 @@ export class UsersController {
 		@Param('communicationId') communicationId: string,
 		@Body() body: CommunicationConfirmDto,
 	) {
-		if (!authUser.isAdmin() && authUser.id !== userId) {
-			throw new ForbiddenException()
-		}
 		return this.usersService.communicationsConfirm(
+			authUser,
 			userId,
 			communicationId,
 			body,

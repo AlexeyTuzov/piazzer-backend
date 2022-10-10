@@ -22,8 +22,6 @@ import { Mapper } from '@automapper/core'
 import { CommentsResponseDto } from '../../application/dto/response/comments.response.dto'
 import { Comment } from '../../domain/entities/comments.entity'
 import { CommentsUpdateDto } from '../../application/dto/commentsUpdate.dto'
-import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
-import { Roles } from 'src/infrastructure/decorators/roles.decorator'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 
 @Controller('comments')
@@ -34,7 +32,6 @@ export class CommentsController {
 	) {}
 
 	@Post()
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async create(
 		@AuthUser() authUser,
@@ -64,7 +61,6 @@ export class CommentsController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch(':commentId')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	update(
 		@AuthUser() authUser: User,
@@ -76,7 +72,6 @@ export class CommentsController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':commentId')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	delete(@AuthUser() authUser: User, @Param('commentId') id: string) {
 		return this.commentsService.delete({ id }, authUser)

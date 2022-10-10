@@ -12,6 +12,10 @@ import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entit
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItemStatusesEnum } from '../../domain/enums/venueScheduleItemStatuses.enum'
 import { VenuesFilterManager } from '../filters/venues.filterManager'
+import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Communication } from '../../../communications/domain/entities/communications.entity'
 import { CommunicationTypesEnum } from '../../../communications/domain/enums/communicationTypes.enum'
 import { isEmail } from 'class-validator'
@@ -22,6 +26,7 @@ export class VenuesService {
 		private readonly dataSource: DataSource,
 		private readonly tagsService: TagsService,
 		private readonly resourcesService: ResourcesService,
+		private readonly accessControlService: AccessControlService,
 	) {}
 
 	async dataMapping(
@@ -84,8 +89,15 @@ export class VenuesService {
 		})
 	}
 
-	getFiltered(query) {
+	getFiltered(authUser, query) {
 		return this.dataSource.transaction(async () => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+				],
+				authUser,
+			)
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -119,6 +131,14 @@ export class VenuesService {
 					'owner_communications',
 				)
 
+			if (scopes.includes(ScopesEnum.ALL)) {
+				venues.withDeleted()
+			} else {
+				venues
+					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
+					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+			}
+
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
 			SortService.apply(venues, this.dataSource, Venue, 'venues', query.sort)
 			venues.andWhere(
@@ -140,10 +160,19 @@ export class VenuesService {
 		})
 	}
 
-	getById(id: string): Promise<Venue> {
+	getById(authUser: User, venueId: string): Promise<Venue> {
 		return this.dataSource.transaction(async () => {
-			const venue = await Venue.findOne({
-				where: { id },
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.OWNED] },
+				],
+				authUser,
+			)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
+			const venue = await Venue.findOneOrFail({
+				where: { id: venueId },
 				relations: [
 					'resources',
 					'communications',
@@ -152,6 +181,7 @@ export class VenuesService {
 					'owner',
 					'owner.communications',
 				],
+				withDeleted,
 			})
 			if (!venue) {
 				throw new HttpException(
@@ -163,17 +193,24 @@ export class VenuesService {
 					HttpStatus.NOT_FOUND,
 				)
 			}
+			const ownerId = venue.owner.id
+
+			if (venue.isBlocked || venue.isDraft) {
+				this.accessControlService.checkOwnership(authUser, ownerId)
+			}
 
 			return venue
 		})
 	}
 
-	update(id: string, body: UpdateVenueDto): Promise<void> {
+	update(authUser: User, id: string, body: UpdateVenueDto): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
 			const venue = await Venue.findOneOrFail({
 				where: { id },
 				relations: ['resources', 'properties', 'attributes'],
 			})
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
 
 			const data = await this.dataMapping(
 				body.coverId,
@@ -191,14 +228,16 @@ export class VenuesService {
 		})
 	}
 
-	delete(id: string): Promise<void> {
+	delete(authUser: User, venueId: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
-			await this.getById(id)
-			await em.getRepository(Venue).softDelete(id)
+			const venue = await this.getById(authUser, venueId)
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
+			await em.getRepository(Venue).softDelete(venueId)
 		})
 	}
 
-	getSchedule(id: string, query) {
+	getSchedule(authUser: User, venueId: string, query) {
 		return this.dataSource.transaction(async () => {
 			const response = {
 				limit: query.limit,
@@ -208,13 +247,17 @@ export class VenuesService {
 				$aggregations: {},
 			}
 
+			const venue = await this.getById(authUser, venueId)
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
+
 			const schedule = VenueScheduleItem.createQueryBuilder('schedule')
 				.leftJoinAndMapOne(
 					'schedule.venue',
 					'schedule.venue',
 					'venue',
 					'venue.id  = :venueId',
-					{ venueId: id },
+					{ venueId },
 				)
 				.leftJoinAndMapMany('venue.resources', 'venue.resources', 'resources')
 				.leftJoinAndMapOne('schedule.event', 'schedule.event', 'event')
@@ -262,13 +305,20 @@ export class VenuesService {
 		})
 	}
 
-	async approveScheduleItem(id: string, scheduleId: string): Promise<void> {
+	async approveScheduleItem(
+		authUser: User,
+		venueId: string,
+		scheduleId: string,
+	): Promise<void> {
 		await this.dataSource.transaction(async () => {
+			const venue = await this.getById(authUser, venueId)
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
 			await VenueScheduleItem.update(
 				{
 					id: scheduleId,
 					venue: {
-						id,
+						id: venueId,
 					},
 				},
 				{
@@ -280,10 +330,14 @@ export class VenuesService {
 	}
 
 	async declineScheduleItem(
+		authUser: User,
 		venueId: string,
 		venueScheduleId: string,
 	): Promise<void> {
 		await this.dataSource.transaction(async () => {
+			const venue = await this.getById(authUser, venueId)
+			const ownerId = venue.owner.id
+			this.accessControlService.checkOwnership(authUser, ownerId)
 			await VenueScheduleItem.update(
 				{
 					id: venueScheduleId,

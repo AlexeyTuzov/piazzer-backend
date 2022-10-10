@@ -4,6 +4,7 @@ import { ResourcesController } from './web/controllers/resources.controller'
 import { YandexCloudService } from './application/services/yandexCloud.service'
 import { ResourcesProfile } from './application/mapper/resources.profile'
 import { ResizeService } from './application/services/resize.service'
+import { AccessControlModule } from 'src/infrastructure/accessControlModule/access-control.module'
 
 @Module({
 	controllers: [ResourcesController],
@@ -19,5 +20,6 @@ import { ResizeService } from './application/services/resize.service'
 		ResizeService,
 		ResourcesProfile,
 	],
+	imports: [AccessControlModule],
 })
 export class ResourcesModule {}
