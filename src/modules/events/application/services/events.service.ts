@@ -11,6 +11,10 @@ import UpdateEventDto from '../dto/updateEvent.dto'
 import SchedulerService from 'src/infrastructure/scheduler/scheduler.service'
 import { VenueScheduleItem } from 'src/modules/venues/domain/entities/venueScheduleItem.entity'
 import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/venueScheduleItemStatuses.enum'
+import { User } from 'src/modules/users/domain/entities/users.entity'
+import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
 export class EventsService {
@@ -19,6 +23,7 @@ export class EventsService {
 		private readonly resourcesService: ResourcesService,
 		private readonly communicationsService: CommunicationsService,
 		private readonly schedulerService: SchedulerService,
+		private readonly accessControlService: AccessControlService,
 	) {}
 
 	create(creator, body: CreateEventDto) {
@@ -39,8 +44,16 @@ export class EventsService {
 		})
 	}
 
-	getFiltered(query: ListingDto) {
+	getFiltered(authUser: User, query: ListingDto) {
 		return this.dataSource.transaction(async () => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+				],
+				authUser,
+			)
+
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -62,6 +75,12 @@ export class EventsService {
 			FindService.apply(events, this.dataSource, Event, 'events', query.query)
 			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
 
+			if (scopes.includes(ScopesEnum.ALL)) {
+				events.withDeleted()
+			} else {
+				events.andWhere('events.isDraft = :isDraft', { isDraft: false })
+			}
+
 			await events
 				.skip((response.page - 1) * response.limit)
 				.take(response.limit)
@@ -75,10 +94,20 @@ export class EventsService {
 		})
 	}
 
-	getById(id: string): Promise<Event> {
+	getById(authUser: User, eventId: string): Promise<Event> {
 		return this.dataSource.transaction(async () => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+				],
+				authUser,
+			)
+
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
 			const event = await Event.findOne({
-				where: { id },
+				where: { id: eventId },
 				relations: [
 					'organizer',
 					'resources',
@@ -86,6 +115,7 @@ export class EventsService {
 					'venue',
 					'venue.resources',
 				],
+				withDeleted,
 			})
 
 			if (!event) {
@@ -99,16 +129,23 @@ export class EventsService {
 				)
 			}
 
+			if (event.isDraft) {
+				const organizerId = event.organizer.id
+				this.accessControlService.checkOwnership(authUser, organizerId)
+			}
+
 			return event
 		})
 	}
 
-	update(id: string, body: UpdateEventDto): Promise<void> {
+	update(authUser: User, eventId: string, body: UpdateEventDto): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
 			const event = await Event.findOneOrFail({
-				where: { id },
+				where: { id: eventId },
 				relations: ['resources', 'communications'],
 			})
+			const organizerId = event.organizer.id
+			this.accessControlService.checkOwnership(authUser, organizerId)
 
 			const data = await this.dataMapping(body.coverId, body.resourcesIds)
 
@@ -120,14 +157,16 @@ export class EventsService {
 		})
 	}
 
-	delete(id: string): Promise<void> {
+	delete(authUser: User, eventId: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
-			await this.getById(id)
-			await em.getRepository(Event).softDelete(id)
+			const event = await this.getById(authUser, eventId)
+			const organizerId = event.organizer.id
+			this.accessControlService.checkOwnership(authUser, organizerId)
+			await em.getRepository(Event).softDelete(eventId)
 		})
 	}
 
-	getRequests(id: string, query: ListingDto) {
+	getRequests(authUser: User, eventId: string, query: ListingDto) {
 		return this.dataSource.transaction(async () => {
 			const response = {
 				limit: query.limit,
@@ -137,8 +176,12 @@ export class EventsService {
 				$aggregations: {},
 			}
 
+			const event = await this.getById(authUser, eventId)
+			const organizerId = event.organizer.id
+			this.accessControlService.checkOwnership(authUser, organizerId)
+
 			const scheduleItems = VenueScheduleItem.createQueryBuilder('schedule')
-				.where('schedule.eventId = :eventId', { eventId: id })
+				.where('schedule.eventId = :eventId', { eventId })
 				.leftJoinAndMapOne('schedule.venue', 'schedule.venue', 'venue')
 				.leftJoinAndMapMany('venue.resources', 'venue.resources', 'resources')
 				.leftJoinAndMapOne('schedule.event', 'schedule.event', 'event')
@@ -172,7 +215,7 @@ export class EventsService {
 		})
 	}
 
-	confirmRequest(eventId: string, scheduleId: string) {
+	confirmRequest(authUser: User, eventId: string, scheduleId: string) {
 		return this.dataSource.transaction(async () => {
 			const event = await Event.findOneOrFail({
 				where: { id: eventId },
@@ -181,6 +224,9 @@ export class EventsService {
 			const scheduleItem = await VenueScheduleItem.findOneOrFail({
 				where: { eventId: event.id, id: scheduleId },
 			})
+
+			const organizerId = event.organizer.id
+			this.accessControlService.checkOwnership(authUser, organizerId)
 
 			if (scheduleItem.status === VenueScheduleItemStatusesEnum.CONFIRMED) {
 				throw new HttpException(
@@ -210,11 +256,12 @@ export class EventsService {
 			}
 
 			scheduleItem.status = VenueScheduleItemStatusesEnum.CONFIRMED
+			scheduleItem.confirmedAt = new Date()
 			await scheduleItem.save()
 		})
 	}
 
-	cancelRequest(eventId: string, scheduleId: string) {
+	cancelRequest(authUser: User, eventId: string, scheduleId: string) {
 		return this.dataSource.transaction(async () => {
 			const event = await Event.findOneOrFail({
 				where: { id: eventId },
@@ -223,6 +270,9 @@ export class EventsService {
 			const scheduleItem = await VenueScheduleItem.findOneOrFail({
 				where: { eventId: event.id, id: scheduleId },
 			})
+
+			const organizerId = event.organizer.id
+			this.accessControlService.checkOwnership(authUser, organizerId)
 
 			if (scheduleItem.status === VenueScheduleItemStatusesEnum.CANCELED) {
 				throw new HttpException(
@@ -252,6 +302,7 @@ export class EventsService {
 			}
 
 			scheduleItem.status = VenueScheduleItemStatusesEnum.CANCELED
+			scheduleItem.canceledAt = new Date()
 			await scheduleItem.save()
 		})
 	}

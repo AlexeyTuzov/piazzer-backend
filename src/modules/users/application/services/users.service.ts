@@ -9,10 +9,15 @@ import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommunicationConfirm } from '../../../verification-codes/domain/entities/communication-confirm.entity'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
+import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly dataSource: DataSource) {}
+	constructor(
+		private readonly dataSource: DataSource,
+		private readonly accessControlService: AccessControlService,
+	) {}
 
 	async create(body: CreateUserDto): Promise<User> {
 		return this.dataSource.transaction(async () => {
@@ -31,12 +36,24 @@ export class UsersService {
 		})
 	}
 
-	async getOne(criteria, relations?: string[]) {
+	async getOne(authUser: User, id: string, relations?: string[]) {
 		return this.dataSource.transaction(async () => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.OWNED] },
+				],
+				authUser,
+			)
+
+			this.accessControlService.checkOwnership(authUser, id)
+
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
 			return User.findOneOrFail({
-				where: criteria,
+				where: { id },
 				relations,
-				withDeleted: true,
+				withDeleted,
 			})
 		})
 	}
@@ -62,6 +79,14 @@ export class UsersService {
 
 	async getAll(query: ListingDto, authUser: User) {
 		return this.dataSource.transaction(async () => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+				],
+				authUser,
+			)
+
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -79,7 +104,7 @@ export class UsersService {
 			FindService.apply(users, this.dataSource, User, 'user', query.query)
 			SortService.apply(users, this.dataSource, User, 'user', query.sort)
 
-			if (authUser.isAdmin()) {
+			if (scopes.includes(ScopesEnum.ALL)) {
 				users.withDeleted()
 			} else {
 				users
@@ -100,22 +125,28 @@ export class UsersService {
 		})
 	}
 
-	async update(criteria, body) {
+	async update(authUser: User, id: string, body) {
 		await this.dataSource.transaction(async () => {
-			await this.getOne(criteria)
-			await User.update(criteria, body)
+			this.accessControlService.checkOwnership(authUser, id)
+
+			await this.getOne(authUser, id)
+			await User.update(id, body)
 		})
 	}
 
-	async delete(criteria) {
-		await this.dataSource.transaction(async () => {
-			await this.getOne(criteria)
-			await User.softRemove(criteria)
+	async delete(authUser: User, id: string) {
+		await this.dataSource.transaction(async (em) => {
+			this.accessControlService.checkOwnership(authUser, id)
+
+			await this.getOne(authUser, id)
+			await em.getRepository(User).softDelete(id)
 		})
 	}
 
-	async usersChangeRole(id: string, role: UserRolesEnum) {
+	async usersChangeRole(authUser: User, id: string, role: UserRolesEnum) {
 		await this.dataSource.transaction(async () => {
+			this.accessControlService.checkAdminRights(authUser)
+
 			await User.findOneByOrFail({ id })
 			await User.update(
 				{ id },
@@ -126,21 +157,41 @@ export class UsersService {
 		})
 	}
 
-	async usersBlock(id: string) {
+	async usersBlock(authUser: User, id: string) {
 		await this.dataSource.transaction(async () => {
-			await this.getOne({ id })
+			this.accessControlService.checkAdminRights(authUser)
+			this.accessControlService.checkNotSelf(authUser, id)
+
+			await this.getOne(authUser, id)
 			await User.update({ id }, { blocked: true })
 		})
 	}
 
-	async usersUnBlock(id: string) {
+	async usersUnBlock(authUser: User, id: string) {
 		await this.dataSource.transaction(async () => {
-			await this.getOne({ id })
+			this.accessControlService.checkAdminRights(authUser)
+			this.accessControlService.checkNotSelf(authUser, id)
+
+			await this.getOne(authUser, id)
 			return User.update({ id }, { blocked: false })
 		})
 	}
 
-	async communicationsGetAll(userId: string, query: ListingDto) {
+	async communicationsGetAll(
+		authUser: User,
+		userId: string,
+		query: ListingDto,
+	) {
+		const scopes = this.accessControlService.getAvailableScopes(
+			[
+				{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+				{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+			],
+			authUser,
+		)
+
+		this.accessControlService.checkOwnership(authUser, userId)
+
 		const response = {
 			page: query.page,
 			limit: query.limit,
@@ -153,7 +204,10 @@ export class UsersService {
 		const communications = Communication.createQueryBuilder('communications')
 			.leftJoin('communications.user', 'user')
 			.where('user.id = :userId', { userId })
-			.withDeleted()
+
+		if (scopes.includes(ScopesEnum.ALL)) {
+			communications.withDeleted()
+		}
 
 		FindService.apply(
 			communications,
@@ -182,8 +236,10 @@ export class UsersService {
 		return response
 	}
 
-	async communicationAdd(userId: string, body) {
+	async communicationAdd(authUser: User, userId: string, body) {
 		return this.dataSource.transaction(async () => {
+			this.accessControlService.checkOwnership(authUser, userId)
+
 			const communication = Communication.create()
 			Object.assign(communication, {
 				...body,
@@ -196,8 +252,15 @@ export class UsersService {
 		})
 	}
 
-	async communicationsConfirm(userId: string, communicationId: string, body) {
+	async communicationsConfirm(
+		authUser: User,
+		userId: string,
+		communicationId: string,
+		body,
+	) {
 		await this.dataSource.transaction(async () => {
+			this.accessControlService.checkOwnership(authUser, userId)
+
 			const record = await CommunicationConfirm.findOneOrFail({
 				where: {
 					code: body.code,
@@ -217,8 +280,14 @@ export class UsersService {
 		})
 	}
 
-	async communicationsRemove(userId: string, communicationId: string) {
+	async communicationsRemove(
+		authUser: User,
+		userId: string,
+		communicationId: string,
+	) {
 		await this.dataSource.transaction(async () => {
+			this.accessControlService.checkOwnership(authUser, userId)
+
 			const communication = await Communication.findOneOrFail({
 				where: {
 					id: communicationId,
@@ -228,6 +297,12 @@ export class UsersService {
 				},
 			})
 			await Communication.delete({ id: communication.id })
+		})
+	}
+
+	findOneOrFail(id: string) {
+		return this.dataSource.transaction(async () => {
+			return User.findOneOrFail({ where: { id } })
 		})
 	}
 }

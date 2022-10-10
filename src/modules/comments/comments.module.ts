@@ -4,9 +4,10 @@ import { CommentsController } from './web/controllers/comments.controller'
 import { ResourcesModule } from '../resources/resources.module'
 import { VenuesModule } from '../venues/venues.module'
 import { CommentsProfile } from './application/mapper/comments.profile'
+import { AccessControlModule } from 'src/infrastructure/accessControlModule/access-control.module'
 
 @Module({
-	imports: [ResourcesModule, VenuesModule],
+	imports: [ResourcesModule, VenuesModule, AccessControlModule],
 	controllers: [CommentsController],
 	providers: [CommentsService, CommentsProfile],
 	exports: [CommentsService, CommentsProfile],

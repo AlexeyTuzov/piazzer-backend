@@ -4,10 +4,15 @@ import CreateTagDto from '../dto/createTag.dto'
 import { Tag } from '../../domain/entities/tags.entity'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
+import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 
 @Injectable()
 export class TagsService {
-	constructor(private readonly dataSource: DataSource) {}
+	constructor(
+		private readonly dataSource: DataSource,
+		private readonly accessControlService: AccessControlService,
+	) {}
 
 	async create(dto: CreateTagDto): Promise<Tag> {
 		return this.dataSource.transaction(async () => {
@@ -65,15 +70,17 @@ export class TagsService {
 		})
 	}
 
-	async update(id: string, dto): Promise<void> {
+	async update(authUser: User, id: string, dto): Promise<void> {
 		return this.dataSource.transaction(async () => {
+			this.accessControlService.checkAdminRights(authUser)
 			await this.getById(id)
 			await Tag.update(id, dto)
 		})
 	}
 
-	async delete(id: string): Promise<void> {
+	async delete(authUser: User, id: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
+			this.accessControlService.checkAdminRights(authUser)
 			const tag = await this.getById(id)
 			await em.softRemove(tag)
 		})

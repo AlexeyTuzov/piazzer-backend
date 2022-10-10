@@ -12,6 +12,7 @@ import { EventsModule } from './modules/events/events.module'
 import { CommunicationsModule } from './modules/communications/communications.module'
 import { CommentsModule } from './modules/comments/comments.module'
 import { TOrmModule } from './infrastructure/database/typeOrm.module'
+import { AccessControlModule } from './infrastructure/accessControlModule/access-control.module'
 
 @Module({
 	imports: [
@@ -31,6 +32,7 @@ import { TOrmModule } from './infrastructure/database/typeOrm.module'
 		VenuesModule,
 		EventsModule,
 		CommentsModule,
+		AccessControlModule,
 	],
 })
 export class AppModule {}

@@ -15,15 +15,14 @@ import CreateTagDto from '../../application/dto/createTag.dto'
 import UpdateTagDto from '../../application/dto/updateTag.dto'
 import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
-import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
-import { Roles } from 'src/infrastructure/decorators/roles.decorator'
+import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
+import { User } from 'src/modules/users/domain/entities/users.entity'
 
 @Controller('tags')
 export class TagsController {
 	constructor(private tagsService: TagsService) {}
 
 	@Post()
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	@UseGuards(jwtAuthGuard)
 	async tagsCreate(@Body() dto: CreateTagDto, @Response() res) {
 		const tag = await this.tagsService.create(dto)
@@ -41,16 +40,18 @@ export class TagsController {
 	}
 
 	@Patch('/:id')
-	@Roles(UserRolesEnum.ADMIN)
 	@UseGuards(jwtAuthGuard)
-	tagsUpdate(@Param('id') id: string, @Body() body: UpdateTagDto) {
-		return this.tagsService.update(id, body)
+	tagsUpdate(
+		@AuthUser() authUser: User,
+		@Param('id') id: string,
+		@Body() body: UpdateTagDto,
+	) {
+		return this.tagsService.update(authUser, id, body)
 	}
 
 	@Delete('/:id')
 	@UseGuards(jwtAuthGuard)
-	@Roles(UserRolesEnum.ADMIN)
-	tagsRemove(@Param('id') id: string) {
-		return this.tagsService.delete(id)
+	tagsRemove(@AuthUser() authUser: User, @Param('id') id: string) {
+		return this.tagsService.delete(authUser, id)
 	}
 }
