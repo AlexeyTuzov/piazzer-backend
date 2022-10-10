@@ -91,13 +91,6 @@ export class VenuesService {
 
 	getFiltered(authUser, query) {
 		return this.dataSource.transaction(async () => {
-			const scopes = this.accessControlService.getAvailableScopes(
-				[
-					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
-					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
-				],
-				authUser,
-			)
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -131,9 +124,15 @@ export class VenuesService {
 					'owner_communications',
 				)
 
-			if (scopes.includes(ScopesEnum.ALL)) {
-				venues.withDeleted()
-			} else {
+			// if (authUser.isAdmin()) {
+			// 	venues.withDeleted()
+			// } else {
+			// 	venues
+			// 		.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
+			// 		.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+			// }
+			//TODO need fix
+			if (!authUser) {
 				venues
 					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
 					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
@@ -162,14 +161,6 @@ export class VenuesService {
 
 	getById(authUser: User, venueId: string): Promise<Venue> {
 		return this.dataSource.transaction(async () => {
-			const scopes = this.accessControlService.getAvailableScopes(
-				[
-					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
-					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.OWNED] },
-				],
-				authUser,
-			)
-			const withDeleted = scopes.includes(ScopesEnum.ALL)
 
 			const venue = await Venue.findOneOrFail({
 				where: { id: venueId },
@@ -180,9 +171,9 @@ export class VenuesService {
 					'attributes',
 					'owner',
 					'owner.communications',
-				],
-				withDeleted,
+				]
 			})
+
 			if (!venue) {
 				throw new HttpException(
 					{
