@@ -119,6 +119,7 @@ export class Venue extends BaseEntity {
 	@ManyToOne(() => User, (user) => user.venues)
 	owner: User
 
+	@AutoMap(() => VenueScheduleItem)
 	@OneToMany(() => VenueScheduleItem, (scheduleItem) => scheduleItem.venue, {
 		cascade: true,
 	})

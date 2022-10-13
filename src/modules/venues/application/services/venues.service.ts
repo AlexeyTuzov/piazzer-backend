@@ -118,6 +118,11 @@ export class VenuesService {
 					'venues.attributes',
 					'attributes',
 				)
+				.leftJoinAndMapMany(
+					'venues.scheduleItems',
+					'venues.scheduleItems',
+					'scheduleItems',
+				)
 				.leftJoinAndMapOne('venues.owner', 'venues.owner', 'owner')
 				.leftJoinAndMapMany(
 					'owner.communications',
@@ -185,6 +190,7 @@ export class VenuesService {
 					'attributes',
 					'owner',
 					'owner.communications',
+					'scheduleItems'
 				],
 				withDeleted,
 			})
