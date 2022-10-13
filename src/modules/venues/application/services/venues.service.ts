@@ -130,37 +130,28 @@ export class VenuesService {
 					'owner_communications',
 				)
 
-			if (scopes.includes(ScopesEnum.ALL)) {
-				venues.withDeleted()
-			} else if (!userId) {
-				venues
-					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
-					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
-			} else {
-				venues
-					.where(
-						new Brackets((qb) => {
-							qb.where('venues.isBlocked = :isBlocked', {
-								isBlocked: false,
-							}).andWhere('venues.isDraft = :isDraft', { isDraft: false })
-						}),
-					)
-					.orWhere(
-						new Brackets((qb) => {
-							qb.where('venues.isDraft = :isDraft2', {
-								isDraft2: true,
-							}).andWhere('venues.ownerId = :ownerId', { ownerId: userId })
-						}),
-					)
-			}
-
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
 			SortService.apply(venues, this.dataSource, Venue, 'venues', query.sort)
-			venues.andWhere(
-				new Brackets((qb) => {
-					return query.filter ? VenuesFilterManager.apply(qb, query.filter) : {}
-				}),
-			)
+			const filter = new Brackets((qb) => {
+				query.filter ? VenuesFilterManager.apply(qb, query.filter) : {}
+			})
+			venues.andWhere(filter)
+
+			if (scopes.includes(ScopesEnum.ALL)) {
+				venues.withDeleted()
+			} else if (scopes.includes(ScopesEnum.AVAILABLE)) {
+				//TODO where
+				// venues
+				// 	.orWhere(new Brackets((qb) => {
+				// 		qb.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
+				// 			.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+				// 	}))
+				// 	.orWhere(new Brackets((qb) => {
+				// 		qb.where('venues.isDraft IN (:...testOne)', { testOne: [true, false] })
+				// 			.andWhere('venues.isBlocked IN (:...testTwo)', { testTwo: [true, false] })
+				// 			.andWhere('venues.ownerId = :ownerId', { ownerId: userId })
+				// 	}))
+			}
 
 			await venues
 				.skip((response.page - 1) * response.limit)

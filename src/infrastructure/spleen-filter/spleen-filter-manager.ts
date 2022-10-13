@@ -119,27 +119,29 @@ export class SpleenFilterManager extends SpleenFilter {
 				}
 
 				if (!(statement.value instanceof Clause)) {
-					throw new HttpException(
-						{
-							message: `Not a Clause Instanse: ${statement.value}`,
-							code: 'VALIDATION_EXCEPTION',
-						},
-						HttpStatus.UNPROCESSABLE_ENTITY,
-					)
+					return
+					// return new HttpException(
+					// 	{
+					// 		message: `Not a Clause Instanse: ${statement.value}`,
+					// 		code: 'VALIDATION_EXCEPTION',
+					// 	},
+					// 	HttpStatus.UNPROCESSABLE_ENTITY,
+					// )
 				}
 
 				const expectedFilter = statement.value.subject.path[0]
 				const filter = this.getFilter(expectedFilter)
 
 				if (!filter) {
-					throw new HttpException(
-						{
-							message: `Filter ${expectedFilter} not found`,
-							availableFilters: this.transformForResponse(),
-							code: 'VALIDATION_EXCEPTION',
-						},
-						HttpStatus.UNPROCESSABLE_ENTITY,
-					)
+					return
+					// return new HttpException(
+					// 	{
+					// 		message: `Filter ${expectedFilter} not found`,
+					// 		availableFilters: this.transformForResponse(),
+					// 		code: 'VALIDATION_EXCEPTION',
+					// 	},
+					// 	HttpStatus.UNPROCESSABLE_ENTITY,
+					// )
 				}
 
 				filter.validate(statement.value.operator.type, statement.value.object)

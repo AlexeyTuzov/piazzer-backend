@@ -70,19 +70,8 @@ export class EventsService {
 
 			if (scopes.includes(ScopesEnum.ALL)) {
 				events.withDeleted()
-			} else if (!userId) {
-				events.andWhere('events.isDraft = :isDraft', { isDraft: false })
-			} else {
-				events.where('events.isDraft = :isDraft', { isDraft: false }).orWhere(
-					new Brackets((qb) => {
-						qb.where('events.isDraft = :isDraft2', { isDraft2: true }).andWhere(
-							'events.organizerId = :organizerId',
-							{
-								organizerId: userId,
-							},
-						)
-					}),
-				)
+			} else if (scopes.includes(ScopesEnum.AVAILABLE)) {
+				//TODO where
 			}
 
 			FindService.apply(events, this.dataSource, Event, 'events', query.query)
