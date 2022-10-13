@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service'
-import { DataSource } from 'typeorm'
+import { Brackets, DataSource } from "typeorm";
 import { Event } from '../../domain/entities/events.entity'
 import { CreateEventDto } from '../dto/createEvent.dto'
 import { CommunicationsService } from 'src/modules/communications/application/services/communications.service'
@@ -13,7 +13,6 @@ import { VenueScheduleItem } from 'src/modules/venues/domain/entities/venueSched
 import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/venueScheduleItemStatuses.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
-import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
 import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
@@ -44,15 +43,10 @@ export class EventsService {
 		})
 	}
 
-	getFiltered(authUser: User, query: ListingDto) {
+	getFiltered(query: ListingDto, userId?: string) {
 		return this.dataSource.transaction(async () => {
-			const scopes = this.accessControlService.getAvailableScopes(
-				[
-					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
-					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
-				],
-				authUser,
-			)
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
 
 			const response = {
 				limit: query.limit,
@@ -77,8 +71,16 @@ export class EventsService {
 
 			if (scopes.includes(ScopesEnum.ALL)) {
 				events.withDeleted()
-			} else {
+			} else if (!userId) {
 				events.andWhere('events.isDraft = :isDraft', { isDraft: false })
+			} else {
+				events.where('events.isDraft = :isDraft', { isDraft: false })
+					.orWhere(new Brackets((qb) => {
+						qb.where('events.isDraft = :isDraft2', { isDraft2: true })
+							.andWhere('events.organizerId = :organizerId', {
+								organizerId: userId,
+							})
+					}))
 			}
 
 			await events
@@ -94,15 +96,10 @@ export class EventsService {
 		})
 	}
 
-	getById(authUser: User, eventId: string): Promise<Event> {
+	getById(eventId: string, userId?: string): Promise<Event> {
 		return this.dataSource.transaction(async () => {
-			const scopes = this.accessControlService.getAvailableScopes(
-				[
-					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
-					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
-				],
-				authUser,
-			)
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
 
 			const withDeleted = scopes.includes(ScopesEnum.ALL)
 
@@ -118,7 +115,7 @@ export class EventsService {
 				withDeleted,
 			})
 
-			if (!event) {
+			if (!event || (event.isDraft && !userId)) {
 				throw new HttpException(
 					{
 						message: 'Event not found',
@@ -130,8 +127,9 @@ export class EventsService {
 			}
 
 			if (event.isDraft) {
+				const user = await User.findOneOrFail({ where: { id: userId } })
 				const organizerId = event.organizer.id
-				this.accessControlService.checkOwnership(authUser, organizerId)
+				this.accessControlService.checkOwnership(user, organizerId)
 			}
 
 			return event
@@ -142,7 +140,7 @@ export class EventsService {
 		return this.dataSource.transaction(async (em) => {
 			const event = await Event.findOneOrFail({
 				where: { id: eventId },
-				relations: ['resources', 'communications'],
+				relations: ['resources', 'communications', 'organizer'],
 			})
 			const organizerId = event.organizer.id
 			this.accessControlService.checkOwnership(authUser, organizerId)
@@ -159,7 +157,10 @@ export class EventsService {
 
 	delete(authUser: User, eventId: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
-			const event = await this.getById(authUser, eventId)
+			const event = await em.getRepository(Event).findOneOrFail({
+				where: { id: eventId },
+				relations: ['organizer'],
+			})
 			const organizerId = event.organizer.id
 			this.accessControlService.checkOwnership(authUser, organizerId)
 			await em.getRepository(Event).softDelete(eventId)
@@ -167,7 +168,7 @@ export class EventsService {
 	}
 
 	getRequests(authUser: User, eventId: string, query: ListingDto) {
-		return this.dataSource.transaction(async () => {
+		return this.dataSource.transaction(async (em) => {
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -176,7 +177,10 @@ export class EventsService {
 				$aggregations: {},
 			}
 
-			const event = await this.getById(authUser, eventId)
+			const event = await em.getRepository(Event).findOneOrFail({
+				where: { id: eventId },
+				relations: ['organizer'],
+			})
 			const organizerId = event.organizer.id
 			this.accessControlService.checkOwnership(authUser, organizerId)
 
@@ -219,6 +223,7 @@ export class EventsService {
 		return this.dataSource.transaction(async () => {
 			const event = await Event.findOneOrFail({
 				where: { id: eventId },
+				relations: ['organizer'],
 			})
 
 			const scheduleItem = await VenueScheduleItem.findOneOrFail({
@@ -265,6 +270,7 @@ export class EventsService {
 		return this.dataSource.transaction(async () => {
 			const event = await Event.findOneOrFail({
 				where: { id: eventId },
+				relations: ['organizer'],
 			})
 
 			const scheduleItem = await VenueScheduleItem.findOneOrFail({

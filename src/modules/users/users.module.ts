@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { UsersService } from './application/services/users.service'
 import { UsersController } from './web/controllers/users.controller'
 import { UserProfile } from './application/mapper/profiles/user.profile'
@@ -8,7 +8,7 @@ import { AccessControlModule } from 'src/infrastructure/accessControlModule/acce
 @Module({
 	controllers: [UsersController],
 	providers: [UsersService, UserProfile, CommunicationProfile],
+	imports: [forwardRef(() => AccessControlModule)],
 	exports: [UsersService],
-	imports: [AccessControlModule],
 })
 export class UsersModule {}

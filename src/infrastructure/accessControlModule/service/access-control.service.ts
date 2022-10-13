@@ -1,4 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common'
+import {
+	ForbiddenException,
+	forwardRef,
+	Inject,
+	Injectable,
+} from '@nestjs/common'
+import { UsersService } from 'src/modules/users/application/services/users.service'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
 import ScopesEnum from '../enums/scopes.enum'
@@ -7,22 +13,25 @@ import roleScopesInterface from '../interfaces/roleScopes.interface'
 
 @Injectable()
 export class AccessControlService implements IAccessControl {
+	constructor(
+		@Inject(forwardRef(() => UsersService))
+		private readonly usersService: UsersService,
+	) {}
+
 	getAvailableScopes(
 		roleScopes: roleScopesInterface[],
-		user: User,
+		user?: User,
 	): ScopesEnum[] {
-		if (!user) {
-			throw new ForbiddenException()
-		}
-
 		try {
+			if (!user) {
+				const anonymousScope = roleScopes.find(
+					(roleScope) => roleScope.role === UserRolesEnum.ANONYMOUS,
+				)
+				return anonymousScope.scopes
+			}
 			const calculatedRole = roleScopes.find(
 				(roleScope) => roleScope.role === user.role,
 			)
-
-			if (calculatedRole.scopes.length === 0) {
-				throw new ForbiddenException()
-			}
 
 			return calculatedRole.scopes
 		} catch (err) {
@@ -30,11 +39,29 @@ export class AccessControlService implements IAccessControl {
 		}
 	}
 
+	async getScopesIfPossiblyUnauthorized(
+		userId?: string,
+	): Promise<ScopesEnum[]> {
+		let user: any
+		if (userId) {
+			user = await this.usersService.findOneOrFail(userId)
+		}
+		return this.getAvailableScopes(
+			[
+				{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+				{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+				{ role: UserRolesEnum.ANONYMOUS, scopes: [ScopesEnum.AVAILABLE] },
+			],
+			user,
+		)
+	}
+
 	checkOwnership(authUser: User, requestId: string): void {
 		const scopes = this.getAvailableScopes(
 			[
 				{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
 				{ role: UserRolesEnum.USER, scopes: [ScopesEnum.OWNED] },
+				{ role: UserRolesEnum.ANONYMOUS, scopes: [] },
 			],
 			authUser,
 		)

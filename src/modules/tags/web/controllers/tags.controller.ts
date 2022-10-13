@@ -17,6 +17,7 @@ import jwtAuthGuard from '../../../auth/web/guards/jwt-auth.guard'
 import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
 import { User } from 'src/modules/users/domain/entities/users.entity'
+import UserID from 'src/infrastructure/decorators/user.decorator'
 
 @Controller('tags')
 export class TagsController {
@@ -24,19 +25,23 @@ export class TagsController {
 
 	@Post()
 	@UseGuards(jwtAuthGuard)
-	async tagsCreate(@Body() dto: CreateTagDto, @Response() res) {
-		const tag = await this.tagsService.create(dto)
+	async tagsCreate(
+		@Body() dto: CreateTagDto,
+		@Response() res,
+		@AuthUser() authUser: User,
+	) {
+		const tag = await this.tagsService.create(dto, authUser)
 		res.json(tag.id)
 	}
 
 	@Get()
-	tagsFind(@Query() query: ListingDto) {
-		return this.tagsService.getFiltered(query)
+	tagsFind(@Query() query: ListingDto, @UserID() userId: string | null) {
+		return this.tagsService.getFiltered(query, userId)
 	}
 
 	@Get('/:id')
-	tagsRead(@Param('id') id: string) {
-		return this.tagsService.getById(id)
+	tagsRead(@Param('id') id: string, @UserID() userId: string | null) {
+		return this.tagsService.getById(id, userId)
 	}
 
 	@Patch('/:id')

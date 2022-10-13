@@ -13,6 +13,7 @@ import { CommunicationsModule } from './modules/communications/communications.mo
 import { CommentsModule } from './modules/comments/comments.module'
 import { TOrmModule } from './infrastructure/database/typeOrm.module'
 import { AccessControlModule } from './infrastructure/accessControlModule/access-control.module'
+import { UsersModule } from './modules/users/users.module'
 
 @Module({
 	imports: [
@@ -33,6 +34,7 @@ import { AccessControlModule } from './infrastructure/accessControlModule/access
 		EventsModule,
 		CommentsModule,
 		AccessControlModule,
+		UsersModule,
 	],
 })
 export class AppModule {}

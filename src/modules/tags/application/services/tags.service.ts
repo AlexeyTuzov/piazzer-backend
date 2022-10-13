@@ -6,6 +6,7 @@ import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
 import { User } from 'src/modules/users/domain/entities/users.entity'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
 export class TagsService {
@@ -14,8 +15,9 @@ export class TagsService {
 		private readonly accessControlService: AccessControlService,
 	) {}
 
-	async create(dto: CreateTagDto): Promise<Tag> {
+	async create(dto: CreateTagDto, authUser: User): Promise<Tag> {
 		return this.dataSource.transaction(async () => {
+			this.accessControlService.checkAdminRights(authUser)
 			const tag = Tag.create()
 			Object.assign(tag, dto)
 			await tag.save()
@@ -23,8 +25,11 @@ export class TagsService {
 		})
 	}
 
-	async getFiltered(query) {
+	async getFiltered(query, userId?: string) {
 		return this.dataSource.transaction(async () => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -37,6 +42,10 @@ export class TagsService {
 
 			FindService.apply(tags, this.dataSource, Tag, 'tags', query.query)
 			SortService.apply(tags, this.dataSource, Tag, 'tags', query.sort)
+
+			if (scopes.includes(ScopesEnum.ALL)) {
+				tags.withDeleted()
+			}
 
 			await tags
 				.skip((response.page - 1) * response.limit)
@@ -51,9 +60,15 @@ export class TagsService {
 		})
 	}
 
-	async getById(id: string): Promise<Tag> {
+	async getById(id: string, userId?: string): Promise<Tag> {
 		return this.dataSource.transaction(async () => {
-			const tag = await Tag.findOne({ where: { id } })
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+			const tag = await Tag.findOne({
+				where: { id },
+				withDeleted,
+			})
 
 			if (!tag) {
 				throw new HttpException(

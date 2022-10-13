@@ -26,6 +26,7 @@ import { CommunicationAddDto } from '../../../communications/application/dto/com
 import { CommunicationConfirmDto } from '../../../communications/application/dto/communicationConfirm.dto'
 
 @Controller('users')
+@UseGuards(jwtAuthGuard)
 export class UsersController {
 	constructor(
 		private readonly usersService: UsersService,
@@ -33,7 +34,6 @@ export class UsersController {
 	) {}
 
 	@Get()
-	@UseGuards(jwtAuthGuard)
 	async usersFind(@AuthUser() authUser: User, @Query() query: ListingDto) {
 		const result = await this.usersService.getAll(query, authUser)
 		return {
@@ -43,7 +43,6 @@ export class UsersController {
 	}
 
 	@Get('/:id')
-	@UseGuards(jwtAuthGuard)
 	async usersRead(@AuthUser() authUser: User, @Param('id') id: string) {
 		const user = await this.usersService.getOne(authUser, id, [
 			'communications',
@@ -53,7 +52,6 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
-	@UseGuards(jwtAuthGuard)
 	usersUpdate(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,
@@ -64,14 +62,12 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete('/:id')
-	@UseGuards(jwtAuthGuard)
 	usersRemove(@AuthUser() authUser, @Param('id') id: string) {
 		return this.usersService.delete(authUser, id)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/change-role/:userRole')
-	@UseGuards(jwtAuthGuard)
 	usersChangeRole(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
@@ -82,20 +78,17 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/block')
-	@UseGuards(jwtAuthGuard)
 	usersBlock(@AuthUser() authUser, @Param('userId') userId: string) {
 		return this.usersService.usersBlock(authUser, userId)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/unblock')
-	@UseGuards(jwtAuthGuard)
 	usersUnBlock(@AuthUser() authUser, @Param('userId') userId: string) {
 		return this.usersService.usersUnBlock(authUser, userId)
 	}
 
 	@Get(':userId/communications')
-	@UseGuards(jwtAuthGuard)
 	communicationsFind(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
@@ -105,7 +98,6 @@ export class UsersController {
 	}
 
 	@Post(':userId/communications')
-	@UseGuards(jwtAuthGuard)
 	async communicationAdd(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
@@ -122,7 +114,6 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':userId/communications/:communicationId')
-	@UseGuards(jwtAuthGuard)
 	communicationsRemove(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
@@ -137,7 +128,6 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/communications/:communicationId/confirm')
-	@UseGuards(jwtAuthGuard)
 	communicationsConfirm(
 		@AuthUser() authUser: User,
 		@Param('userId') userId: string,
@@ -154,7 +144,6 @@ export class UsersController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post(':userId/communications/:communicationId/confirm/send-code')
-	@UseGuards(jwtAuthGuard)
 	communicationsConfirmSendCode(
 		@Param('userId') userId: string,
 		@Param('communicationId') communicationId: string,

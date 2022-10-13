@@ -14,6 +14,7 @@ import {
 	HttpCode,
 	HttpStatus,
 } from '@nestjs/common'
+import UserID from 'src/infrastructure/decorators/user.decorator'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { AuthUser } from 'src/modules/auth/web/decorators/authUser.decorator'
 import { User } from 'src/modules/users/domain/entities/users.entity'
@@ -27,7 +28,6 @@ import { EventsService } from '../../application/services/events.service'
 import { Event } from '../../domain/entities/events.entity'
 
 @Controller('events')
-@UseGuards(jwtAuthGuard)
 export class EventsController {
 	constructor(
 		private readonly eventsService: EventsService,
@@ -35,6 +35,7 @@ export class EventsController {
 	) {}
 
 	@Post()
+	@UseGuards(jwtAuthGuard)
 	async eventsCreate(
 		@AuthUser() creator: User,
 		@Body() body: CreateEventDto,
@@ -45,8 +46,8 @@ export class EventsController {
 	}
 
 	@Get()
-	async eventsFind(@AuthUser() authUser: User, @Query() dto: ListingDto) {
-		const result = await this.eventsService.getFiltered(authUser, dto)
+	async eventsFind(@Query() dto: ListingDto, @UserID() userId: string | null) {
+		const result = await this.eventsService.getFiltered(dto, userId)
 		return {
 			...result,
 			data: this.mapper.mapArray(result.data, Event, EventResponseDto),
@@ -54,13 +55,14 @@ export class EventsController {
 	}
 
 	@Get('/:id')
-	async eventsRead(@AuthUser() authUser: User, @Param('id') id: string) {
-		const event = await this.eventsService.getById(authUser, id)
+	async eventsRead(@Param('id') id: string, @UserID() userId: string | null) {
+		const event = await this.eventsService.getById(id, userId)
 		return this.mapper.map(event, Event, EventResponseDto)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Patch('/:id')
+	@UseGuards(jwtAuthGuard)
 	eventsUpdate(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,
@@ -71,11 +73,13 @@ export class EventsController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete('/:id')
+	@UseGuards(jwtAuthGuard)
 	eventsRemove(@AuthUser() authUser: User, @Param('id') id: string) {
 		return this.eventsService.delete(authUser, id)
 	}
 
 	@Get('/:id/requests')
+	@UseGuards(jwtAuthGuard)
 	async eventsRequestsList(
 		@AuthUser() authUser: User,
 		@Param('id') id: string,
@@ -94,6 +98,7 @@ export class EventsController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post('/:eventId/requests/:scheduleId/confirm')
+	@UseGuards(jwtAuthGuard)
 	eventsScheduleItemConfirm(
 		@AuthUser() authUser: User,
 		@Param('eventId') eventId: string,
@@ -104,6 +109,7 @@ export class EventsController {
 
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Post('/:eventId/requests/:scheduleId/cancel')
+	@UseGuards(jwtAuthGuard)
 	eventsScheduleItemCancel(
 		@AuthUser() authUser: User,
 		@Param('eventId') eventId: string,

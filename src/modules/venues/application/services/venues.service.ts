@@ -1,4 +1,8 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import {
+	HttpException,
+	HttpStatus,
+	Injectable,
+} from '@nestjs/common'
 import { Brackets, DataSource, FindOptionsWhere } from 'typeorm'
 import { Venue } from '../../domain/entities/venues.entity'
 import CreateScheduleItemDto from '../dto/createScheduleItem.dto'
@@ -17,8 +21,6 @@ import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
 import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Communication } from '../../../communications/domain/entities/communications.entity'
-import { CommunicationTypesEnum } from '../../../communications/domain/enums/communicationTypes.enum'
-import { isEmail } from 'class-validator'
 
 @Injectable()
 export class VenuesService {
@@ -89,8 +91,11 @@ export class VenuesService {
 		})
 	}
 
-	getFiltered(authUser, query) {
+	getFiltered(query, userId?: string) {
 		return this.dataSource.transaction(async () => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -124,18 +129,22 @@ export class VenuesService {
 					'owner_communications',
 				)
 
-			// if (authUser.isAdmin()) {
-			// 	venues.withDeleted()
-			// } else {
-			// 	venues
-			// 		.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
-			// 		.andWhere('venues.isDraft = :isDraft', { isDraft: false })
-			// }
-			//TODO need fix
-			if (!authUser) {
+			if (scopes.includes(ScopesEnum.ALL)) {
+				venues.withDeleted()
+			} else if (!userId) {
 				venues
 					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
 					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+			} else {
+				venues
+					.where(new Brackets((qb) => {
+						qb.where('venues.isBlocked = :isBlocked', { isBlocked: false })
+							.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+					}))
+					.orWhere(new Brackets((qb) => {
+						qb.where('venues.isDraft = :isDraft2', { isDraft2: true })
+							.andWhere('venues.ownerId = :ownerId', { ownerId: userId })
+					}))
 			}
 
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
@@ -159,9 +168,12 @@ export class VenuesService {
 		})
 	}
 
-	getById(authUser: User, venueId: string): Promise<Venue> {
+	getById(venueId: string, userId?: string): Promise<Venue> {
 		return this.dataSource.transaction(async () => {
-
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+                
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
 			const venue = await Venue.findOneOrFail({
 				where: { id: venueId },
 				relations: [
@@ -171,10 +183,14 @@ export class VenuesService {
 					'attributes',
 					'owner',
 					'owner.communications',
-				]
+				],
+				withDeleted,
 			})
-
-			if (!venue) {
+			if (
+				!venue ||
+				(scopes.includes(ScopesEnum.AVAILABLE) && venue.isBlocked) ||
+				(venue.isDraft && !userId)
+			) {
 				throw new HttpException(
 					{
 						message: 'Venue not found',
@@ -184,10 +200,11 @@ export class VenuesService {
 					HttpStatus.NOT_FOUND,
 				)
 			}
-			const ownerId = venue.owner.id
 
-			if (venue.isBlocked || venue.isDraft) {
-				this.accessControlService.checkOwnership(authUser, ownerId)
+			if (venue.isDraft) {
+				const user = await User.findOneOrFail({ where: { id: userId } })
+				const ownerId = venue.owner.id
+				this.accessControlService.checkOwnership(user, ownerId)
 			}
 
 			return venue
@@ -221,7 +238,10 @@ export class VenuesService {
 
 	delete(authUser: User, venueId: string): Promise<void> {
 		return this.dataSource.transaction(async (em) => {
-			const venue = await this.getById(authUser, venueId)
+			const venue = await em.getRepository(Venue).findOneOrFail({
+				where: { id: venueId },
+				relations: ['owner'],
+			})
 			const ownerId = venue.owner.id
 			this.accessControlService.checkOwnership(authUser, ownerId)
 			await em.getRepository(Venue).softDelete(venueId)
@@ -229,7 +249,17 @@ export class VenuesService {
 	}
 
 	getSchedule(authUser: User, venueId: string, query) {
-		return this.dataSource.transaction(async () => {
+		return this.dataSource.transaction(async (em) => {
+			const scopes = this.accessControlService.getAvailableScopes(
+				[
+					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
+					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+					{ role: UserRolesEnum.ANONYMOUS, scopes: [] },
+				],
+				authUser,
+			)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -238,7 +268,12 @@ export class VenuesService {
 				$aggregations: {},
 			}
 
-			const venue = await this.getById(authUser, venueId)
+			const venue = await em.getRepository(Venue).findOneOrFail({
+				where: { id: venueId },
+				relations: ['owner'],
+				withDeleted,
+			})
+
 			const ownerId = venue.owner.id
 			this.accessControlService.checkOwnership(authUser, ownerId)
 
@@ -253,6 +288,10 @@ export class VenuesService {
 				.leftJoinAndMapMany('venue.resources', 'venue.resources', 'resources')
 				.leftJoinAndMapOne('schedule.event', 'schedule.event', 'event')
 				.leftJoinAndMapOne('event.organizer', 'event.organizer', 'organizer')
+
+			if (scopes.includes(ScopesEnum.ALL)) {
+				schedule.withDeleted()
+			}
 
 			FindService.apply(
 				schedule,
@@ -301,8 +340,11 @@ export class VenuesService {
 		venueId: string,
 		scheduleId: string,
 	): Promise<void> {
-		await this.dataSource.transaction(async () => {
-			const venue = await this.getById(authUser, venueId)
+		await this.dataSource.transaction(async (em) => {
+			const venue = await em.getRepository(Venue).findOneOrFail({
+				where: { id: venueId },
+				relations: ['owner'],
+			})
 			const ownerId = venue.owner.id
 			this.accessControlService.checkOwnership(authUser, ownerId)
 			await VenueScheduleItem.update(
@@ -325,8 +367,11 @@ export class VenuesService {
 		venueId: string,
 		venueScheduleId: string,
 	): Promise<void> {
-		await this.dataSource.transaction(async () => {
-			const venue = await this.getById(authUser, venueId)
+		await this.dataSource.transaction(async (em) => {
+			const venue = await em.getRepository(Venue).findOneOrFail({
+				where: { id: venueId },
+				relations: ['owner'],
+			})
 			const ownerId = venue.owner.id
 			this.accessControlService.checkOwnership(authUser, ownerId)
 			await VenueScheduleItem.update(

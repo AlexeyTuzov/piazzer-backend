@@ -7,4 +7,5 @@ export default interface IAccessControl {
 	checkOwnership(authUser: User, id: string): void
 	checkAdminRights(authUser: User): void
 	checkNotSelf(authUser: User, requestId: string): void
+	getScopesIfPossiblyUnauthorized(userId?: string): Promise<ScopesEnum[]>
 }

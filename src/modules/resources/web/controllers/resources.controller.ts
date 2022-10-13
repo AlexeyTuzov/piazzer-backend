@@ -13,7 +13,7 @@ import {
 	HttpCode,
 	UseGuards,
 	Redirect,
-	HttpStatus,
+	HttpStatus
 } from '@nestjs/common'
 import { ResourcesService } from '../../application/services/resources.service'
 import { FileInterceptor } from '@nestjs/platform-express'
@@ -24,6 +24,7 @@ import { ListingDto } from '../../../../infrastructure/pagination/dto/listing.dt
 import { UpdateResourceDto } from '../../application/dto/updateResource.dto'
 import { TransformerTypeDto } from '../../application/dto/transformerType.dto'
 import { User } from '../../../users/domain/entities/users.entity'
+import UserID from 'src/infrastructure/decorators/user.decorator'
 
 @Controller('resources')
 export class ResourcesController {
@@ -53,13 +54,16 @@ export class ResourcesController {
 	}
 
 	@Get()
-	getAll(@Query() query: ListingDto) {
-		return this.resourcesService.getAll(query)
+	getAll(@Query() query: ListingDto, @UserID() userId: string | null) {
+		return this.resourcesService.getAll(query, userId)
 	}
 
 	@Get(':resourceId')
-	getOne(@Param('resourceId') resourceId: string) {
-		return this.resourcesService.getOne(resourceId)
+	getOne(
+		@Param('resourceId') resourceId: string,
+		@UserID() userId: string | null,
+	) {
+		return this.resourcesService.getOne(resourceId, userId)
 	}
 
 	@HttpCode(HttpStatus.NO_CONTENT)
@@ -82,8 +86,12 @@ export class ResourcesController {
 
 	@Get(':resourceId/resolve')
 	@Redirect('', 303)
-	async resolve(@Param('resourceId') resourceId: string, @Response() res) {
-		const link = await this.resourcesService.resolve(resourceId)
+	async resolve(
+		@Param('resourceId') resourceId: string,
+		@Response() res,
+		@UserID() userId: string | null,
+	) {
+		const link = await this.resourcesService.resolve(resourceId, userId)
 		return { url: link }
 	}
 
@@ -92,8 +100,9 @@ export class ResourcesController {
 		@Param('resourceId') id: string,
 		@Query() param: TransformerTypeDto,
 		@Response() res,
+		@UserID() userId: string | null,
 	) {
-		const file = await this.resourcesService.imageResize(id, param)
+		const file = await this.resourcesService.imageResize(id, param, userId)
 		file.pipe(res)
 	}
 }
