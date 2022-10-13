@@ -1,5 +1,12 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs'
-import { createMap, forMember, ignore, mapFrom, Mapper, MappingProfile } from "@automapper/core";
+import {
+	createMap,
+	forMember,
+	ignore,
+	mapFrom,
+	Mapper,
+	MappingProfile,
+} from '@automapper/core'
 import { Venue } from '../../domain/entities/venues.entity'
 import { VenueShortDto } from '../dto/response/venueShort.dto'
 import { VenueResponseDto } from '../dto/response/venue.response.dto'
@@ -21,12 +28,12 @@ export class VenueProfile extends AutomapperProfile {
 					mapFrom((source) => {
 						return (source['$aggregations'] = {
 							schedules: {
-								total: source.scheduleItems.length
-							}
+								total: source.scheduleItems.length,
+							},
 						})
 					}),
 				),
-				forMember((source) => source.scheduleItems, ignore())
+				forMember((source) => source.scheduleItems, ignore()),
 			)
 		}
 	}

@@ -190,7 +190,7 @@ export class VenuesService {
 					'attributes',
 					'owner',
 					'owner.communications',
-					'scheduleItems'
+					'scheduleItems',
 				],
 				withDeleted,
 			})

@@ -4,7 +4,7 @@ import { TagResponseDto } from 'src/modules/tags/application/dto/response/tag.re
 import { ResourcesResponseDto } from '../../../../resources/application/dto/response/resources.response.dto'
 import { UserShortDto } from '../../../../users/application/dto/response/userShort.dto'
 import CoordinatesResponseDto from './coordinates.response.dto'
-import { VenuesScheduleListDto } from "../venuesScheduleList.dto";
+import { VenuesScheduleListDto } from '../venuesScheduleList.dto'
 
 export class VenueResponseDto {
 	@AutoMap()
