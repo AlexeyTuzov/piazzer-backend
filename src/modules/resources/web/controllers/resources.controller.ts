@@ -13,7 +13,7 @@ import {
 	HttpCode,
 	UseGuards,
 	Redirect,
-	HttpStatus
+	HttpStatus,
 } from '@nestjs/common'
 import { ResourcesService } from '../../application/services/resources.service'
 import { FileInterceptor } from '@nestjs/platform-express'

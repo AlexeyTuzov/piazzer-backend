@@ -150,16 +150,16 @@ export class AuthService {
 				)
 			}
 
-            if (user.blocked) {
-                throw new HttpException(
-                    {
-                        message: 'User has been blocked!',
-                        code: 'FORBIDDEN_EXCEPTION',
-												status: HttpStatus.FORBIDDEN,
-                    },
-                    HttpStatus.FORBIDDEN
-                )
-            }
+			if (user.blocked) {
+				throw new HttpException(
+					{
+						message: 'User has been blocked!',
+						code: 'FORBIDDEN_EXCEPTION',
+						status: HttpStatus.FORBIDDEN,
+					},
+					HttpStatus.FORBIDDEN,
+				)
+			}
 
 			return this.login(user)
 		})

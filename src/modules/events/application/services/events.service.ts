@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service'
-import { Brackets, DataSource } from "typeorm";
+import { Brackets, DataSource } from 'typeorm'
 import { Event } from '../../domain/entities/events.entity'
 import { CreateEventDto } from '../dto/createEvent.dto'
 import { CommunicationsService } from 'src/modules/communications/application/services/communications.service'
@@ -14,7 +14,7 @@ import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/v
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
 import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
-import { EventsFilterManager } from "../filters/events.filterManager";
+import { EventsFilterManager } from '../filters/events.filterManager'
 
 @Injectable()
 export class EventsService {
@@ -73,23 +73,24 @@ export class EventsService {
 			} else if (!userId) {
 				events.andWhere('events.isDraft = :isDraft', { isDraft: false })
 			} else {
-				events.where('events.isDraft = :isDraft', { isDraft: false })
-					.orWhere(new Brackets((qb) => {
-						qb.where('events.isDraft = :isDraft2', { isDraft2: true })
-							.andWhere('events.organizerId = :organizerId', {
+				events.where('events.isDraft = :isDraft', { isDraft: false }).orWhere(
+					new Brackets((qb) => {
+						qb.where('events.isDraft = :isDraft2', { isDraft2: true }).andWhere(
+							'events.organizerId = :organizerId',
+							{
 								organizerId: userId,
-							})
-					}))
+							},
+						)
+					}),
+				)
 			}
 
 			FindService.apply(events, this.dataSource, Event, 'events', query.query)
 			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
 			events.andWhere(
 				new Brackets((qb) => {
-					return query.filter
-						? EventsFilterManager.apply(qb, query.filter)
-						: {}
-				})
+					return query.filter ? EventsFilterManager.apply(qb, query.filter) : {}
+				}),
 			)
 
 			await events

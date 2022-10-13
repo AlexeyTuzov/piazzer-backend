@@ -1,8 +1,4 @@
-import {
-	HttpException,
-	HttpStatus,
-	Injectable,
-} from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { DataSource, FindOptionsWhere } from 'typeorm'
 import { Comment } from '../../domain/entities/comments.entity'
 import { ResourcesService } from '../../../resources/application/services/resources.service'

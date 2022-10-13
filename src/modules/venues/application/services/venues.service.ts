@@ -1,8 +1,4 @@
-import {
-	HttpException,
-	HttpStatus,
-	Injectable,
-} from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { Brackets, DataSource, FindOptionsWhere } from 'typeorm'
 import { Venue } from '../../domain/entities/venues.entity'
 import CreateScheduleItemDto from '../dto/createScheduleItem.dto'
@@ -137,14 +133,20 @@ export class VenuesService {
 					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
 			} else {
 				venues
-					.where(new Brackets((qb) => {
-						qb.where('venues.isBlocked = :isBlocked', { isBlocked: false })
-							.andWhere('venues.isDraft = :isDraft', { isDraft: false })
-					}))
-					.orWhere(new Brackets((qb) => {
-						qb.where('venues.isDraft = :isDraft2', { isDraft2: true })
-							.andWhere('venues.ownerId = :ownerId', { ownerId: userId })
-					}))
+					.where(
+						new Brackets((qb) => {
+							qb.where('venues.isBlocked = :isBlocked', {
+								isBlocked: false,
+							}).andWhere('venues.isDraft = :isDraft', { isDraft: false })
+						}),
+					)
+					.orWhere(
+						new Brackets((qb) => {
+							qb.where('venues.isDraft = :isDraft2', {
+								isDraft2: true,
+							}).andWhere('venues.ownerId = :ownerId', { ownerId: userId })
+						}),
+					)
 			}
 
 			FindService.apply(venues, this.dataSource, Venue, 'venues', query.query)
@@ -172,7 +174,7 @@ export class VenuesService {
 		return this.dataSource.transaction(async () => {
 			const scopes =
 				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
-                
+
 			const withDeleted = scopes.includes(ScopesEnum.ALL)
 			const venue = await Venue.findOneOrFail({
 				where: { id: venueId },
