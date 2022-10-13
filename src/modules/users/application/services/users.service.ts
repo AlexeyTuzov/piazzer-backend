@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { forwardRef, Inject, Injectable } from '@nestjs/common'
 import { DataSource } from 'typeorm'
 import { Communication } from 'src/modules/communications/domain/entities/communications.entity'
 import { User } from '../../domain/entities/users.entity'
@@ -16,6 +16,7 @@ import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum
 export class UsersService {
 	constructor(
 		private readonly dataSource: DataSource,
+		@Inject(forwardRef(() => AccessControlService))
 		private readonly accessControlService: AccessControlService,
 	) {}
 
@@ -42,6 +43,7 @@ export class UsersService {
 				[
 					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
 					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.OWNED] },
+					{ role: UserRolesEnum.ANONYMOUS, scopes: [] },
 				],
 				authUser,
 			)
@@ -83,6 +85,7 @@ export class UsersService {
 				[
 					{ role: UserRolesEnum.ADMIN, scopes: [ScopesEnum.ALL] },
 					{ role: UserRolesEnum.USER, scopes: [ScopesEnum.AVAILABLE] },
+					{ role: UserRolesEnum.ANONYMOUS, scopes: [] },
 				],
 				authUser,
 			)
@@ -136,8 +139,8 @@ export class UsersService {
 
 	async delete(authUser: User, id: string) {
 		await this.dataSource.transaction(async (em) => {
-			this.accessControlService.checkOwnership(authUser, id)
-
+			this.accessControlService.checkAdminRights(authUser)
+			this.accessControlService.checkNotSelf(authUser, id)
 			await this.getOne(authUser, id)
 			await em.getRepository(User).softDelete(id)
 		})
@@ -146,7 +149,7 @@ export class UsersService {
 	async usersChangeRole(authUser: User, id: string, role: UserRolesEnum) {
 		await this.dataSource.transaction(async () => {
 			this.accessControlService.checkAdminRights(authUser)
-
+			this.accessControlService.checkNotSelf(authUser, id)
 			await User.findOneByOrFail({ id })
 			await User.update(
 				{ id },

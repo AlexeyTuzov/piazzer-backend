@@ -8,6 +8,7 @@ import { ResizeService } from './resize.service'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
 export class ResourcesService {
@@ -29,34 +30,47 @@ export class ResourcesService {
 		})
 	}
 
-	async getAll(query: ListingDto) {
-		const response = {
-			limit: query.limit,
-			page: query.page,
-			total: 0,
-			data: [],
-			$aggregations: {},
-			$filters: [],
-		}
+	async getAll(query: ListingDto, userId?: string) {
+		return this.dataSource.transaction(async () => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const response = {
+				limit: query.limit,
+				page: query.page,
+				total: 0,
+				data: [],
+				$aggregations: {},
+				$filters: [],
+			}
 
-		const resources = Resource.createQueryBuilder('resource')
+			const resources = Resource.createQueryBuilder('resource')
 
-		await resources
-			.skip((response.page - 1) * response.limit)
-			.take(response.limit)
-			.getManyAndCount()
-			.then(([data, total]) => {
-				response.data = data
-				response.total = total
-			})
+			if (scopes.includes(ScopesEnum.ALL)) {
+				resources.withDeleted()
+			}
 
-		return response
+			await resources
+				.skip((response.page - 1) * response.limit)
+				.take(response.limit)
+				.getManyAndCount()
+				.then(([data, total]) => {
+					response.data = data
+					response.total = total
+				})
+
+			return response
+		})
 	}
 
-	getOne(resourceId: string) {
+	getOne(resourceId: string, userId?: string) {
 		return this.dataSource.transaction(async (em) => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
 			return await em.getRepository(Resource).findOneOrFail({
 				where: { id: resourceId },
+				withDeleted,
 			})
 		})
 	}
@@ -86,19 +100,39 @@ export class ResourcesService {
 		})
 	}
 
-	async resolve(resourceId: string) {
-		await Resource.findOneByOrFail({ id: resourceId })
-		return await this.s3Yandex.downloadWithLink(resourceId)
+	async resolve(resourceId: string, userId?: string) {
+		return this.dataSource.transaction(async (em) => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
+			await em.getRepository(Resource).findOneOrFail({
+				where: { id: resourceId },
+				withDeleted,
+			})
+			return await this.s3Yandex.downloadWithLink(resourceId)
+		})
 	}
 
 	resolveBuffer(resourceId: string) {
 		return this.s3Yandex.downloadBuffer(resourceId)
 	}
 
-	async imageResize(fileId, dto?: TransformerTypeDto) {
-		return (await this.s3Yandex.downloadWithStream(fileId)).pipe(
-			this.resizeService.transformer(dto),
-		)
+	async imageResize(fileId: string, dto?: TransformerTypeDto, userId?: string) {
+		return this.dataSource.transaction(async (em) => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+
+			const resourse = await em.getRepository(Resource).findOneOrFail({
+				where: { id: fileId },
+				withDeleted,
+			})
+
+			return (await this.s3Yandex.downloadWithStream(resourse.id)).pipe(
+				this.resizeService.transformer(dto),
+			)
+		})
 	}
 
 	async getByIds(ids: string[]): Promise<Resource[]> {

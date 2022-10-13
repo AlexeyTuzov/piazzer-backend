@@ -1,5 +1,3 @@
-import { HttpException, HttpStatus } from '@nestjs/common'
-import { isUUID } from 'class-validator'
 import { Filter } from './filter'
 
 export class UUIDFilter extends Filter {

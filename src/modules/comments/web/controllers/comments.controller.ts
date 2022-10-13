@@ -23,6 +23,7 @@ import { CommentsResponseDto } from '../../application/dto/response/comments.res
 import { Comment } from '../../domain/entities/comments.entity'
 import { CommentsUpdateDto } from '../../application/dto/commentsUpdate.dto'
 import { User } from 'src/modules/users/domain/entities/users.entity'
+import UserID from 'src/infrastructure/decorators/user.decorator'
 
 @Controller('comments')
 export class CommentsController {
@@ -43,8 +44,8 @@ export class CommentsController {
 	}
 
 	@Get()
-	async getAll(@Query() query: ListingDto) {
-		const comments = await this.commentsService.getAll(query)
+	async getAll(@Query() query: ListingDto, @UserID() userId: string | null) {
+		const comments = await this.commentsService.getAll(query, userId)
 		return {
 			...comments,
 			data: comments.data.map((item) =>
@@ -54,8 +55,11 @@ export class CommentsController {
 	}
 
 	@Get(':commentId')
-	async getOne(@Param('commentId') id: string) {
-		const comment = await this.commentsService.getOne({ id })
+	async getOne(
+		@Param('commentId') id: string,
+		@UserID() userId: string | null,
+	) {
+		const comment = await this.commentsService.getOne({ id }, userId)
 		return this.mapper.map(comment, Comment, CommentsResponseDto)
 	}
 

@@ -1,5 +1,4 @@
 import {
-	ForbiddenException,
 	HttpException,
 	HttpStatus,
 	Injectable,
@@ -14,6 +13,7 @@ import { SortService } from '../../../../infrastructure/sortService'
 import { CommentsCreateDto } from '../dto/commentsCreate.dto'
 import { User } from '../../../users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
 
 @Injectable()
 export class CommentsService {
@@ -55,8 +55,10 @@ export class CommentsService {
 		})
 	}
 
-	getAll(query) {
+	getAll(query, userId?: string) {
 		return this.dataSource.transaction(async () => {
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
 			const response = {
 				limit: query.limit,
 				page: query.page,
@@ -72,6 +74,10 @@ export class CommentsService {
 					'resources',
 				)
 				.leftJoinAndMapOne('comment.creator', 'comment.creator', 'creator')
+
+			if (scopes.includes(ScopesEnum.ALL)) {
+				comments.withDeleted()
+			}
 
 			FindService.apply(
 				comments,
@@ -101,11 +107,18 @@ export class CommentsService {
 		})
 	}
 
-	getOne(criteria: FindOptionsWhere<Comment>): Promise<Comment> {
+	getOne(
+		criteria: FindOptionsWhere<Comment>,
+		userId?: string,
+	): Promise<Comment> {
 		return this.dataSource.transaction(async () => {
-			const comment = Comment.findOne({
+			const scopes =
+				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
+			const withDeleted = scopes.includes(ScopesEnum.ALL)
+			const comment = await Comment.findOne({
 				where: criteria,
 				relations: ['resources', 'creator'],
+				withDeleted,
 			})
 
 			if (!comment) {
@@ -125,7 +138,10 @@ export class CommentsService {
 
 	update(criteria: FindOptionsWhere<Comment>, body, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			const comment = await this.getOne(criteria)
+			const comment = await Comment.findOneOrFail({
+				where: criteria,
+				relations: ['resources', 'creator'],
+			})
 			const creatorId = comment.creator.id
 			this.accessControlService.checkOwnership(authUser, creatorId)
 			const resources = await this.resourcesService.getByIds(
@@ -138,7 +154,10 @@ export class CommentsService {
 
 	delete(criteria: FindOptionsWhere<Comment>, authUser: User) {
 		return this.dataSource.transaction(async (em) => {
-			const comment = await this.getOne(criteria)
+			const comment = await Comment.findOneOrFail({
+				where: criteria,
+				relations: ['resources', 'creator'],
+			})
 			const creatorId = comment.creator.id
 			this.accessControlService.checkOwnership(authUser, creatorId)
 			await em.getRepository(Comment).softDelete(criteria)

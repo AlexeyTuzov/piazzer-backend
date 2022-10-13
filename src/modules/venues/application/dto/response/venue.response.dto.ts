@@ -1,7 +1,6 @@
 import { AutoMap } from '@automapper/classes'
 import { CommunicationResponseDto } from 'src/modules/communications/application/dto/response/communication.response.dto'
 import { TagResponseDto } from 'src/modules/tags/application/dto/response/tag.response.dto'
-import { Coordinates } from 'src/modules/venues/domain/types/coordinates'
 import { ResourcesResponseDto } from '../../../../resources/application/dto/response/resources.response.dto'
 import { UserShortDto } from '../../../../users/application/dto/response/userShort.dto'
 import CoordinatesResponseDto from './coordinates.response.dto'
