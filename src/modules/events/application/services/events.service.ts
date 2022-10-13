@@ -14,6 +14,7 @@ import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/v
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
 import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { EventsFilterManager } from "../filters/events.filterManager";
 
 @Injectable()
 export class EventsService {
@@ -54,6 +55,7 @@ export class EventsService {
 				total: 0,
 				data: [],
 				$aggregations: {},
+				$filters: EventsFilterManager.transformForResponse(),
 			}
 
 			const events = Event.createQueryBuilder('events')
@@ -65,9 +67,6 @@ export class EventsService {
 					'communications',
 				)
 				.leftJoinAndMapOne('events.venue', 'events.venue', 'venue')
-
-			FindService.apply(events, this.dataSource, Event, 'events', query.query)
-			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
 
 			if (scopes.includes(ScopesEnum.ALL)) {
 				events.withDeleted()
@@ -82,6 +81,16 @@ export class EventsService {
 							})
 					}))
 			}
+
+			FindService.apply(events, this.dataSource, Event, 'events', query.query)
+			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
+			events.andWhere(
+				new Brackets((qb) => {
+					return query.filter
+						? EventsFilterManager.apply(qb, query.filter)
+						: {}
+				})
+			)
 
 			await events
 				.skip((response.page - 1) * response.limit)
