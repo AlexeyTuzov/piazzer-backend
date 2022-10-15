@@ -12,7 +12,7 @@ import { EventsModule } from './modules/events/events.module'
 import { CommunicationsModule } from './modules/communications/communications.module'
 import { CommentsModule } from './modules/comments/comments.module'
 import { TOrmModule } from './infrastructure/database/typeOrm.module'
-import { AccessControlModule } from './infrastructure/accessControlModule/access-control.module'
+import { AccessControlModule } from './infrastructure/access-control/access-control.module'
 import { UsersModule } from './modules/users/users.module'
 
 @Module({

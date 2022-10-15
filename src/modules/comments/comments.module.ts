@@ -4,7 +4,7 @@ import { CommentsController } from './web/controllers/comments.controller'
 import { ResourcesModule } from '../resources/resources.module'
 import { VenuesModule } from '../venues/venues.module'
 import { CommentsProfile } from './application/mapper/comments.profile'
-import { AccessControlModule } from 'src/infrastructure/accessControlModule/access-control.module'
+import { AccessControlModule } from 'src/infrastructure/access-control/access-control.module'
 
 @Module({
 	imports: [ResourcesModule, VenuesModule, AccessControlModule],

@@ -7,8 +7,8 @@ import { TransformerTypeDto } from '../dto/transformerType.dto'
 import { ResizeService } from './resize.service'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 import { User } from 'src/modules/users/domain/entities/users.entity'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 
 @Injectable()
 export class ResourcesService {

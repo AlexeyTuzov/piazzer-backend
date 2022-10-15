@@ -4,9 +4,9 @@ import CreateTagDto from '../dto/createTag.dto'
 import { Tag } from '../../domain/entities/tags.entity'
 import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
 import { User } from 'src/modules/users/domain/entities/users.entity'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 import { TagTypesEnum } from "../../domain/enums/tagTypes.enum";
 
 @Injectable()

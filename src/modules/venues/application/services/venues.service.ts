@@ -12,9 +12,9 @@ import { VenueScheduleItem } from '../../domain/entities/venueScheduleItem.entit
 import { Event } from '../../../events/domain/entities/events.entity'
 import { VenueScheduleItemStatusesEnum } from '../../domain/enums/venueScheduleItemStatuses.enum'
 import { VenuesFilterManager } from '../filters/venues.filterManager'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
 import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Communication } from '../../../communications/domain/entities/communications.entity'
 

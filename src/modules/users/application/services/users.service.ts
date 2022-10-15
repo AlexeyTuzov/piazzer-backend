@@ -9,8 +9,8 @@ import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommunicationConfirm } from '../../../verification-codes/domain/entities/communication-confirm.entity'
 import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 
 @Injectable()
 export class UsersService {

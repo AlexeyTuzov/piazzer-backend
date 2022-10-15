@@ -12,8 +12,8 @@ import SchedulerService from 'src/infrastructure/scheduler/scheduler.service'
 import { VenueScheduleItem } from 'src/modules/venues/domain/entities/venueScheduleItem.entity'
 import { VenueScheduleItemStatusesEnum } from 'src/modules/venues/domain/enums/venueScheduleItemStatuses.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 import { EventsFilterManager } from '../filters/events.filterManager'
 
 @Injectable()

@@ -7,7 +7,7 @@ import { TagsModule } from '../tags/tags.module'
 import { VenuesScheduleProfile } from './application/mapper/venuesSchedule.profile'
 import { VenueProfile } from './application/mapper/venue.profile'
 import { EventsModule } from '../events/events.module'
-import { AccessControlModule } from 'src/infrastructure/accessControlModule/access-control.module'
+import { AccessControlModule } from 'src/infrastructure/access-control/access-control.module'
 
 @Module({
 	imports: [

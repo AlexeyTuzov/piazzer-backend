@@ -8,8 +8,8 @@ import { FindService } from '../../../../infrastructure/findService'
 import { SortService } from '../../../../infrastructure/sortService'
 import { CommentsCreateDto } from '../dto/commentsCreate.dto'
 import { User } from '../../../users/domain/entities/users.entity'
-import { AccessControlService } from 'src/infrastructure/accessControlModule/service/access-control.service'
-import ScopesEnum from 'src/infrastructure/accessControlModule/enums/scopes.enum'
+import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
+import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 
 @Injectable()
 export class CommentsService {
