@@ -7,7 +7,7 @@ import { SortService } from '../../../../infrastructure/sortService'
 import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
-import { TagTypesEnum } from "../../domain/enums/tagTypes.enum";
+import { TagTypesEnum } from '../../domain/enums/tagTypes.enum'
 
 @Injectable()
 export class TagsService {
@@ -18,7 +18,6 @@ export class TagsService {
 
 	async create(body: CreateTagDto, authUser: User): Promise<Tag> {
 		return this.dataSource.transaction(async () => {
-
 			if (body.type !== TagTypesEnum.PROPERTY) {
 				this.accessControlService.checkAdminRights(authUser)
 			}

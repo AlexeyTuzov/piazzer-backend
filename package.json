@@ -18,7 +18,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "npm run build && typeorm-ts-node-commonjs -d dist/src/infrastructure/database/data-source.js",
+    "typeorm:migration:generate": "npm run typeorm -- migration:generate src/infrastructure/database/migrations/migration -- -n",
+    "typeorm:migration:run": "npm run typeorm -- migration:run",
+    "typeorm:migration:revert": "npm run typeorm -- migration:revert",
+    "typeorm:migration:create": "typeorm migration:create src/infrastructure/database/migrations/migration",
+    "typeorm:migration:show": "npm run typeorm -- migration:show"
   },
   "dependencies": {
     "@automapper/classes": "^8.7.6",
@@ -38,6 +44,7 @@
     "change-case": "^4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "dotenv": "^16.0.3",
     "nodemailer": "^6.8.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
