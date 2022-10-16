@@ -1,16 +1,11 @@
-import { IsDateString, IsOptional, IsString, Matches } from 'class-validator'
-
-const regTime = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/
+import { IsDateString, IsOptional, IsString } from 'class-validator'
 
 export default class CreateScheduleItemDto {
 	@IsDateString()
-	date: string
+	dateStart: Date
 
-	@Matches(regTime)
-	startTime: string
-
-	@Matches(regTime)
-	endTime: string
+	@IsDateString()
+	dateEnd: Date
 
 	@IsString()
 	eventId: string

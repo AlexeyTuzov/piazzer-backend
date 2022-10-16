@@ -20,15 +20,11 @@ export class VenueScheduleItem extends BaseEntity {
 
 	@AutoMap()
 	@Column()
-	date: Date
+	dateStart: Date
 
 	@AutoMap()
-	@Column('time')
-	startTime: Date
-
-	@AutoMap()
-	@Column('time')
-	endTime: Date
+	@Column()
+	dateEnd: Date
 
 	@AutoMap(() => Venue)
 	@ManyToOne(() => Venue, (venue) => venue.scheduleItems)

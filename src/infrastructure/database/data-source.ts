@@ -11,7 +11,7 @@ export const dataSourceOptions: DataSourceOptions = {
 	password: process.env.DB_PASS,
 	database: process.env.DB_NAME,
 
-	synchronize: false,
+	synchronize: true,
 	logging: process.env.DB_DEBUG !== 'false',
 
 	entities: ['dist/src/**/*.entity.js'],
