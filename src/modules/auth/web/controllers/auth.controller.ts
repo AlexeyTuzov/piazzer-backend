@@ -33,7 +33,6 @@ export class AuthController {
 	}
 
 	@Post('/refresh')
-	@Roles(UserRolesEnum.ADMIN, UserRolesEnum.USER)
 	authRefresh(@Body() body: RefreshTokenDto) {
 		return this.authService.refreshToken(body)
 	}
