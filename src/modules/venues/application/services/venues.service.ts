@@ -17,6 +17,7 @@ import { UserRolesEnum } from 'src/modules/users/domain/enums/userRoles.enum'
 import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 import { User } from 'src/modules/users/domain/entities/users.entity'
 import { Communication } from '../../../communications/domain/entities/communications.entity'
+import { ListingDto } from 'src/infrastructure/pagination/dto/listing.dto'
 
 @Injectable()
 export class VenuesService {
@@ -87,7 +88,7 @@ export class VenuesService {
 		})
 	}
 
-	getFiltered(query, userId?: string) {
+	getFiltered(query: ListingDto, userId?: string) {
 		return this.dataSource.transaction(async () => {
 			const scopes =
 				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
@@ -135,22 +136,28 @@ export class VenuesService {
 			const filter = new Brackets((qb) => {
 				query.filter ? VenuesFilterManager.apply(qb, query.filter) : {}
 			})
-			venues.andWhere(filter)
 
 			if (scopes.includes(ScopesEnum.ALL)) {
 				venues.withDeleted()
-			} else if (scopes.includes(ScopesEnum.AVAILABLE)) {
-				//TODO where
-				// venues
-				// 	.orWhere(new Brackets((qb) => {
-				// 		qb.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
-				// 			.andWhere('venues.isDraft = :isDraft', { isDraft: false })
-				// 	}))
-				// 	.orWhere(new Brackets((qb) => {
-				// 		qb.where('venues.isDraft IN (:...testOne)', { testOne: [true, false] })
-				// 			.andWhere('venues.isBlocked IN (:...testTwo)', { testTwo: [true, false] })
-				// 			.andWhere('venues.ownerId = :ownerId', { ownerId: userId })
-				// 	}))
+				.andWhere(filter)
+			} else if (scopes.includes(ScopesEnum.AVAILABLE) && !userId) {
+				venues
+				.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
+				.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+			} else if (scopes.includes(ScopesEnum.AVAILABLE) && userId) {
+				venues
+				.andWhere(new Brackets((qb) => {
+					qb.where('venues.isBlocked IN (:...isBlockedArr)', { isBlockedArr: [true, false] })
+						.andWhere('venues.isDraft IN (:...isDraftArr)', { isDraftArr: [true, false] })
+						.andWhere('venues.ownerId = :ownerId2', { ownerId2: userId })
+						.andWhere(filter)
+				}))
+				.orWhere(new Brackets((qb) => {
+					qb.where('venues.isBlocked = :isBlocked', { isBlocked: false })
+						.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+						.andWhere('venues.ownerId != :ownerId', { ownerId: userId })
+						.andWhere(filter)
+				}))
 			}
 
 			await venues
