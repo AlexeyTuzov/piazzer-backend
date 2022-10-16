@@ -143,6 +143,7 @@ export class VenuesService {
 				venues
 					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
 					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+					.andWhere(filter)
 			} else if (scopes.includes(ScopesEnum.AVAILABLE) && userId) {
 				venues
 					.andWhere(
