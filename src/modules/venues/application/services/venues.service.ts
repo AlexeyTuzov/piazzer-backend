@@ -138,26 +138,33 @@ export class VenuesService {
 			})
 
 			if (scopes.includes(ScopesEnum.ALL)) {
-				venues.withDeleted()
-				.andWhere(filter)
+				venues.withDeleted().andWhere(filter)
 			} else if (scopes.includes(ScopesEnum.AVAILABLE) && !userId) {
 				venues
-				.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
-				.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+					.andWhere('venues.isBlocked = :isBlocked', { isBlocked: false })
+					.andWhere('venues.isDraft = :isDraft', { isDraft: false })
 			} else if (scopes.includes(ScopesEnum.AVAILABLE) && userId) {
 				venues
-				.andWhere(new Brackets((qb) => {
-					qb.where('venues.isBlocked IN (:...isBlockedArr)', { isBlockedArr: [true, false] })
-						.andWhere('venues.isDraft IN (:...isDraftArr)', { isDraftArr: [true, false] })
-						.andWhere('venues.ownerId = :ownerId2', { ownerId2: userId })
-						.andWhere(filter)
-				}))
-				.orWhere(new Brackets((qb) => {
-					qb.where('venues.isBlocked = :isBlocked', { isBlocked: false })
-						.andWhere('venues.isDraft = :isDraft', { isDraft: false })
-						.andWhere('venues.ownerId != :ownerId', { ownerId: userId })
-						.andWhere(filter)
-				}))
+					.andWhere(
+						new Brackets((qb) => {
+							qb.where('venues.isBlocked IN (:...isBlockedArr)', {
+								isBlockedArr: [true, false],
+							})
+								.andWhere('venues.isDraft IN (:...isDraftArr)', {
+									isDraftArr: [true, false],
+								})
+								.andWhere('venues.ownerId = :ownerId2', { ownerId2: userId })
+								.andWhere(filter)
+						}),
+					)
+					.orWhere(
+						new Brackets((qb) => {
+							qb.where('venues.isBlocked = :isBlocked', { isBlocked: false })
+								.andWhere('venues.isDraft = :isDraft', { isDraft: false })
+								.andWhere('venues.ownerId != :ownerId', { ownerId: userId })
+								.andWhere(filter)
+						}),
+					)
 			}
 
 			await venues
