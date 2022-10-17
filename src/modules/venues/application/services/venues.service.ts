@@ -302,6 +302,7 @@ export class VenuesService {
 				.leftJoinAndMapMany('venue.resources', 'venue.resources', 'resources')
 				.leftJoinAndMapOne('schedule.event', 'schedule.event', 'event')
 				.leftJoinAndMapOne('event.organizer', 'event.organizer', 'organizer')
+				.where('venue.id  = :venueId', { venueId })
 
 			if (scopes.includes(ScopesEnum.ALL)) {
 				schedule.withDeleted()
