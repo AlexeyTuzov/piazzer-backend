@@ -7,13 +7,10 @@ export class VenuesScheduleListDto {
 	id: string
 
 	@AutoMap(() => Date)
-	date: Date
+	dateStart: Date
 
-	@AutoMap()
-	startTime: string
-
-	@AutoMap()
-	endTime: string
+	@AutoMap(() => Date)
+	dateEnd: Date
 
 	@AutoMap(() => VenueShortDto)
 	venue: VenueShortDto
