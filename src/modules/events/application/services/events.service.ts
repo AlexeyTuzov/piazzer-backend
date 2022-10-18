@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { ResourcesService } from 'src/modules/resources/application/services/resources.service'
-import { Brackets, DataSource } from 'typeorm'
+import { Brackets, DataSource, IsNull, Not } from 'typeorm'
 import { Event } from '../../domain/entities/events.entity'
 import { CreateEventDto } from '../dto/createEvent.dto'
 import { CommunicationsService } from 'src/modules/communications/application/services/communications.service'
@@ -15,6 +15,11 @@ import { User } from 'src/modules/users/domain/entities/users.entity'
 import { AccessControlService } from 'src/infrastructure/access-control/service/access-control.service'
 import ScopesEnum from 'src/infrastructure/access-control/enums/scopes.enum'
 import { EventsFilterManager } from '../filters/events.filterManager'
+import { SpleenFilter } from 'src/infrastructure/spleen-filter/spleen-filter'
+import { InjectMapper } from '@automapper/nestjs'
+import { Mapper } from '@automapper/core'
+import { EventResponseDto } from '../dto/response/event.response.dto'
+import { OnlyApproved } from '../dto/response/onlyApproved.dto'
 
 @Injectable()
 export class EventsService {
@@ -24,6 +29,7 @@ export class EventsService {
 		private readonly communicationsService: CommunicationsService,
 		private readonly schedulerService: SchedulerService,
 		private readonly accessControlService: AccessControlService,
+		@InjectMapper() private readonly mapper: Mapper,
 	) {}
 
 	create(creator, body: CreateEventDto) {
@@ -44,7 +50,7 @@ export class EventsService {
 		})
 	}
 
-	getFiltered(query: ListingDto, userId?: string) {
+	async getFiltered(query: ListingDto, userId?: string) {
 		return this.dataSource.transaction(async () => {
 			const scopes =
 				await this.accessControlService.getScopesIfPossiblyUnauthorized(userId)
@@ -58,41 +64,105 @@ export class EventsService {
 				$filters: EventsFilterManager.transformForResponse(),
 			}
 
-			const events = Event.createQueryBuilder('events')
-				.leftJoinAndMapOne('events.organizer', 'events.organizer', 'organizer')
-				.leftJoinAndMapMany('events.resources', 'events.resources', 'resources')
-				.leftJoinAndMapMany(
-					'events.communications',
-					'events.communications',
-					'communications',
-				)
-				.leftJoinAndMapOne('events.venue', 'events.venue', 'venue')
+			const parsedFilter = SpleenFilter.parse(query.filter)
 
-			if (scopes.includes(ScopesEnum.ALL)) {
-				events.withDeleted()
-			} else if (scopes.includes(ScopesEnum.AVAILABLE)) {
-				//TODO where
-			}
-
-			FindService.apply(events, this.dataSource, Event, 'events', query.query)
-			SortService.apply(events, this.dataSource, Event, 'events', query.sort)
-			events.andWhere(
-				new Brackets((qb) => {
-					return query.filter ? EventsFilterManager.apply(qb, query.filter) : {}
-				}),
-			)
-
-			await events
-				.skip((response.page - 1) * response.limit)
-				.take(response.limit)
-				.getManyAndCount()
-				.then(([data, total]) => {
-					response.data = data
+			if (parsedFilter?.fields.includes('/onlyApproved')) {
+				await this.getEventsOnlyApproved(query).then(([data, total]) => {
+					response.data = this.mapper
+						.mapArray(data, VenueScheduleItem, OnlyApproved)
+						.map((item) => ({
+							...item.event,
+							dataStart: item.dateStart,
+							dateEnd: item.dateEnd,
+						}))
 					response.total = total
 				})
+			} else {
+				const events = Event.createQueryBuilder('events')
+					.leftJoinAndMapOne(
+						'events.organizer',
+						'events.organizer',
+						'organizer',
+					)
+					.leftJoinAndMapMany(
+						'events.resources',
+						'events.resources',
+						'resources',
+					)
+					.leftJoinAndMapMany(
+						'events.communications',
+						'events.communications',
+						'communications',
+					)
+					.leftJoinAndMapOne('events.venue', 'events.venue', 'venue')
+
+				if (scopes.includes(ScopesEnum.ALL)) {
+					events.withDeleted()
+				} else if (scopes.includes(ScopesEnum.AVAILABLE)) {
+					//TODO where
+				}
+
+				FindService.apply(events, this.dataSource, Event, 'events', query.query)
+				SortService.apply(events, this.dataSource, Event, 'events', query.sort)
+				events.andWhere(
+					new Brackets((qb) => {
+						return query.filter
+							? EventsFilterManager.apply(qb, query.filter)
+							: {}
+					}),
+				)
+
+				await events
+					.skip((response.page - 1) * response.limit)
+					.take(response.limit)
+					.getManyAndCount()
+					.then(([data, total]) => {
+						;(response.data = this.mapper.mapArray(
+							data,
+							Event,
+							EventResponseDto,
+						)),
+							(response.total = total)
+					})
+			}
 
 			return response
 		})
+	}
+
+	async getEventsOnlyApproved(query: ListingDto) {
+		const venueScheduleItems = VenueScheduleItem.createQueryBuilder('schedules')
+			.leftJoinAndMapOne('schedules.event', 'schedules.event', 'events')
+			.leftJoinAndMapOne('schedules.venue', 'schedules.venue', 'venue')
+			.leftJoinAndMapOne('events.organizer', 'events.organizer', 'organizer')
+			.leftJoinAndMapMany('events.resources', 'events.resources', 'resources')
+			.leftJoinAndMapMany(
+				'events.communications',
+				'events.communications',
+				'communications',
+			)
+			.where('schedules.approvedAt IS NOT NULL')
+			.andWhere('schedules.confirmedAt IS NOT NULL')
+
+		SortService.apply(
+			venueScheduleItems,
+			this.dataSource,
+			Event,
+			'events',
+			query.sort,
+		)
+		venueScheduleItems.andWhere(
+			new Brackets((qb) => {
+				return query?.filter ? EventsFilterManager.apply(qb, query.filter) : {}
+			}),
+		)
+
+		const result = await venueScheduleItems
+			.skip((query.page - 1) * query.limit)
+			.take(query.limit)
+			.getManyAndCount()
+
+		return result
 	}
 
 	getById(eventId: string, userId?: string): Promise<Event> {

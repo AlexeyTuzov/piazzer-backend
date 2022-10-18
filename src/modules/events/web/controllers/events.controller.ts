@@ -47,11 +47,7 @@ export class EventsController {
 
 	@Get()
 	async eventsFind(@Query() dto: ListingDto, @UserID() userId: string | null) {
-		const result = await this.eventsService.getFiltered(dto, userId)
-		return {
-			...result,
-			data: this.mapper.mapArray(result.data, Event, EventResponseDto),
-		}
+		return this.eventsService.getFiltered(dto, userId)
 	}
 
 	@Get('/:id')

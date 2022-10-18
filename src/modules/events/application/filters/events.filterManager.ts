@@ -16,5 +16,23 @@ export class EventsFilterManager extends SpleenFilterManager {
 			tableAlias: 'organizer',
 			field: 'id',
 		}),
+		Creator.create({
+			name: 'StringFilter',
+			filterName: 'city',
+			tableAlias: 'venue',
+			field: 'city',
+		}),
+		Creator.create({
+			name: 'DateFilter',
+			filterName: 'eventDateStart',
+			tableAlias: 'schedules',
+			field: 'dateStart',
+		}),
+		Creator.create({
+			name: 'DateFilter',
+			filterName: 'eventDateEnd',
+			tableAlias: 'schedules',
+			field: 'dateEnd',
+		}),
 	])
 }
